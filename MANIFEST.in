@@ -1,0 +1,4 @@
+include racoon/racoon.LICENSE
+include racoon/racoon.CITATION
+include racoon/racoon.VERSION
+recursive-include racoon *

@@ -1,0 +1,17 @@
+MANIFEST.in
+README.md
+setup.py
+racoon/__init__.py
+racoon/__main__.py
+racoon/racoon.CITATION
+racoon/racoon.LICENSE
+racoon/racoon.VERSION
+racoon/util.py
+racoon.egg-info/PKG-INFO
+racoon.egg-info/SOURCES.txt
+racoon.egg-info/dependency_links.txt
+racoon.egg-info/entry_points.txt
+racoon.egg-info/requires.txt
+racoon.egg-info/top_level.txt
+racoon/config/config.yaml
+racoon/workflow/Snakefile

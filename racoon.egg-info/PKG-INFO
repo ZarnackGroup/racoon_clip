@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: racoon
+Version: 1.0.0
+Summary: Snakemake-powered commandline tool to obtain single-nucleotide crosslinks from i/eCLIP data.
+Home-page: 
+Author: Melina Klostermann
+Author-email: melinaklostermann@googlemail.com
+Requires-Python: >3.9
+Description-Content-Type: text/markdown
+
+# racoon
+
+Snakemake-powered commandline tool to obtain single-nucleotide crosslinks from i/eCLIP data.
