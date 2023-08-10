@@ -49,7 +49,9 @@ Here is a summary off the settings you chose for this analysis.
 
 ```{r config}
 config_default <- yaml.load_file("../../config/config.yaml") %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame()
-config <- yaml.load_file(params$config) %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame(.)
+config <- yaml.load_file(params$config) %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame()
+kable(config_default)
+kable(config) 
 
 colnames(config_default) <- c("config")
 colnames(config) <- c("config")
@@ -63,12 +65,6 @@ config <- rbind(config, add)
 kable(config)
 # config
 dir <- config["wdir",]
-dir
-
-typeof(dir)
-as.character(dir)
-
-dir <- as.character(dir)
 
 ```
 
@@ -307,9 +303,7 @@ p <- nchar(paste0(dir,"/results/fastqc/filtered/")) + 1
 n <- nchar("/Images/per_base_quality.png")
 titles_pbq <- lapply(pbq, function(x) substr(x, p ,nchar(x)-n-7 ))
 # titles_pbq
-dir
 
-pbq
 
 pbsc <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
 
@@ -331,7 +325,6 @@ pbsc <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\p
 ```{r eval=qual_bc, results = 'asis'}
 cat("### Quality scores across all bases {.tabset} \n")
 ```
-
 
 ```{r test, out.width="100%", dpi = 100, results = 'asis', eval=qual_bc_no_demult }
 for(i in 1:length(pbq)){
@@ -642,6 +635,5 @@ To allow visualization in a genome browser the 1nt crosslink bed file is then al
 sessionInfo()
 
 ```
-
 
 

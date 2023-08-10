@@ -1,10 +1,15 @@
-# eiCLIP_pipeline v5
+# eiCLIP_pipeline v6
 # author Melina Klostermann
 
+from pickle import TRUE
 import string
 import sys
 import yaml
 import os
+import csv
+import csv
+import json
+import re
 
 # importing  all the
 # functions defined in test.py
@@ -17,39 +22,109 @@ import os
 #################################################
 #################################################
 
-# current_dir = os.getcwd()
-# print(current_dir)
-
-configfile: "racoon/config/config.yaml"
-with open("racoon/config/config.yaml", "r") as f:
-    config_default = yaml.safe_load(f)
-
-print("Config is: ", config)
 
 ARGS = sys.argv
-CONFIG_PATH = ARGS[ARGS.index("--configfile") + 1]
-WDIR=config["wdir"]
-INDIR=config["indir"]
-SAMPLES=config["samples"].split()
-GROUPS=config["experiment_groups"].split()
-DEMUX=config["demuliplexing"]
-QUAL_BC=config["quality_filter_barcodes"]
-GZ=config["gz"]
-PAIR=config["paired"]
-MIR=config["miR"]
-MIR_starts=config["miR_starts_allowed"].split()
-ENCODE=config["encode_umi"]
-ADAPTER_FILE=config["adapter_file"] #if "adapter_file" in config else config_default["adapter_file"]
-TRIM=config["adapter_trimming"]
-DEDUP=config["deduplicate"]
-#BASENAMEREADS=os.path.basename(config["reads"])
+#print(ARGS)
+CON_P = ARGS[ARGS.index("--configfile") + 1]
+pattern = r"\.yaml\s*>$"
+replacement = "_full.yaml"
+CONFIG_PATH = re.sub(pattern, replacement, CON_P)
+SNAKE_PATH = os.path.dirname(config["snakebase_config"])
 
-if PAIR == True:
-    READS = [sub + "_R1" for sub in SAMPLES] + [sub + "_R2" for sub in SAMPLES]
-    READ1 = [sub + "_R1" for sub in SAMPLES]
-    READ2 = [sub + "_R2" for sub in SAMPLES]
+
+# configfile: DEF_CONFIG
+# with open("DEF_CONFIG", "r") as f:
+#     config_default = yaml.safe_load(f)
+
+WDIR=config["wdir"]
+SAMPLES_FULL=config["infiles"].split()
+SAMPLES=config["samples"].split()
+INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
+
+DEMUX=config["demultiplex"] == "True"
+QUAL_BC=config["quality_filter_barcodes"] == "True"
+GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
+ENCODE=config["encode"] == "True"
+ADAPTER_FILE=config["adapter_file"] #if "adapter_file" in config else config_default["adapter_file"]
+TRIM=config["adapter_trimming"] == "True"
+DEDUP=config["deduplicate"] == "True"
+
+print(QUAL_BC)
+
+
+# get groups
+GROUPS = set()
+if os.path.exists(config["experiment_group_file"]):
+    with open(config["experiment_group_file"], "r") as file:
+        for line in file:
+            columns = line.strip().split()
+            if columns:  # Check if the line is not empty
+                first_column = columns[0]
+                GROUPS.add(first_column)
 else:
-    READS = SAMPLES
+    GROUPS.add("all_samples")
+
+# get experiment info
+# one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other"
+
+
+TYPE = config["experiment_type"]
+
+def get_barcode_experiment_info():
+    if TYPE== "iCLIP":
+        info = {
+            "barcodeLength": 4,
+            "umi1_len": 3, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 2,
+            "exp_barcode_len": 9,
+            "encode": False
+        }
+    elif TYPE== "iCLIP2":
+        info = {
+            "barcodeLength": 6, 
+            "umi1_len": 5, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 4,
+            "exp_barcode_len": 15,
+            "encode": False
+        }
+    elif TYPE== "eCLIP":
+        info = {
+            "barcodeLength": 0, 
+            "umi1_len": 10, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 0,
+            "exp_barcode_len": 10,
+            "encode": False
+        }
+    elif TYPE== "eCLIP_ENCODE":
+        info = {
+            "barcodeLength": 0, 
+            "umi1_len": 10, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 0,
+            "exp_barcode_len": 10, # if already demux = umi1_len
+            "encode": True    
+        }
+    elif TYPE== "other": 
+        if config["barcodeLength"] == "":
+            raise ValueError("Input Error: barcodeLength is empty. If experiment_type is set to other, you need to specify barcodeLength, umi1_len, umi2_len, exp_barcode_len and exp_barcode_len manually. Consider using one of the types iCLIP/iCLIP2/eCLIP/eCLIP_ENCODE, if you data is from iCLIP or eCLIP.")
+        if config["barcodeLength"] == "":
+            raise ValueError("Input Error: umi1_len is empty. If experiment_type is set to other, you need to specify barcodeLength, umi1_len, umi2_len, exp_barcode_len and exp_barcode_len manually. Consider using one of the types iCLIP/iCLIP2/eCLIP/eCLIP_ENCODE, if you data is from iCLIP or eCLIP.")
+        if config["barcodeLength"] == "":
+            raise ValueError("Input Error: umi2_len is empty. If experiment_type is set to other, you need to specify barcodeLength, umi1_len, umi2_len, exp_barcode_len and exp_barcode_len manually. Consider using one of the types iCLIP/iCLIP2/eCLIP/eCLIP_ENCODE, if you data is from iCLIP or eCLIP.")
+        if config["barcodeLength"] == "":
+            raise ValueError("Input Error: exp_barcode_len is empty. If experiment_type is set to other, you need to specify barcodeLength, umi1_len, umi2_len, exp_barcode_len and exp_barcode_len manually. Consider using one of the types iCLIP/iCLIP2/eCLIP/eCLIP_ENCODE, if you data is from iCLIP or eCLIP.")
+        if config["barcodeLength"] == "":
+            raise ValueError("Input Error: encode is empty. If experiment_type is set to other, you need to specify barcodeLength, umi1_len, umi2_len, exp_barcode_len and exp_barcode_len manually. Consider using one of the types iCLIP/iCLIP2/eCLIP/eCLIP_ENCODE, if you data is from iCLIP or eCLIP.")
+        
+        info = {
+            "barcodeLength": config["barcodeLength"], # if already demux = umi1_len
+            "umi1_len": config["umi1_len"], # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": config["umi2_len"],
+            "exp_barcode_len": config["exp_barcode_len"],
+            "encode": config["encode"]
+        }
+    else:
+        raise ValueError('Input Error: experiment_type must be one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other".')   
+    return info
 
 #############################################
 #############################################
@@ -60,166 +135,68 @@ else:
 # get multiple inputfiles with or without gz
 def get_start_fastqs(wcs):
     if GZ == True:
-        if PAIR != True:
-            return config["indir"]+"{sample}.fastq.gz"
-        else:
-            return config["indir"]+"{sample}_R2.fastq.gz"  # for paired end data return read 2 (containing UMI and crosslink)
+        return INPATH+"/{sample}.fastq.gz"
     else:
-        if PAIR != True:
-            return config["indir"]+"{sample}.fastq"
-        else:
-            return config["indir"]+"{sample}_R2.fastq"
-
-def get_start_fastqs_qc(wcs):
-    if GZ == True:
-        if PAIR != True:
-            return config["indir"]+"{sample}.fastq.gz"
-        else:
-            return expand(config["indir"]+"{sample}.fastq.gz", sample=READS )   # for paired end data get both
-    else:
-        if PAIR != True:
-            return config["indir"]+"{sample}.fastq"
-        else:
-            return expand(config["indir"]+"{sample}.fastq", sample=READS )
-
-def get_start_fastqs_filter(wcs):
-    if GZ == True:
-        if PAIR != True:
-            return config["indir"]+"{sample}.fastq.gz"
-        else:
-            return config["indir"]+"{sample}_R2.fastq.gz"   # for paired end data return read 2 (containing UMI and crosslink)
-    else:
-        if PAIR != True:
-            return config["indir"]+"{sample}.fastq"
-        else:
-            return config["indir"]+"{sample}_R2.fastq"
-
-
+        return INPATH+"/{sample}.fastq"
+   
 
 # get files for adapter trimming
 def get_files_for_trim_SE(wcs):
-    if PAIR == True:
-        return ""
-    elif QUAL_BC == True and PAIR != True:
-            return config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq"
+    if QUAL_BC == True:
+        return config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq"
     elif QUAL_BC != True and ENCODE == True:
-        return config["wdir"]+"/results/demultiplex/encUMI_{sample}.fastq.gz"
-    if QUAL_BC != True:
-        return get_start_fastqs()
+        return config["wdir"]+"/results/encUMI/{sample}.fastq.gz"
+    elif QUAL_BC != True and ENCODE != True:
+        return get_start_fastqs(wcs)
   
-
-    # if QUAL_BC != True and PAIR == True:
-    #     if GZ == True:
-    #         return [get_start_fastqs, config["indir"]+"{sample}_2.fastq.gz"]
-    #     else:
-    #         return [get_start_fastqs, config["indir"]+"{sample}_2.fastq"]
-
-def get_R1_for_trim_PE(wcs):
-    if ENCODE == True:
-        return config["wdir"]+"/results/demultiplex/encUMI_{sample}_R1.fastq.gz"
-    else:
-        if GZ == True:
-            return config["indir"]+"{sample}_R1.fastq.gz"
-        else:
-            return config["indir"]+"{sample}_R1.fastq"
-    
-
-def get_R2_for_trim_PE(wcs):
-    if ENCODE == True:
-        return config["wdir"]+"/results/demultiplex/encUMI_{sample}_R2.fastq.gz"
-    elif QUAL_BC == True:
-        return config["wdir"]+"/results/barcode_filter/{sample}_R2_filtered.fastq"
-    else:
-        if GZ == True:
-            return config["indir"]+"{sample}_R2.fastq.gz"
-        else:
-            return config["indir"]+"{sample}_R2.fastq"
-
 
 
 # get star input
 def get_demult_trim_reads(wcs):
-    if MIR == True:
-        return [config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.non_chimeric.sort.fastq.gz"]
-    
-    elif MIR != True:
-        if ENCODE == True:
-            if PAIR == True:
-                return expand(config["wdir"]+"/results/demultiplex/trimmed_{sample}_encUMI.fastq.gz", sample=READS) 
-            else:
-                return config["wdir"]+"/results/demultiplex/trimmed_{sample}_encUMI.fastq.gz"
-        elif DEMUX == True:  # with demulitplexing
+        # if ENCODE == True: 
+            #     return config["wdir"]+"/results/demultiplex/trimmed_{sample}_encUMI.fastq.gz"
+        if DEMUX == True:  # with demulitplexing
             return [config["wdir"]+"/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz"]
         elif DEMUX != True and TRIM == True:  # without demultiplexing
             return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
         elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
-            return get_start_fastqs()
+            return get_start_fastqs(wcs)
         
 
 
 def get_demult_trim_reads_for_qc (wcs):
-    if MIR == True:
-        return [config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.non_chimeric.sort.fastq.gz"]
-    if MIR != True:
-        if DEMUX == True:  # with demulitplexing
-            return [config["wdir"]+"/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz"]
-
-        elif DEMUX != True and TRIM == True:  # without demultiplexing
-            if PAIR == True:
-                return expand(config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}.fastq.gz", sample=READS) 
-            else:
-                return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
-        elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
-            return get_start_fastqs()
-            
-    
-
-    # def get_demult_trim_reads_for_qc (wcs):
-    # if DEMUX == True:  # with demulitplexing
-    #     return [config["wdir"]+"/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz"]
-
-    # if DEMUX != True:  # without demultiplexing
-    #     # if TRIM2 == True:
-    #     #     return config["wdir"]+"/results/demultiplex/trimmed2_{sample}.fastq.gz"
-    #     # else:
-    #     return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
-
-# get star input
-def get_demult_trim_reads_for_mir(wcs):
-    if MIR == True:
-        if DEMUX == True:  # with demulitplexing
-            return [config["wdir"]+"/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz"]
-
-        if DEMUX != True:  # without demultiplexing
-            # if TRIM2 == True:
-            #     return config["wdir"]+"/results/demultiplex/trimmed2_{sample}.fastq.gz"
-            # else:
+    if DEMUX == True:  # with demulitplexing
+        return [config["wdir"]+"/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz"]
+    elif DEMUX != True and TRIM == True:  # without demultiplexing
             return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
-    else:
-        return ""
+    elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
+        return get_start_fastqs(wcs)
+        
+
+# get read length for STAR
+
 
 def get_bam_files(wcs):
-    if PAIR != True:
         return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"]
-    else:
-        return [config["wdir"]+"/results/aligned/{sample}_paired.Aligned.sortedByCoord.out.bam"]
 
 
 def get_bai_files(wcs):
-    if PAIR != True:
         return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam.bai"]
-    else:
-        return [config["wdir"]+"/results/aligned/{sample}_paired.Aligned.sortedByCoord.out.bam.bai"]
+
     
-def get_bam_dedup():
+def get_bam_dedup(wcs):
     if DEDUP == True:
         return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"]
     else:
-        return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.sort.bam"]
-
-
-
+        return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"]
     
+def mqc_for_readlength():
+    if DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
+        return config["wdir"]+"/results/fastqc/raw/multiqc_data/multiqc_fastqc.txt"
+    else:
+        return config["wdir"]+"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"
+
+
 
 #################################################
 #################################################
@@ -238,51 +215,27 @@ if DEMUX == True:
 
 # when not demultiplexing do fastqc of all input files
 if DEMUX != True:
-    myoutput.append(expand("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt", wdir=WDIR, sample = READS))
     myoutput.append(expand("{wdir}/results/fastqc/raw/multiqc_report.html", wdir=WDIR))
 
 # non multiplexed data can be filtered for umi quality optionally
-if DEMUX != True and QUAL_BC == True and PAIR != True:
+if DEMUX != True and QUAL_BC == True:
     myoutput.append(expand("{wdir}/results/fastqc/filtered/multiqc_report.html", wdir=WDIR))
     myoutput.append(expand("{wdir}/results/barcode_filter/{sample}_filtered.fastq", wdir=WDIR, sample = SAMPLES))
 
 # non multiplexed data can be filtered for umi quality optionally
-# when data is paired only read 2 (containing umi is filtered)
-if DEMUX != True and QUAL_BC == True and PAIR == True:
-    myoutput.append(expand("{wdir}/results/barcode_filter/{sample}_filtered.fastq", wdir=WDIR, sample = READ2))
 
 # adapter adapter_trimming
 if DEMUX == True and TRIM == True:  # with demulitplexing
     myoutput.append(expand("{wdir}/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz",  wdir=WDIR, sample = SAMPLES))
     myoutput.append(expand("{wdir}/results/fastqc/separate_samples/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
 if DEMUX != True and TRIM == True:  # without demultiplexing
-    if PAIR != True:
         myoutput.append(expand("{wdir}/results/demultiplex/trimmed_{sample}.fastq.gz",  wdir=WDIR, sample = SAMPLES))
         myoutput.append(expand("{wdir}/results/fastqc/separate_samples/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
-    if PAIR == True:
-        myoutput.append(expand("{wdir}/results/demultiplex/pe_trimmed_{sample}_R1.fastq.gz",  wdir=WDIR, sample = SAMPLES))
-        myoutput.append(expand("{wdir}/results/demultiplex/pe_trimmed_{sample}_R2.fastq.gz",  wdir=WDIR, sample = SAMPLES))
-        myoutput.append(expand("{wdir}/results/fastqc/separate_samples/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
+
 
 # alignment
-if PAIR != True:
-    myoutput.append(expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.bam", sample=SAMPLES, wdir=WDIR))
-else:
-    myoutput.append(expand("{wdir}/results/aligned/{sample}_paired.Aligned.sortedByCoord.out.bam", sample=SAMPLES, wdir=WDIR))
+myoutput.append(expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.bam", sample=SAMPLES, wdir=WDIR))
 
-# chimeric miR
-if MIR == True:
-    myoutput.append(expand("{wdir}/results/mir_analysis/aligned_mir/{sample}.alignMir.sam",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz", wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam", wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",  wdir=WDIR, sample = SAMPLES))
-    # myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.named.bed", wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/.fastqc.{sample}.trim.non_chimeric.chkpnt",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw", wdir=WDIR,  sample = SAMPLES ))
-    myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bw", groups=GROUPS, wdir=WDIR))
-    # myoutput.append(config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/multiqc_report.html")
-    myoutput.append(config["wdir"]+"/results/Report_miR.html")
 
 
 rule all:
@@ -293,12 +246,12 @@ rule all:
         # # # # deduplication
         expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam", sample=SAMPLES, wdir=WDIR),
         # # # # crosslink_sites
-        expand("{wdir}/results/tmp/{sample}.Aligned.sortedByCoord.out.duprm.bed", sample=SAMPLES, wdir=WDIR),
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR),
         # # # # Report
         config["wdir"]+"/results/Report.html",
-        #config["wdir"]+"/results/dag.svg"       
+        # config["wdir"]+"/results/.finished"  
+    message:  "========================= \n ================================ \n RACOON FINISHED! \n ================================ \n ================================ " 
         
 
 
@@ -324,16 +277,20 @@ rule all:
 
 rule high_quality_barcodes:
     input:
-        fasta=config["infile"]
+        fasta=config["infiles"]
     output:
         "{wdir}/results/tmp/data_qualFilteredIDs.list"
     params:
-        barcodeLength=config["barcodeLength"], minBaseQuality=config["minBaseQuality"], seq_format=config["seq_format"]
+        barcodeLength=get_barcode_experiment_info()["barcodeLength"], 
+        minBaseQuality=config["minBaseQuality"], 
+        seq_format=config["seq_format"]
     threads: 1 # gunzip breaks file with more then one thread
     conda:
-        "workflow/envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n Extracting barcodes for quality filter \n ================================ \n" 
     shell:
-        " zcat -f < {input.fasta} | fastx_trimmer {params.seq_format} -l {params.barcodeLength} | fastq_quality_filter {params.seq_format} -q {params.minBaseQuality} -p 100 | awk 'FNR%4==1 {{ print $1 }}' | sed 's/^@//' > {output}"
+        " echo {params.barcodeLength} && zcat -f < {input.fasta} | fastx_trimmer {params.seq_format} -l {params.barcodeLength} | fastq_quality_filter {params.seq_format} -q {params.minBaseQuality} -p 100 | awk 'FNR%4==1 {{ print $1 }}' | sed 's/^@//' > {output}"
 
 
 # filter fasta for selected barcodes
@@ -341,11 +298,13 @@ rule high_quality_barcodes:
 
 rule filter_barcode_quality:
     input:
-        list=expand("{wdir}/results/tmp/data_qualFilteredIDs.list", wdir=WDIR), fastq=config["infile"]
+        list=expand("{wdir}/results/tmp/data_qualFilteredIDs.list", wdir=WDIR), fastq=config["infiles"]
     output:
         file="{wdir}/results/barcode_filter/filtered.fastq.gz"
     conda:
-        "workflow/envs/iCLIP_pipe_seqkit.yml"
+        "envs/racoon_seqkit_v0.1.yml"
+    message: 
+        "========================= \n Selecting barcodes over quality filter cutoff \n ================================ \n" 
     threads: 1 # gunzip breaks file with more then one thread
     shell:
         #"bash workflow/scripts/filter_barcode_quality.sh {input.fastq} {input.list} && touch {output.token}"
@@ -363,8 +322,11 @@ rule extract_barcodes:
     output:
         "{wdir}/results/barcode_filter/barcodes_detected.txt"
     params:
-        umi1_len=config["umi1_len"], exp_barcode_len=config["exp_barcode_len"]
+        umi1_len=get_barcode_experiment_info()["umi1_len"], 
+        exp_barcode_len=get_barcode_experiment_info()["exp_barcode_len"]
     threads: 1 # gunzip breaks file with more then one thread
+    message: 
+        "========================= \n Selecting reads with barcode over quality filter cutoff \n ================================ \n" 
     shell:
         """
         zcat {input} | \
@@ -382,18 +344,22 @@ rule extract_barcodes:
 rule demultiplex_flexbar:
 # revisit flexbar params some different for mirko
     input:
-        fasta=expand("{wdir}/results/barcode_filter/filtered.fastq.gz", wdir=WDIR), barcodes=config["barcodes_fasta"]
+        fasta=expand("{wdir}/results/barcode_filter/filtered.fastq.gz", wdir=WDIR), 
+        barcodes=config["barcodes_fasta"]
     output:
          expand("{wdir}/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz", sample = SAMPLES,wdir=WDIR )
     params:
-        minReadLength=config["flexbar_minReadLength"], dir=expand("{wdir}/results/demultiplex/", wdir=WDIR),
+        minReadLength=config["min_read_length"], 
+        dir=expand("{wdir}/results/demultiplex/", wdir=WDIR),
         adapter=config["adapter_file"],
-        barcodeLength=config["barcodeLength"],
+        barcodeLength=get_barcode_experiment_info()["barcodeLength"],
         filename=config["wdir"]+"/results/demultiplex/flexbarOut"
 
     threads: workflow.cores  # allows
     conda:
-        "workflow/envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n Demultiplexing \n ================================  \n adapters, barcodes and UMIs are trimmed off \n provided barcodes: {input.barcodes} \n provided adapters: {params.adapter}" 
     shell:
         """
          mkdir -p {params.dir} && \
@@ -427,11 +393,13 @@ rule demultiplex_flexbar:
 ######################
 rule encode_umi:
     input: 
-      get_start_fastqs_qc 
+      get_start_fastqs
     output:
-      config["wdir"]+"/results/demultiplex/encUMI_{sample}.fastq.gz"
+      config["wdir"]+"/results/encUMI/{sample}.fastq.gz"
     params:
-        umi_length=config["encode_umi_length"]
+        umi_length=get_barcode_experiment_info()["umi1_len"],
+    message: 
+        "========================= \n Handeling encode UMI position \n ================================ \n provided length of UMI: {params.umi_length}"
     shell:
         """
         zcat -f < {input} | awk 'BEGIN{{FS=" "}} NR%4==1 {{print "@" substr($1, ({params.umi_length}+3), 500) "_" substr($1, 2, {params.umi_length}) " " $2 }}; NR%4==2 {{print}} ; NR%4==3 {{print}}; NR%4==0 {{print}};' | gzip > {output}
@@ -449,23 +417,23 @@ rule encode_umi:
 # select barcodes with sufficient quality
 #=======================================
 out_high_quality_umi = list()
-if PAIR != True:
-    out_high_quality_umi.append(config["wdir"]+"/results/tmp/{sample}_data_qualFilteredIDs.list")
-else:
-    out_high_quality_umi.append(config["wdir"]+"/results/tmp/{sample}_R2_data_qualFilteredIDs.list")
+
+out_high_quality_umi.append(config["wdir"]+"/results/tmp/{sample}_data_qualFilteredIDs.list")
 
 rule high_quality_umi:
     input:
-        fasta=get_start_fastqs
+        fasta=get_start_fastqs(wcs = SAMPLES)
     output:
         out_high_quality_umi
     params:
-        barcodeLength=config["barcodeLength"], 
+        barcodeLength=get_barcode_experiment_info()["exp_barcode_len"], 
         minBaseQuality=config["minBaseQuality"], 
         seq_format=config["seq_format"]
     threads: 1 # gunzip breaks file with more then one thread
+    message: 
+        "========================= \n Extracting barcodes for quality filter for {wildcards.sample} \n ================================ \n" 
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
     shell:
         """
         echo {input.fasta} &&
@@ -476,22 +444,18 @@ rule high_quality_umi:
 
 # filter fasta for selected barcodes
 #===================================
-out_filter_umi_quality = list()
-
-if PAIR != True:
-    out_filter_umi_quality.append(config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq")
-else:
-    out_filter_umi_quality.append(config["wdir"]+"/results/barcode_filter/{sample}_R2_filtered.fastq")
 
 rule filter_umi_quality:
     input:
         list=out_high_quality_umi,
-        fastq=get_start_fastqs_filter
+        fastq=get_start_fastqs
     output:
-        file=out_filter_umi_quality
+        file=config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq"
     conda:
-        "envs/iCLIP_pipe_seqkit.yml"
+        "envs/racoon_seqkit_v0.1.yml"
     threads: 1 # gunzip breaks file with more then one thread
+    message: 
+        "========================= \n Selecting reads with barcode over quality filter cutoff for {wildcards.sample} \n ================================ \n" 
     shell:
         #"bash workflow/scripts/filter_barcode_quality.sh {input.fastq} {input.list} && touch {output.token}"
         """ 
@@ -510,67 +474,38 @@ rule filter_umi_quality:
 # Adaptor trimming for non multiplexed files
 
 
-# out_adapter_trim = list()
-
-# if PAIR != True:
-#     out_adapter_trim.append(config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz")
-# else:
-#     out_adapter_trim.append(config["wdir"]+"/results/demultiplex/trimmed_{sample}_R2.fastq.gz")
-
-# def get_out_adapter_trim(wcs):
-#     return out_adapter_trim
-
-# out_adapter_trim_name = list()
-
-# if PAIR != True:
-#     out_adapter_trim_name.append(config["wdir"]+"/results/demultiplex/trimmed_{sample}")
-# else:
-#     out_adapter_trim_name.append(config["wdir"]+"/results/demultiplex/trimmed_{sample}_2")
-
 rule write_barcode_file:
     input: 
     output: 
+        chkpnt = touch(config["wdir"]+"/results/tmp/.barcode.chkpnt"),
         barcode = config["wdir"]+"/results/demultiplex/barcode.fa"
     params:
         dir = expand("{wdir}/results/demultiplex/", wdir=WDIR),
         barcode=config["barcodes_fasta"],
-        barcodeLength=config["barcodeLength"]
+        barcodeLength=get_barcode_experiment_info()["exp_barcode_len"],
+        sample=SAMPLES,
+        encode=get_barcode_experiment_info()["encode"],
+        dir_script= SNAKE_PATH
+    message: 
+        "========================= \n Initialise barcodes + UMIs \n ================================ \n" 
     shell:
         """
-        current_dir=$(pwd)
-        mkdir -p {params.dir} && \
-        chmod -R +x {params.dir} && \
-        cd {params.dir} && \
-        bc_file={params.barcode}
-        if [ -z "$bc_file" ] 
+        if [[ {params.encode} == True ]]
         then
-            chmod +x $current_dir/racoon/workflow/scripts/rep_char.sh
-            bc=`$current_dir/racoon/workflow/scripts/rep_char.sh {params.barcodeLength} "N"`
-            printf ">UMI \n  $bc" > {output}
-        else 
-            cp {params.barcode} {output}
-        fi
-        """
-
-rule write_barcode_R1_file:
-    input: 
-        
-    output:
-        barcode = config["wdir"]+"/results/demultiplex/barcode_R1.fa"
-    params:
-        dir=expand("{wdir}/results/demultiplex/", wdir=WDIR),
-        barcode=config["barcodes_fasta_R1"]
-    shell:
-        """
-        mkdir -p {params.dir} && \
-        chmod -R +x {params.dir} && \
-        bc_file={params.barcode}
-        if [ -z "$bc_file" ] 
-        then
+            touch {output.barcode}
+        else
+            mkdir -p {params.dir} && \
+            chmod -R +x {params.dir} && \
             cd {params.dir} && \
-            printf "> \n N" > barcode_R1.fa
-        else 
-            cp {params.barcode} > {output}
+            bc_file={params.barcode} && \
+            if [[ -z "$bc_file" ]] 
+            then
+                chmod +x {params.dir_script}"/workflow/scripts/rep_char.sh"
+                bc=`{params.dir_script}"/workflow/scripts/rep_char.sh" {params.barcodeLength} "N"`
+                printf ">"bc"\n $bc \n"  >> "{output.barcode}"
+            else 
+                cp {params.barcode} {output.barcode}
+            fi
         fi
         """
 
@@ -581,28 +516,32 @@ rule adapter_trimming_flexbar_single_end:
 # and UMIs on the left, for Encode data other solution needed because UMI not in anymore!
     input:
         fasta = get_files_for_trim_SE,
-        barcode = config["wdir"]+"/results/demultiplex/barcode.fa"
+        chkpnt_barcode = config["wdir"]+"/results/tmp/.barcode.chkpnt"
+        
     output:
          file= config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
     params:
         filename= config["wdir"]+"/results/demultiplex/trimmed_{sample}",
-        minReadLength=config["flexbar_minReadLength"],
+        minReadLength=config["min_read_length"],
         dir=expand("{wdir}/results/demultiplex/", wdir=WDIR),
         adapter=config["adapter_file"],
-        barcodeLength=config["barcodeLength"],
+        barcodeLength=get_barcode_experiment_info()["exp_barcode_len"],
         sample="{sample}",
         adapterCycles=config["adapter_cycles"],
-        encode=config["encode_umi"]
+        encode=get_barcode_experiment_info()["encode"],
+        barcode = config["wdir"]+"/results/demultiplex/barcode.fa",
     threads: workflow.cores  # allows
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n Adapter trimming for {wildcards.sample} \n ================================ \n barcodes and UMIs are also trimmed off, if present \n provided barcodes: {params.barcode} \n provided adapters: {params.adapter}"  
     shell:
         """
         if [[ "{params.encode}" == "False" ]]; then
             flexbar -r {input.fasta} \
             --zip-output GZ \
             --threads {threads} \
-            --barcodes {input.barcode} \
+            --barcodes {params.barcode} \
             --barcode-unassigned \
             --barcode-trim-end LTAIL \
             --barcode-error-rate 0 \
@@ -614,8 +553,13 @@ rule adapter_trimming_flexbar_single_end:
             --min-read-length {params.minReadLength} \
             --umi-tags \
             -t {params.filename} && \
-            cd {params.dir} && \
-            mv "trimmed_{params.sample}_barcode_UMI .fastq.gz" "trimmed_{params.sample}.fastq.gz"
+            cd {params.dir} 
+            if [[ -f "trimmed_{params.sample}_barcode_{params.sample}.fastq.gz" ]]; then
+                mv "trimmed_{params.sample}_barcode_{params.sample}.fastq.gz" "trimmed_{params.sample}.fastq.gz" 
+            fi
+            if [[ -f "trimmed_{params.sample}_barcode_bc.fastq.gz" ]]; then
+                mv "trimmed_{params.sample}_barcode_bc.fastq.gz" "trimmed_{params.sample}.fastq.gz" 
+            fi
         else
             flexbar -r {input.fasta} \
             --zip-output GZ \
@@ -629,77 +573,7 @@ rule adapter_trimming_flexbar_single_end:
             -t {params.filename}
         fi
         """
-#        bc=`/media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/Snakepipe_v0.4/scripts/rep_char.sh {params.barcodeLength} "N"` && \
-        #printf ">UMI \n  $bc" > barcode.fa && \
 
-
-rule adapter_trimming_flexbar_paired_ended:
-# for paired reads: adapter of read1 is trimmed without umi
-    input:
-        fastq_R1= get_R1_for_trim_PE,
-        fastq_R2= get_R2_for_trim_PE,
-        barcode = config["wdir"]+"/results/demultiplex/barcode.fa" ,
-        barcode_R1 = config["wdir"]+"/results/demultiplex/barcode_R1.fa"     
-    output:
-        R1=config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}_R1.fastq.gz",
-        R2=config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}_R2.fastq.gz",
-        chkpnt =  touch(config["wdir"]+"/results/.flexbar_paired{sample}.chkpnt")
-    params:
-        filename=config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}",
-        minReadLength=config["flexbar_minReadLength"],
-        dir=expand("{wdir}/results/demultiplex/", wdir=WDIR),
-        adapter=config["adapter_file"],
-        adapter_R2=config["adapter_file_R2"],
-        encode=config["encode_umi"]
-    threads: workflow.cores  # allows
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        if [[ "{params.encode}" == "False" ]]
-        then
-            echo "Sorry! Paired end at the moment only works for data downloaded from ENCODE!"
-        else
-                flexbar -r {input.fastq_R1} \
-                -p {input.fastq_R2}  \
-                --threads {threads} \
-                -a {params.adapter} \
-                -a2 {params.adapter_R2} \
-                --adapter-trim-end RIGHT \
-                --adapter-error-rate 0.1 \
-                --adapter-min-overlap 1 \
-                --min-read-length {params.minReadLength} \
-                -ap ON \
-                --stdout-log \
-                --umi-tags \
-                --zip-output GZ \
-                -t {params.filename} && \
-                mv "{params.dir}pe_trimmed_{wildcards.sample}_1.fastq.gz" {params.dir}pe_trimmed_{wildcards.sample}_R1.fastq.gz   &&
-                mv "{params.dir}pe_trimmed_{wildcards.sample}_2.fastq.gz" {params.dir}pe_trimmed_{wildcards.sample}_R2.fastq.gz   
-        fi
-        """
-
-                # flexbar -r {input.fastq_R1} \
-                # -p {input.fastq_R2} \
-                # --threads {threads} \
-                # --barcodes {input.barcode} \
-                # --barcodes2 {input.barcode_R1} \
-                # --barcode-trim-end LTAIL \
-                # --barcode-error-rate 0.0 \
-                # -a {params.adapter} \
-                # -a2 {params.adapter_R2} \
-                # --adapter-trim-end RIGHT \
-                # --adapter-error-rate 0.1 \
-                # --adapter-min-overlap 1 \
-                # --min-read-length {params.minReadLength} \
-                # -ap ON \
-                # --stdout-log \
-                # --umi-tags \
-                # --zip-output GZ \
-                # -t {params.filename} && \
-                # cd {params.dir} && \
-                # mv pe_trimmed_{wildcards.sample}_*_1.fastq.gz pe_trimmed_{wildcards.sample}_R1.fastq.gz && \
-                # mv pe_trimmed_{wildcards.sample}_*_2.fastq.gz pe_trimmed_{wildcards.sample}_R2.fastq.gz 
 
 
 ###-----------------------------------------
@@ -708,57 +582,86 @@ rule adapter_trimming_flexbar_paired_ended:
 ###-----------------------------------------
 ###-----------------------------------------
 
+
+# rule get_read_length:
+#     input: 
+#         ckpnt = config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html"
+#     output: 
+#         txt = "params.dir/read_length.txt",
+#         ckpnt = touch(config["wdir"]+"/results/tmp/read_length.chkpnt")
+#     params:
+#         mqc_file = mqc_for_readlength(),
+#     conda:
+#         "workflow/envs/racoon_main_v0.2.yml"
+#     script:
+#         "workflow/scripts/get_read_length.py"
+
+# def get_read_length(path):
+#     with open(path) as f:
+#         r_l = f.readline()
+#         r_l = float(r_l)
+#         return r_l
+
+
 rule create_STAR_index:
     input:
-        gft=config["gft"],
+        gtf=config["gtf"],
         genome_fasta=config["genome_fasta"],
+        #r_l_file = config["wdir"]+"/results/tmp/read_length.chkpnt"
     params:
         wdir=config["wdir"],
         dir="results/tmp/star_index",
-        genome_sjdbOverhang=config["sjdbOverhang"]
+        genome_sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])
     output: 
-        idx = re.sub(r"\.[^.]+$", "", config["gft"])+"_idx/chrLength.txt",
-        chkpnt = touch("{wdir}/results/.star_index.chkpnt")
+        idx = directory(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/"),
+        chkpnt = touch(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt")
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n Indexing your genome annotation \n ================================ \n provided fasta: {input.genome_fasta} \n provided annotation: {input.gtf} \n" 
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
         mem_mb = 20000
     shell:
-        """
+        """  
         STAR --runThreadN {threads} \
         --runMode genomeGenerate \
         --genomeDir {output.idx} \
-        --genomeFastaFiles {params.genome_fasta} \
-        --sjdbGTFfile {params.gft} \
+        --genomeFastaFiles {input.genome_fasta} \
+        --sjdbGTFfile {input.gtf} \
         --sjdbOverhang {params.genome_sjdbOverhang} \
         --readFilesCommand zcat
         """
+#genome_sjdbOverhang=$( cat {input.genome_sjdbOverhang} | awk 'NR==1{{print $1}}' )
 
 
 rule align:
     input:
         reads= get_demult_trim_reads,
         #fastqc_res1=expand("results/fastqc/separate_samples/flexbarOut_barcode_{sample}.html",sample = SAMPLES),
-        index_chkpnt= expand("{wdir}/results/.star_index.chkpnt", wdir=WDIR )
+        index_chkpnt= re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt"
+        
     output:
         chkpnt = touch(config["wdir"]+"/results/.{sample}.bam.SE.chkpnt"),
         bam=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam",
         #unaligned="{wdir}/results/aligned/{sample}.Unmapped.out.mate1"
     params:
-        gft=config["gft"],
+        gtf=config["gtf"],
+        index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/",
         dir="results/aligned/",
         wdir=config["wdir"],
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
         outFilterMismatchNmax=config["outFilterMismatchNmax"],
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        alignEndsType=config["alignEndsType"],
-        sjdbOverhang=config["sjdbOverhang"],
+        sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"]), # # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
         outReadsUnmapped=config["outReadsUnmapped"],
-        outSJfilterReads=config["outSJfilterReads"]
+        outSJfilterReads=config["outSJfilterReads"],
+        dedup = DEDUP,
+    message: 
+            "========================= \n Aligning {wildcards.sample} to genome \n ================================ \n" 
     threads: 2 # x each sample automatically assigned by snakemake
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
     resources:
         mem_mb = 20000
     shell:
@@ -767,86 +670,38 @@ rule align:
         mkdir -p {params.wdir}/{params.dir} && \
         chmod -R +x {params.wdir}/{params.dir} && \
         cd {params.wdir}/{params.dir} && \
-        STAR --runMode alignReads \
-        --genomeDir {params.wdir}/results/tmp/star_index \
-        --outFileNamePrefix {wildcards.sample}. \
-        --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
-        --outFilterMismatchNmax {params.outFilterMismatchNmax} \
-        --outFilterMultimapNmax {params.outFilterMultimapNmax} \
-        --alignEndsType {params.alignEndsType} \
-        --sjdbGTFfile {params.gft} \
-        --sjdbOverhang {params.sjdbOverhang} \
-        --outReadsUnmapped {params.outReadsUnmapped} \
-        --outSJfilterReads {params.outSJfilterReads} \
-        --readFilesCommand zcat \
-        --outSAMtype BAM SortedByCoordinate \
-        --readFilesIn {input.reads} \
-        --runThreadN {threads}
-        """
-
-
-# read1_align=list()
-# read2_align=list()
-
-# if ENCODE == False:
-#     read1_align.append(config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}_R1.fastq.gz")
-#     read2_align.append(config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}_R2.fastq.gz")
-# if ENCODE == True:
-#     read1_align.append(config["wdir"]+"/results/demultiplex/trimmed_{sample}_R1_encUMI.fastq.gz")
-#     read2_align.append(config["wdir"]+"/results/demultiplex/trimmed_{sample}_R2_encUMI.fastq.gz")
-
-
-rule align_paired:
-    input:
-        read1= config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}_R1.fastq.gz",
-        read2=config["wdir"]+"/results/demultiplex/pe_trimmed_{sample}_R2.fastq.gz",
-        #fastqc_res1=expand("results/fastqc/separate_samples/flexbarOut_barcode_{sample}.html",sample = SAMPLES),
-        index_chkpnt= expand("{wdir}/results/.star_index.chkpnt", wdir=WDIR ),
-        trim_chkpnt = config["wdir"]+"/results/.flexbar_paired{sample}.chkpnt"
-    output:
-        #chkpnt = touch(config["wdir"]+"/results/.{sample}.bam.PE.chkpnt"),
-        bam=config["wdir"]+"/results/aligned/{sample}_paired.Aligned.sortedByCoord.out.bam",
-    params:
-        gft=config["gft"],
-        dir="results/aligned/",
-        wdir=config["wdir"],
-        outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
-        outFilterMismatchNmax=config["outFilterMismatchNmax"],
-        outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        alignEndsType=config["alignEndsType"],
-        sjdbOverhang=config["sjdbOverhang"],
-        outReadsUnmapped=config["outReadsUnmapped"],
-        outSJfilterReads=config["outSJfilterReads"],
-        starParams=config["moreSTARParameters"]
-    threads: 2 # x each sample automatically assigned by snakemake
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        # important: STAR is supplied with read2 first and read1 second, it will therefore threat read2 as read1 and "Extend5pOfRead1" refers to read2
-        # (read2 contains the crosslink position in this setting)
-        """
-        mkdir -p {params.wdir}/{params.dir} && \
-        chmod -R +x {params.wdir}/{params.dir} && \
-        cd {params.wdir}/{params.dir} && \
         
-        STAR --runMode alignReads \
-        --genomeDir {params.wdir}/results/tmp/star_index \
-        --outFileNamePrefix {wildcards.sample}_paired. \
-        --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
-        --outFilterMismatchNmax {params.outFilterMismatchNmax} \
-        --outFilterMultimapNmax {params.outFilterMultimapNmax} \
-        --alignEndsType "Extend5pOfRead1" \
-        --sjdbGTFfile {params.gft} \
-        --sjdbOverhang {params.sjdbOverhang} \
-        --outReadsUnmapped {params.outReadsUnmapped} \
-        --outSJfilterReads {params.outSJfilterReads} \
-        --readFilesCommand zcat \
-        --outSAMtype BAM SortedByCoordinate \
-        --readFilesIn {input.read1} {input.read2} \
-        --runThreadN {threads} \
-        --peOverlapNbasesMin 0 \
-        --outSAMtype BAM SortedByCoordinate \
-        {params.starParams} 
+        if [[ {params.dedup} == True ]]
+        then
+            STAR --runMode alignReads \
+            --genomeDir {params.index} \
+            --outFileNamePrefix {wildcards.sample}. \
+            --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
+            --outFilterMismatchNmax {params.outFilterMismatchNmax} \
+            --outFilterMultimapNmax {params.outFilterMultimapNmax} \
+            --alignEndsType "Extend5pOfRead1" \
+            --sjdbGTFfile {params.gtf} \
+            --outReadsUnmapped {params.outReadsUnmapped} \
+            --outSJfilterReads {params.outSJfilterReads} \
+            --readFilesCommand zcat \
+            --outSAMtype BAM SortedByCoordinate \
+            --readFilesIn {input.reads} \
+            --runThreadN {threads}
+        else
+            STAR --runMode alignReads \
+            --genomeDir {params.index} \
+            --outFileNamePrefix {wildcards.sample}. \
+            --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
+            --outFilterMismatchNmax {params.outFilterMismatchNmax} \
+            --outFilterMultimapNmax {params.outFilterMultimapNmax} \
+            --alignEndsType "Extend5pOfRead1" \
+            --sjdbGTFfile {params.gtf} \
+            --outReadsUnmapped {params.outReadsUnmapped} \
+            --outSJfilterReads {params.outSJfilterReads} \
+            --outSAMtype BAM SortedByCoordinate \
+            --readFilesIn {input.reads} \
+            --runThreadN {threads}
+        fi
         """
 
 
@@ -854,11 +709,13 @@ rule bam_index:
     input:
         bam = get_bam_files
     output:
-         chpnt = touch(config["wdir"]+"/results/.{sample}.bai.chkpnt")
+         chpnt = touch(config["wdir"]+"/results/tmp/.{sample}.bai.chkpnt")
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+            "========================= \n Indexing .bam file of {wildcards.sample} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         """
@@ -873,18 +730,26 @@ rule bam_index:
 rule deduplication:
     input:
         bam = get_bam_files,
-        chpnt_bai = config["wdir"]+"/results/.{sample}.bai.chkpnt"
+        chpnt_bai = config["wdir"]+"/results/tmp/.{sample}.bai.chkpnt"
     output:
-        bam="{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam",
-        log="{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.log"
+        bam="{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam"
     params:
-        bam = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
+        bam = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam",
+        dedup = DEDUP,
+        log="{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.log"   
     conda:
-        "envs/iCLIP_pipe_umi_tools2.yml"
+        "envs/racoon_umi_tools_v0.2.yml"
+    message: 
+            "========================= \n Deduplicating {wildcards.sample} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         """
-        umi_tools dedup -I {input.bam} -L {output.log} -S {output.bam} --extract-umi-method read_id --method unique
+        if [[ {params.dedup} == True ]]
+        then
+            umi_tools dedup -I {input.bam} -L {params.log} -S {output.bam} --extract-umi-method read_id --method unique
+        else 
+            cp {input.bam} {output.bam}
+        fi
         """
 
 rule sort_bams:
@@ -893,8 +758,10 @@ rule sort_bams:
     output:
         config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
     threads: 1 # x each sample automatically assigned by snakemake
+    message: 
+            "========================= \n Sorting deduplicated {wildcards.sample} \n ================================ \n" 
     shell:
         "samtools sort -n {input} -o {output}"
 
@@ -907,50 +774,66 @@ rule make_genome_index:
     params:
         genome_fasta=config["genome_fasta"]
     output:
-        touch(config["wdir"]+"/results/.genome_index.chkpnt")
+        config["genome_fasta"]+".fai"
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
     threads: workflow.cores * 0.5 # so it can run parrallel to deduplication and bam sorting
+    message: 
+            "========================= \n Indexing genome fasta \n ================================ \n provided genome: {params.genome_fasta}" 
     shell:
-        "samtools faidx {params.genome_fasta} "
+        "samtools faidx {params.genome_fasta}"
 
 
 
 rule get_crosslinks:
     input:
-        genome_chkpnt=config["wdir"]+"/results/.genome_index.chkpnt",
-        bam= get_bam_dedup,
-        chkpnt=config["wdir"]+"/results/.{sample}.bai.chkpnt"
+        genome_idx=config["genome_fasta"]+".fai",
+        bam= config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",
+        chkpnt=config["wdir"]+"/results/tmp/.{sample}.bai.chkpnt"
     output:
         bed="{wdir}/results/tmp/{sample}.Aligned.sortedByCoord.out.duprm.bed",
         bed_shift="{wdir}/results/bed/{sample}.Aligned.sortedByCoord.out.duprm.shifted.bed",
         bed_plus="{wdir}/results/bed/{sample}.Aligned.sortedByCoord.out.duprm.plus.bed",
         bed_minus="{wdir}/results/bed/{sample}.Aligned.sortedByCoord.out.duprm.minus.bed",
+
+    params:
+        genome_fasta=config["genome_fasta"],
+        wdir=config["wdir"]
+    conda:
+        "envs/racoon_main_v0.2.yml"
+    message: 
+            "========================= \n Obtaining crosslinked nucleotide {wildcards.sample} \n ================================ \n" 
+    shell:
+        """
+        #### Convert all read locations to intervals in bed file format using BEDTools
+        bedtools bamtobed -i {input.bam} > {output.bed} 
+        echo "done 1"  
+        \
+        #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
+        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} 
+        echo "done 2" 
+        #### Extract the 5' end of the shifted intervals and pile up into coverage track in bedgraph file format (separately for each strand) using BEDTools (in case of RPM-normalised coverage tracks, use additional parameter -scale with 1,000,000/#mappedReads)
+        bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort > {output.bed_plus} 
+        bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort  > {output.bed_minus} 
+        echo "done 3"  
+        """
+
+rule turn_crosslinks_to_bw:
+    input:
+        bed_plus="{wdir}/results/bed/{sample}.Aligned.sortedByCoord.out.duprm.plus.bed",
+        bed_minus="{wdir}/results/bed/{sample}.Aligned.sortedByCoord.out.duprm.minus.bed",
+    output:
         bw_plus="{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.plus.bw",
         bw_minus="{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw"
     params:
         genome_fasta=config["genome_fasta"],
-        wdir=config["wdir"],
-        dir_groups= config['wdir']+ "/results/groups/"
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
     shell:
         """
-        #### Convert all read locations to intervals in bed file format using BEDTools
-        bedtools bamtobed -i {input.bam} > {output.bed} && \
-        echo "done 1" && \
-        \
-        #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
-        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} && \
-        echo "done 2" && \
-        #### Extract the 5' end of the shifted intervals and pile up into coverage track in bedgraph file format (separately for each strand) using BEDTools (in case of RPM-normalised coverage tracks, use additional parameter -scale with 1,000,000/#mappedReads)
-        bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort > {output.bed_plus} && \
-        bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort  > {output.bed_minus} && \
-        echo "done 3" && \
-        \
-        #### convertion of bedgraph files to bw file format files using bedGraphToBigWig of the kentUtils suite
-        bedGraphToBigWig {output.bed_plus} {params.genome_fasta}.fai {output.bw_plus} && \
-        bedGraphToBigWig {output.bed_minus} {params.genome_fasta}.fai {output.bw_minus}
+        #### conversion of bedgraph files to bw file format files using bedGraphToBigWig of the kentUtils suite
+        bedGraphToBigWig {input.bed_plus} {params.genome_fasta}.fai {output.bw_plus} 
+        bedGraphToBigWig {input.bed_minus} {params.genome_fasta}.fai {output.bw_minus}
         """
 
 
@@ -959,23 +842,55 @@ rule get_crosslinks:
 # merge bw
 ##############################
 
-rule experiment_groups:
+
+rule write_group_file:
     input:
-        config["experiment_group_file"],
     output:
-        config['wdir']+ "/results/groups/{groups}.txt"
-    params: dir_groups= config['wdir']+ "/results/groups/"
+        config["wdir"]+"/results/tmp/groups/{groups}.txt"
+    params:
+        dir=config["wdir"]+"/results/tmp/groups/",
+        groups=config["experiment_groups"],
+        group_file=config["experiment_group_file"],
+        samples=SAMPLES
+    message: 
+        "========================= \n Detecting sample groups \n ================================ \n" 
     shell:
         """
-        mkdir -p {params.dir_groups} && \
-        chmod +x {params.dir_groups} && \
-        cd {params.dir_groups} && \
-        awk '{{print $0 > $1".txt"}}' {input}
+        mkdir -p {params.dir} 
+        chmod -R +x {params.dir} 
+        group_file={params.group_file} 
+        if [ -z "$group_file" ] 
+        then
+            echo "No groups specified. I will merge all samples for you."
+            cd {params.dir} 
+            for s in {params.samples}; do
+                printf "all_samples $s \n" >> {output}
+            done
+        else 
+            chmod +x {params.group_file} 
+            cd {params.dir}
+            awk '{{print $0 > $1".txt"}}' {params.group_file}
+        fi
         """
+
+
+# rule experiment_groups:
+#     input:
+#         config["wdir"]+"/results/tmp/group_file.txt"
+#     output:
+#         config['wdir']+ "/results/groups/{groups}.txt"
+#     params: dir_groups= config['wdir']+ "/results/groups/"
+#     shell:
+#         """
+#         mkdir -p {params.dir_groups} && \
+#         chmod +x {params.dir_groups} && \
+#         cd {params.dir_groups} && \
+#         awk '{{print $0 > $1".txt"}}' {input}
+#         """
 
 checkpoint merge_bw:
     input:
-        groups = config['wdir']+ "/results/groups/{groups}.txt",
+        groups = config["wdir"]+"/results/tmp/groups/{groups}.txt",
         bws = expand(config['wdir']+"/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample = SAMPLES )
     output:
         bed_p=config['wdir']+"/results/bed_merged/{groups}.plus.bedGraph",
@@ -988,38 +903,44 @@ checkpoint merge_bw:
         genome_fasta=config["genome_fasta"],
         wdir=config["wdir"]
     conda:
-        "envs/racoon_ucsc_v0.1.yml"
+        "envs/racoon_ucsc_v0.2.yml"
+    message: 
+        "========================= \n Merging crosslink files of group {wildcards.groups} \n ================================ \n" 
     shell:
         """
         ### merge plus files per group
-        s="$(awk '{{ print "{params.wdir}/results/bw/" $2 ".Aligned.sortedByCoord.out.duprm.plus.bw"}}' {input.groups} )" && \
-        echo $s && \
-        chmod +x $s && \
-        bigWigMerge $s {output.bed_p}  && \
-        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_p} -o {output.bed_p_sort} && \
+        s="$(awk '{{ print "{params.wdir}/results/bw/" $2 ".Aligned.sortedByCoord.out.duprm.plus.bw"}}' {input.groups} )" 
+        echo $s 
+        chmod +x $s 
+        bigWigMerge $s {output.bed_p} 
+        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_p} -o {output.bed_p_sort} 
         bedGraphToBigWig {output.bed_p_sort} {params.genome_fasta}.fai {output.bw_p}
         \
         ### merge minus files per group
-        r="$(awk '{{ print "{params.wdir}/results/bw/" $2 ".Aligned.sortedByCoord.out.duprm.minus.bw"}}' {input.groups} )" && \
-        echo $r && \
-        chmod +x $r && \
-        bigWigMerge $r {output.bed_m} && \
-        chmod +x {output.bed_m} && \
-        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_m} -o {output.bed_m_sort} && \
+        r="$(awk '{{ print "{params.wdir}/results/bw/" $2 ".Aligned.sortedByCoord.out.duprm.minus.bw"}}' {input.groups} )" 
+        echo $r 
+        chmod +x $r 
+        bigWigMerge $r {output.bed_m} 
+        chmod +x {output.bed_m} 
+        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_m} -o {output.bed_m_sort} 
         bedGraphToBigWig {output.bed_m_sort} {params.genome_fasta}.fai {output.bw_m}
         """
+
+
 # bedGraphToBigWig {output.bed_m} {params.genome_fasta}.fai {output.bw_m}
 
 checkpoint merge_bam:
     input:
-        groups = config['wdir']+ "/results/groups/{groups}.txt",
-        bws = expand(config['wdir']+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam", sample = SAMPLES )
+        groups = config["wdir"]+"/results/tmp/groups/{groups}.txt",
+        bam = expand(config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam", sample = SAMPLES)
     output:
         bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam"
     params: 
         wdir = config['wdir']
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n Merging .bam files of group {wildcards.groups} \n ================================ \n" 
     shell:
         """
         ### merge files per group
@@ -1032,496 +953,6 @@ checkpoint merge_bam:
 
 ###-----------------------------------------
 ###-----------------------------------------
-### miR chimeric Alignment
-###-----------------------------------------
-###-----------------------------------------
-
-# This is used for mir-eCLIP data
-## key word definitions:
-## chimeric reads = reads that contain the sequence of both a miR and a gene from the general annotation
-## short reads = the first 24nt of the chimeric reads. These should contain the miR part of the chimeric read, otherwise the chimeic read is discarded.
-## miRs = short reads that were aligned to the miR annotation
-
-####################
-# index miR annotation
-####################
-# mir annotation is indexed with bowtie2
-
-rule make_miR_index:
-    params:
-        miR_genome=config["miR_genome_fasta"],
-        folder=config["wdir"]+"/results/tmp/mir_index"
-    output:
-        touch(config["wdir"]+"/results/.miR_index.chkpnt")
-    conda:
-        "envs/bowtie2.yml"
-    threads: workflow.cores * 0.5 # so it can run parallel to deduplication and bam sorting
-    shell:
-        """
-        mkdir -p {params.folder} && \
-        chmod +x -R {params.folder} && \
-        bowtie2-build {params.miR_genome} {params.folder}/mir_index
-        """
-
-
-####################
-# shorten reads
-####################
-## reads are shortened to the first 24nt of the 5'end for better alignemnt
-## in a chimeric read these 24nt contain the mirRNA (21nt lenght)
-
-rule shorten_unaligned:
-    input:
-        get_demult_trim_reads_for_mir
-    output:
-        config["wdir"]+"/results/mir_analysis/unaligned_reads_first24nt/{sample}.24nt.fastq"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    threads: 1
-    shell:
-        "zcat {input} | fastx_trimmer -l 24  -o {output}"
-
-####################
-# align to miR annotation
-####################
-## the shortened reads are aligned to the miR annotation using bowtie2 aligner
-## trim5 2 gave the best alignemt results
-
-rule align_miR:
-    input:
-        chpnt=config["wdir"]+"/results/.miR_index.chkpnt",
-        unaligned=config["wdir"]+"/results/mir_analysis/unaligned_reads_first24nt/{sample}.24nt.fastq"
-    params:
-        index=config["wdir"]+"/results/tmp/mir_index"
-    output:
-        sam=config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.sam"
-    conda:
-        "envs/bowtie2.yml"
-    threads: 2
-    shell:
-        """
-        cd {params.index} && \
-        bowtie2 -x mir_index \
-        -q {input.unaligned} \
-        --local \
-        -D 20 \
-        -R 3 \
-        -L 10 \
-        -i S,1,0.50 \
-        -k 20 \
-        --trim5 2 \
-        -S {output.sam} \
-        --quiet \
-        --sam-no-qname-trunc \
-        --threads {threads}
-        """
-
-######################
-# split between read with and without
-#####################
-## read IDs are split between mapped to mir annotation ( = chimeric reads) and
-## not mapped to mir genome ( = non-chimeric reads)
-
-rule split_by_miR_alignment:
-    input:
-        miR_sam = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.sam"
-    output:
-        chimeric = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.chimeric.bam",
-        non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/{sample}.alignMir.non_chimeric.list",
-        ckpnt = touch(config["wdir"]+"/results/tmp/{sample}/.{sample}.split_alignmir.chpnt")
-    params:
-        filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
-        filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        # sam flags: 0 == aligned, 4 == not aligned
-        samtools view -f 0 --bam {input.miR_sam} > {output.chimeric} && \
-        samtools view -f 4 {input.miR_sam} | awk -v FS='\t' -v OFS='\t' '{{ print $1 > "{params.filename_non_chimeric}/{wildcards.sample}.alignMir.non_chimeric.list" }}' 
-        """
-
-rule stats_miR_alignment:
-    input:
-        chimeric = expand(config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.chimeric.bam", sample = SAMPLES),
-        non_chimeric = expand(config["wdir"]+"/results/tmp/non_chimeric/{sample}.alignMir.non_chimeric.list", sample = SAMPLES)
-    output:
-        chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/chimeric_bowtie_stats.txt",
-        non_chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/non_chimeric_bowtie_stats.txt"
-    params:
-        filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
-        filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        for i in {input.chimeric}
-        do
-            samtools view $i | wc -l >> {output.chimeric_stats}
-        done
-
-        for i in {input.non_chimeric}
-        do
-            wc $i -l >> {output.non_chimeric_stats}
-        done
-
-        """
-
-########################
-# turn fastq into fasta to reduce seqkit memory usage
-########################
-# rule non_chimeric_fastq:
-#     input:
-#         non_chimeric_list = config["wdir"]+"/results/tmp/non_chimeric/{sample}.alignMir.non_chimeric.list",
-#         fastq = get_demult_trim_reads_for_mir
-#     output:
-#         fasta = config["wdir"]+"/results/mir_analysis/fasta/{sample}.fasta",
- 
-#     params:
-#     threads:1
-#     resources:
-#         mem_mb = 40000 # TODO does this work
-#     conda:
-#         "envs/racoon_main_v0.1.yml"
-#     shell:
-#         """
-#         zcat {input.fastq) | fastq_to_fasta -z -o {output.fasta}
-#         """
-
-#####################
-# make fastq files of non-chimeric reads
-####################
-# this fastq file is then passed back to the normal ieCLIP pipeline steps (next step is the alignemnt step)
-rule non_chimeric_fastq:
-    input:
-        non_chimeric_list = config["wdir"]+"/results/tmp/non_chimeric/{sample}.alignMir.non_chimeric.list",
-        fastq = get_demult_trim_reads_for_mir
-    output:
-        fastq = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.non_chimeric.fastq",
-        fastq_sort = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.non_chimeric.sort.fastq.gz"
-    params:
-    threads:1
-    resources:
-        mem_mb = 40000 # TODO does this work
-    conda:
-        "envs/iCLIP_pipe_seqkit.yml"
-    shell:
-        """
-            seqkit grep -n --quiet -f {input.non_chimeric_list} {input.fastq} > {output.fastq} && \
-            seqkit sort -n {output.fastq} | gzip > {output.fastq_sort}
-        """
-
-#############################
-# split aligned miRs by miR start position
-#############################
-## not all mirR in the 24nt fragment start at the first nt, many start at the 2. or 3. nt
-## it is important to threat them differently because the first nucleotide in the protein coding RNA will be at position 22 after the start of the miR not after the read start
-## therfore reads are split by read start in two steps (two rules)
-
-## 1) a list is made for each possible read start containing the read IDs with the given read start
-## 1.1) a second list stored the name of the miR the read was aligned to
-
-rule split_by_mapping_start:
-    input:
-        miR_bam = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.chimeric.bam",
-        chkpnt = config["wdir"]+"/results/tmp/{sample}/.{sample}.split_alignmir.chpnt"
-    output:
-        ckpnt=touch(config["wdir"]+"/results/tmp/{sample}/.{sample}.split_mir.chpnt")
-    params:
-        #miR_sam_sort = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.sort.sam"
-        filename=config["wdir"]+"/results/tmp/mir_split/{sample}",
-        # list=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
-        # miR_names=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        mkdir -p {params.filename} && \
-        chmod +X {params.filename} && \
-        # split unaligned reads by position of first mapping
-        samtools view {input.miR_bam} | awk -v FS='\t' -v OFS='\t' '{{ print $1 > "{params.filename}/{wildcards.sample}_startnt"$4".list" }}' && \
-        samtools view {input.miR_bam} | awk  -v FS='\t' -v OFS='\t' '{{ print $1, $3"_"$1 > "{params.filename}/{wildcards.sample}_startnt"$4".mirNames.txt" }}'
-        """
-
-
-
-## 2) the long chimeric (previously unaligned) reads are split into serveral files by the start position of the miR
-rule chimeric_split:
-    input:
-        chkpnt = config["wdir"]+"/results/tmp/{sample}/.{sample}.split_mir.chpnt",
-        fastq = get_demult_trim_reads_for_mir
-    output:
-        fastq = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.fastq"),
-        fastq_named = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.named.fastq"),
-        fastq_sort = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.named.sort.fastq")
-    params:
-        filename = config["wdir"]+"/results/tmp/mir_split/{sample}/",
-        outdir= config["wdir"]+"/results/tmp/mir_split/{sample}/",
-        lists = config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
-        miR_names = config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt",
-    threads:1
-    resources:
-        mem_mb = 40000 # TODO does this work
-    conda:
-        "envs/iCLIP_pipe_seqkit.yml"
-    shell:
-        """
-        if [ -f {params.lists} ]
-        then
-            /usr/bin/time -v seqkit grep -n --quiet -f {params.lists} {input.fastq} > {output.fastq} && \
-            echo {output.fastq} | head && \
-            seqkit replace -p '(.+)' -r "{{kv}}" -k {params.miR_names} {output.fastq} -o {output.fastq_named} && \
-            seqkit sort -n {output.fastq_named} > {output.fastq_sort}
-        fi
-        """
-        # here an empthy output is generated if the file with a certain start position does not exist
-        # this will not cause problems because late files of all start positions are merged again
-
-###########################
-# cut mirR from the chimeric reads
-###########################
-## The star position of the miR +21 nt i cut of the chimeric read to obtain the first nt of the protein coding miRNAs
-## (mir length = 22nt =  1 (start position) + 21))
-
-rule chimeric_trim:
-    input: 
-        split_reads = config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.named.sort.fastq"
-    output:
-        trim_reads = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.sort.trim.fastq.gz"),
-    params:
-        filename= config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/split_by_mir_start/{sample}/"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        if [ -s {input.split_reads} ]
-        then
-            echo {wildcards.start} && \
-            start=$(( {wildcards.start} + 21 )) && \
-            echo $start && \
-            fastx_trimmer -f $start -i {input.split_reads} -o {output.trim_reads} -z
-        fi
-        """
-
-##########################
-# trimmed fastq files of chimeric reads are merged again
-###########################
-rule merge_trimmed:
-    input:
-        #config["wdir"]+"/results/tmp/mir_split/{sample}"
-        expand(config["wdir"]+"/results/tmp/mir_split/{{sample}}/{{sample}}_startnt{start}.sort.trim.fastq.gz", start = MIR_starts)
-    output:
-        config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz"
-    params:
-        starts=MIR_starts,
-        path=config["wdir"]+"/results/tmp/mir_split/{sample}/"
-    threads: 1
-    shell:
-        """
-        cat {input} > {output}
-        """
-
-
-#########################
-# align chimeric (trimmed) reads to genome annotation
-#########################
-
-rule align_chimeric:
-    input:
-        reads=config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz",
-        index_chkpnt= expand("{wdir}/results/.star_index.chkpnt", wdir=WDIR )
-    output:
-        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam"
-    params:
-        gft=config["gft"],
-        dir="results/mir_analysis/aligned_chimeric_bam/",
-        wdir=config["wdir"],
-        outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
-        outFilterMismatchNmax=config["outFilterMismatchNmax"],
-        outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        alignEndsType=config["alignEndsType"],
-        sjdbOverhang=config["sjdbOverhang"],
-        outReadsUnmapped=config["outReadsUnmapped"],
-        outSJfilterReads=config["outSJfilterReads"]
-    threads: 2 # x each sample automatically assigned by snakemake
-    resources:
-        mem_mb = 40000
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        chmod +x {input.reads} && \
-        mkdir -p {params.wdir}/{params.dir} && \
-        chmod -R +x {params.wdir}/{params.dir} && \
-        cd {params.wdir}/{params.dir} && \
-        STAR --runMode alignReads \
-        --genomeDir {params.wdir}/results/tmp/star_index \
-        --outFileNamePrefix "chimeric_"{wildcards.sample}. \
-        --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
-        --outFilterMismatchNmax {params.outFilterMismatchNmax} \
-        --outFilterMultimapNmax {params.outFilterMultimapNmax} \
-        --alignEndsType {params.alignEndsType} \
-        --sjdbGTFfile {params.gft} \
-        --sjdbOverhang {params.sjdbOverhang} \
-        --outReadsUnmapped {params.outReadsUnmapped} \
-        --outSJfilterReads {params.outSJfilterReads} \
-        --outSAMtype BAM SortedByCoordinate \
-        --readFilesCommand zcat \
-        --readFilesIn {input.reads} \
-        --runThreadN {threads}
-        """
-
-######################
-# index bam files of chimeric reads
-######################
-
-rule bam_index_chimeric:
-    input:
-        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam"
-    output:
-        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    threads: 1 # x each sample automatically assigned by snakemake
-    shell:
-        """
-        chmod +x {input} && \
-        samtools index {input}
-        """
-
-######################
-# deduplication of chimeric reads
-######################
-
-rule deduplication_chimeric:
-    input:
-        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam",
-        bai=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai"
-    output:
-        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bam",
-        log=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.log"
-    conda:
-        "envs/iCLIP_pipe_umi_tools2.yml"
-    threads: 1 # x each sample automatically assigned by snakemake
-    shell:
-        """
-        umi_tools dedup -I {input.bam} -L {output.log} -S {output.bam} --extract-umi-method read_id --method unique
-        """
-
-rule sort_bams_chimeric:
-    input:
-        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bam"
-    output:
-        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    threads: 1 # x each sample automatically assigned by snakemake
-    shell:
-        "samtools sort -n {input} -o {output}"
-
-#######################
-# extract crosslinked nucleotides from chimeric reads
-#######################
-# reads are converted to bed format, shiften 1nt upstream (5' direction) and shortened to 1nt lenght
-# the read ID in the bed file is shortened to the mir Name (which was saved in the readID previously )
-# bigwig files are made 
-
-rule get_crosslinks_chimeric:
-    input:
-        genome_chkpnt=config["wdir"]+"/results/.genome_index.chkpnt",
-        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
-    output:
-        bed=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bed",
-        bed_shift=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.bed",
-        bed_shift_named=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.named.bed",
-        bw_minus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw",
-        bw_plus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.plus.bw",
-    params:
-        genome_fasta=config["genome_fasta"],
-        wdir=config["wdir"],
-        dir_groups= config['wdir']+ "/results/groups/",
-        crosslink_folder = config['wdir']+"/results/mir_analysis/crosslinks/",
-        file_prefix=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.",
-        file_prefix_tmp=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted."
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        #### Convert all read locations to intervals in bed file format using BEDTools
-        bedtools bamtobed -i {input.bam} > {output.bed} && \
-        \
-        #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
-        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} && \
-        \
-        #### shorten name to miR name
-        awk -v FS='\t' -v OFS='\t' '{{sub(/_(.*)/, "", $4) ; print }}' {output.bed_shift} > {output.bed_shift_named} && \
-        #### split plus and miuns strand
-        awk -v FS='\t' -v OFS='\t' '{{ print $1,$2,$3,$4,$5,$6 > "{params.file_prefix_tmp}"$6".bed" }}' {output.bed_shift_named} && \
-        mkdir -p {params.crosslink_folder} && \
-        chmod +x {params.crosslink_folder} && \
-        mv {params.file_prefix_tmp}+.bed {params.file_prefix_tmp}plus.bed && \
-        mv {params.file_prefix_tmp}-.bed {params.file_prefix_tmp}minus.bed 
-        #  \
-        # #### keep only 5' end
-        awk -v FS='\t' -v OFS='\t' '{{$3 = $2+1; $5 = "1"; print}}' {params.file_prefix_tmp}plus.bed > {params.file_prefix}1nt.plus.bed && \
-        awk -v FS='\t' -v OFS='\t' '{{$3 = $2+1; $5 = "1"; print}}' {params.file_prefix_tmp}minus.bed > {params.file_prefix}1nt.minus.bed && \
-        
-        #### remove names again for bigwig file
-        awk -v FS='\t' -v OFS='\t' '{{print $1,$2,$3,$5}}' {params.file_prefix}1nt.plus.bed | bedtools sort | bedtools merge -d -1 -c 4 -o sum  > {params.file_prefix_tmp}1nt.for_bw.plus.bed && \
-        awk -v FS='\t' -v OFS='\t' '{{print $1,$2,$3,$5}}' {params.file_prefix}1nt.minus.bed | bedtools sort | bedtools merge -d -1 -c 4 -o sum > {params.file_prefix_tmp}1nt.for_bw.minus.bed 
-
-        #### convertion of bedgraph files to bw file format files using bedGraphToBigWig of the kentUtils suite
-        bedGraphToBigWig {params.file_prefix_tmp}1nt.for_bw.plus.bed {params.genome_fasta}.fai {output.bw_plus} && \
-        bedGraphToBigWig {params.file_prefix_tmp}1nt.for_bw.minus.bed {params.genome_fasta}.fai {output.bw_minus}
-        """
-
-####################
-# merging of bigwig files from chimeric crosslinks
-####################
-
-checkpoint merge_crosslink_bw_chimeric:
-    input:
-        groups = config['wdir']+ "/results/groups/{groups}.txt",
-        bws = expand(config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw", sample = SAMPLES )
-    output:
-        bed_p=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.plus.bedGraph",
-        bed_m=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bedGraph",
-        bed_p_sort=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.sort.plus.bedGraph",
-        bed_m_sort=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.sort.minus.bedGraph",
-        bw_p=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.plus.bw",
-        bw_m=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bw"
-    params:
-        genome_fasta=config["genome_fasta"],
-        wdir=config["wdir"]
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    shell:
-        """
-        ### merge plus files per group
-        s="$(awk '{{ print "{params.wdir}/results/mir_analysis/crosslinks/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.named.1nt.plus.bw"}}' {input.groups} )" && \
-        echo $s && \
-        chmod +x $s && \
-        bigWigMerge $s {output.bed_p}  && \
-        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_p} -o {output.bed_p_sort} && \
-        bedGraphToBigWig {output.bed_p_sort} {params.genome_fasta}.fai {output.bw_p}
-        \
-        ### merge minus files per group
-        r="$(awk '{{ print "{params.wdir}/results/mir_analysis/crosslinks/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw"}}' {input.groups} )" && \
-        echo $r && \
-        chmod +x $r && \
-        bigWigMerge $r {output.bed_m} && \
-        chmod +x {output.bed_m} && \
-        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_m} -o {output.bed_m_sort} && \
-        bedGraphToBigWig {output.bed_m_sort} {params.genome_fasta}.fai {output.bw_m}
-        """
-
-
-# .. quality controls miRs
-
-# .. report miRs
-
-###-----------------------------------------
-###-----------------------------------------
 ### Quality controls
 ###-----------------------------------------
 ###-----------------------------------------
@@ -1529,52 +960,52 @@ checkpoint merge_crosslink_bw_chimeric:
 # 1.1) one raw file
 #####################
 rule fastqc:
-  input:
-      [config["infile"], config["wdir"]+"/results/barcode_filter/filtered.fastq.gz" ]
-  output:
-     touch("{wdir}/results/.fastqc.chkpnt"),
-  params: wdir=config["wdir"]
-  conda:
-     "envs/racoon_main_v0.1.yml"
-  threads: 1 # fastqc can use 1 thread per sample
-  shell:
-    """
-    mkdir -p {params.wdir}/results/fastqc/raw && \
-    fastqc {input} -o {params.wdir}/results/fastqc/raw -q
-    """
+    input:
+        [config["infiles"], config["wdir"]+"/results/barcode_filter/filtered.fastq.gz" ]
+    output:
+        touch("{wdir}/results/.fastqc.chkpnt"),
+    params: wdir=config["wdir"]
+    conda:
+        "envs/racoon_main_v0.2.yml"
+    threads: 1 # fastqc can use 1 thread per sample
+    message: 
+        "========================= \n FastQC of {input} \n ================================ \n" 
+    shell:
+        """
+        mkdir -p {params.wdir}/results/fastqc/raw && \
+        fastqc {input} -o {params.wdir}/results/fastqc/raw -q 
+        """
 
 # 1.2) multiple raw files
 #####################
 rule fastqc_raw_multi:
-  input:
-     [get_start_fastqs_qc]
-  output:
-     touch("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt"),
-  params: wdir=config["wdir"]
-  conda:
-     "envs/racoon_main_v0.1.yml"
-  threads: 1 # fastqc can use 1 thread per sample
-  shell:
-    """
-    mkdir -p {params.wdir}/results/fastqc/raw && \
-    fastqc {input} -o {params.wdir}/results/fastqc/raw -q
-    """
+    input:
+        [get_start_fastqs]
+    output:
+        touch("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt"),
+    params: wdir=config["wdir"]
+    conda:
+        "envs/racoon_main_v0.2.yml"
+    threads: 1 # fastqc can use 1 thread per sample
+    message: 
+        "========================= \n FastQC of {input} \n ================================ \n" 
+    shell:
+        """
+        mkdir -p {params.wdir}/results/fastqc/raw && \
+        fastqc {input} -o {params.wdir}/results/fastqc/raw -q 
+        """
 
 in_multiqc_raw_multi = list()
 in_multiqc_filt_multi = list()
 in_multiqc = list()
 in_multiqc_bam = list()
 
-if PAIR != True:
-    in_multiqc_raw_multi.append(expand("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt", wdir=WDIR, sample=SAMPLES))
-    in_multiqc_filt_multi.append(expand("{wdir}/results/tmp/.fastqc.filtered.{sample}.chkpnt", wdir=WDIR, sample=SAMPLES))
-    in_multiqc.append(expand("{wdir}/results/tmp/.fastqc.{sample}.trim.chkpnt", wdir=WDIR, sample=SAMPLES))
-    in_multiqc_bam.append(expand("{wdir}/results/tmp/.fastqc.{sample}.bam.chkpnt", wdir=WDIR, sample=SAMPLES))
-else:
-    in_multiqc_raw_multi.append(expand("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt", wdir=WDIR, sample=READS))
-    in_multiqc_filt_multi.append(expand("{wdir}/results/.fastqc.filtered.{sample}.chkpnt", wdir=WDIR, sample=SAMPLES))
-    in_multiqc.append(expand("{wdir}/results/tmp/.fastqc.{sample}.trim.chkpnt", wdir=WDIR, sample=READS))
-    in_multiqc_bam.append(expand("{wdir}/results/tmp/.fastqc.{sample}.bam.chkpnt", wdir=WDIR, sample=SAMPLES))
+
+in_multiqc_raw_multi.append(expand("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt", wdir=WDIR, sample=SAMPLES))
+in_multiqc_filt_multi.append(expand("{wdir}/results/tmp/.fastqc.filtered.{sample}.chkpnt", wdir=WDIR, sample=SAMPLES))
+in_multiqc.append(expand("{wdir}/results/tmp/.fastqc.{sample}.trim.chkpnt", wdir=WDIR, sample=SAMPLES))
+in_multiqc_bam.append(expand("{wdir}/results/tmp/.fastqc.{sample}.bam.chkpnt", wdir=WDIR, sample=SAMPLES))
+
 
 
 rule multiqc_raw_multi:
@@ -1584,8 +1015,10 @@ rule multiqc_raw_multi:
         config["wdir"]+"/results/fastqc/raw/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.1.yml"
+       "envs/racoon_main_v0.2.yml"
     threads: 1
+    message: 
+        "========================= \n MultiQC of raw read files \n ================================ \n" 
     shell:
         """
         cd {params.wdir}/results/fastqc/raw  && \
@@ -1594,17 +1027,19 @@ rule multiqc_raw_multi:
 
 rule fastqc_filt_multi:
     input:
-        get_start_fastqs_filter
+        get_files_for_trim_SE
     output:
-        touch(config["wdir"]+"/results/.fastqc.filtered.{sample}.chkpnt"),
+        touch(config["wdir"]+"/results/tmp/.fastqc.filtered.{sample}.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
     threads: 1 # fastqc can use 1 thread per sample
+    message: 
+        "========================= \n FastQC of quality filtered read file of {wildcards.sample} \n ================================ \n" 
     shell:
         """
         mkdir -p {params.wdir}/results/fastqc/filtered && \
-        fastqc {input} -o {params.wdir}/results/fastqc/filtered -q
+        fastqc {input} -o {params.wdir}/results/fastqc/filtered -q 
         """
 
 rule multiqc_filt_multi:
@@ -1614,8 +1049,10 @@ rule multiqc_filt_multi:
         config["wdir"]+"/results/fastqc/filtered/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.1.yml"
+       "envs/racoon_main_v0.2.yml"
     threads: 1
+    message: 
+        "========================= \n MultiQC of quality filtered read files \n ================================ \n" 
     shell:
         """
         cd {params.wdir}/results/fastqc/filtered  && \
@@ -1629,14 +1066,16 @@ rule multiqc_filt_multi:
 
 rule fastqc_samples:
     input:
-        file= get_demult_trim_reads_for_qc
+        file= get_demult_trim_reads
     output:
         touch("{wdir}/results/tmp/.fastqc.{sample}.trim.chkpnt"),
     params: wdir=config["wdir"]
         # "results/fastqc/separate_samples/{sample}.html",
         # "results/fastqc/separate_samples/{sample}.zip"
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n FastQC of on adapter trimmed read file of {wildcards.sample} \n ================================ \n" 
     threads: 1
     shell:
         """
@@ -1651,7 +1090,9 @@ rule multiqc:
         config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.1.yml"
+       "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n MultiQC of on adapter trimmed read files \n ================================ \n" 
     threads: 1
     shell:
         """
@@ -1660,7 +1101,7 @@ rule multiqc:
         """
 
 
-# 3) after allignment
+# 3) after alignment
 ########################
 
 rule fastqc_samples_bam:
@@ -1672,7 +1113,9 @@ rule fastqc_samples_bam:
         wdir=config["wdir"],
         file=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.1.yml"
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n FastQC of aligned {wildcards.sample} \n ================================ \n" 
     threads: 1
     shell:
         """
@@ -1687,7 +1130,9 @@ rule multiqc_bam:
         config["wdir"]+"/results/fastqc/separate_samples_bam/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.1.yml"
+       "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n MultiQC of aligned \n ================================ \n" 
     threads: 1
     shell:
         """
@@ -1700,21 +1145,23 @@ rule multiqc_bam:
 ########################
 
 rule fastqc_samples_bam_duprm:
-  input:
-     file=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
-  output:
-     config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/{sample}.Aligned.sortedByCoord.out.duprm.sort_fastqc.html"
-  params: wdir=config["wdir"]
-     # "results/fastqc/separate_samples/{sample}.html",
-     # "results/fastqc/separate_samples/{sample}.zip"
-  conda:
-     "envs/racoon_main_v0.1.yml"
-  threads: 1
-  shell:
-     """
-     mkdir -p {params.wdir}/results/fastqc/separate_samples_bam_duprm/ && \
-     fastqc {input.file} -o {params.wdir}/results/fastqc/separate_samples_bam_duprm/ -q
-     """
+    input:
+        file=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
+    output:
+        config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/{sample}.Aligned.sortedByCoord.out.duprm.sort_fastqc.html"
+    params: wdir=config["wdir"]
+        # "results/fastqc/separate_samples/{sample}.html",
+        # "results/fastqc/separate_samples/{sample}.zip"
+    conda:
+        "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n FastQC after duplicate removal {wildcards.sample} \n ================================ \n" 
+    threads: 1
+    shell:
+        """
+        mkdir -p {params.wdir}/results/fastqc/separate_samples_bam_duprm/ && \
+        fastqc {input.file} -o {params.wdir}/results/fastqc/separate_samples_bam_duprm/ -q
+        """
 
 rule multiqc_bam_duprm:
     input:
@@ -1723,92 +1170,15 @@ rule multiqc_bam_duprm:
         config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.1.yml"
+       "envs/racoon_main_v0.2.yml"
+    message: 
+        "========================= \n MultiQC after duplicate removal \n ================================ \n" 
     threads: 1
     shell:
         """
         cd {params.wdir}/results/fastqc/separate_samples_bam_duprm/  && \
         multiqc -f --export .
         """
-
-# -----------------------------
-# QCs for miR
-# -----------------------------
-
-# 5) aligned miRs
-####################
-rule fastqc_aligned_mir:
-    input:
-        config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.sam"
-    output:
-        config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/{sample}.alignMir_fastqc.html"
-    params: wdir=config["wdir"]
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    threads: 1 # fastqc can use 1 thread per sample
-    shell:
-        """
-        mkdir -p {params.wdir}/results/fastqc/aligned_mir && \
-        fastqc {input} -o {params.wdir}/results/mir_analysis/fastqc/aligend_mir -q
-        """
-
-
-rule multiqc_aligned_mir:
-    input:
-        expand(config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/{sample}.alignMir_fastqc.html", sample = SAMPLES)
-    output:
-        config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/multiqc_report.html"
-    params: wdir=config["wdir"]
-    conda:
-       "envs/racoon_main_v0.1.yml"
-    threads: 1
-    shell:
-        """
-        cd {params.wdir}/results/mir_analysis/fastqc/aligend_mir  && \
-        multiqc -f --export .
-        """
-
-# 6) split trimmed chimeric reads
-####################
-rule fastqc_st_chimeric:
-    input:
-        config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.fastq.gz"
-    output:
-        config["wdir"]+"/results/mir_analysis/fastqc/split_chimeric/{sample}/multiqc_report.html"
-    params:
-        qc_dir=config["wdir"]+"/results/mir_analysis/fastqc/split_chimeric/{sample}",
-        split_dir=config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/{sample}/"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    threads: 1 # fastqc can use 1 thread per sample
-    shell:
-        """
-        mkdir -p {params.qc_dir} && \
-        chmod +x -R {params.qc_dir} && \
-        fastqc {params.split_dir}*.fastq.gz -o {params.qc_dir} -q && \
-        cd {params.qc_dir} && \
-        ls && \
-        multiqc -f --export .
-        """
-
-
-rule fastqc_samples_non_chimeric:
-    input:
-        file=get_demult_trim_reads
-    output:
-        touch("{wdir}/results/.fastqc.{sample}.trim.non_chimeric.chkpnt"),
-    params: wdir=config["wdir"]
-        # "results/fastqc/separate_samples/{sample}.html",
-        # "results/fastqc/separate_samples/{sample}.zip"
-    conda:
-        "envs/racoon_main_v0.1.yml"
-    threads: 1
-    shell:
-        """
-        mkdir -p {params.wdir}/results/fastqc/non_chimeric/ && \
-        fastqc {input.file} -o {params.wdir}/results/fastqc/non_chimeric/ -q
-        """
-
 
 
 ###-----------------------------------------
@@ -1817,30 +1187,17 @@ rule fastqc_samples_non_chimeric:
 ###-----------------------------------------
 ###-----------------------------------------
 
-rule dag:
-    input:
-        expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES[1], wdir=WDIR)
-    output:
-        config["wdir"]+"/results/dag.svg"
-    shell:
-        "snakemake --dag {input} | dot -Tsvg > {output}"
-
-
-
 stats = list()
 
 if DEMUX == True:
     stats.append(config["wdir"]+"/results/.fastqc.chkpnt")
 
-
 if DEMUX != True:
     stats.append(config["wdir"]+"/results/fastqc/raw/multiqc_report.html")
-    if QUAL_BC == True:
-        stats.append(config["wdir"]+"/results/fastqc/filtered/multiqc_report.html")
-    if TRIM == True:
-        stats.append(config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html")
-
-
+if DEMUX != True and QUAL_BC == True:
+    stats.append(config["wdir"]+"/results/fastqc/filtered/multiqc_report.html")
+if DEMUX != True and TRIM == True:
+    stats.append(config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html")
 
 rule fastqc_stats:
     input:
@@ -1849,50 +1206,68 @@ rule fastqc_stats:
         f4=config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html"
 
     output:
-        touch(config["wdir"]+"/results/.fastqc_stats_chkpnt")
+        touch(config["wdir"]+"/results/tmp/.fastqc_stats_chkpnt")
     params: 
         wdir=config["wdir"],
-        qual_bc=config["quality_filter_barcodes"]
+        qual_bc=QUAL_BC,
+        dedup=DEDUP,
+        demux=DEMUX
+    message: 
+        "========================= \n Preparing numbers for Report \n ================================ \n" 
     shell:
         """
         unzip -o -q "{params.wdir}/results/fastqc/raw/*.zip" -d {params.wdir}/results/fastqc/raw/ && \
+        unzip -o -q "{params.wdir}/results/fastqc/separate_samples_bam/*.zip" -d {params.wdir}/results/fastqc/separate_samples_bam/ && \
         unzip -o -q "{params.wdir}/results/fastqc/separate_samples/*.zip" -d {params.wdir}/results/fastqc/separate_samples/ && \
-        if [qual_bc=="True"]
+        
+        if [ {params.dedup} == True ]
         then
+            unzip -o -q "{params.wdir}/results/fastqc/separate_samples_bam_duprm/*.zip" -d {params.wdir}/results/fastqc/separate_samples_bam_duprm/ 
+        fi
+
+        if [ {params.demux} != True ] && [ {params.qual_bc} == True ]
+        then
+            echo "condition worked"
             unzip -o -q "{params.wdir}/results/fastqc/filtered/*.zip" -d {params.wdir}/results/fastqc/filtered/ 
         fi
-        """
 
+        """
 
 
 rule make_report:
     input:
         #flowchart=config["wdir"]+"/results/dag.svg",
-        stats=config["wdir"]+"/results/.fastqc_stats_chkpnt"
+        stats=config["wdir"]+"/results/tmp/.fastqc_stats_chkpnt"
     output:
         config["wdir"]+"/results/Report.html"
     params:
         wdir=config["wdir"],
-        config_path=CONFIG_PATH
-    container:
-        "envs/iclip_pipe_R_v2.1.sif"
+        config_path= CONFIG_PATH,
+        snake_path= SNAKE_PATH 
+    message: 
+        "========================= \n Making racoon Report \n ================================ \n" 
+    conda:
+        "envs/racoon_R_v0.1.yml"
     script:
-        "rules/make_report.R"
+        "{params.snake_path}/workflow/rules/make_report.R"
 
-rule make_report_miR:
-    input:
-        chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/chimeric_bowtie_stats.txt",
-        non_chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/non_chimeric_bowtie_stats.txt"
+
+finished = list()
+finished.append(config["wdir"]+"/results/Report.html")
+
+
+rule cleanup:
+    input: 
+        finished
     output:
-        config["wdir"]+"/results/Report_miR.html"
+        touch(config["wdir"]+"/results/.finished")
     params:
-        wdir=config["wdir"],
-        config_path=CONFIG_PATH
-    container:
-        "envs/iclip_pipe_R_v2.1.sif"
-    script:
-        "rules/make_report_mir.R"
-
-
+        tmp_dir=config["wdir"]+"/results/tmp"
+    message: 
+        "========================= \n Cleaning up temporary files \n ================================ \n" 
+    shell:
+        """
+        rm -r {params.tmp_dir}
+        """
 
 # TODO check mem requirements and cpu requirments

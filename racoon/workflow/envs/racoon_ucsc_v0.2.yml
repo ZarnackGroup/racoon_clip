@@ -1,7 +1,7 @@
 name: ucsc
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
@@ -14,7 +14,7 @@ dependencies:
   - libstdcxx-ng=12.2.0=h46fd767_19
   - libuuid=2.32.1=h7f98852_1000
   - libzlib=1.2.13=h166bdaf_4
-  - mysql-connector-c=6.1.6=2
+  - mysql-connector-c
   - openssl=1.0.2u=h516909a_0
   - ucsc-bedgraphtobigwig=377=h199ee4e_0
   - ucsc-bigwigmerge=377=h199ee4e_0

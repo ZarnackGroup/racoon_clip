@@ -1,0 +1,11 @@
+name: racoon_R
+channels:
+  - r
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials
+  - r-markdown
+  - r-tidyverse
+prefix: /home/mklostermann/applications/anaconda3/envs/racoon_R

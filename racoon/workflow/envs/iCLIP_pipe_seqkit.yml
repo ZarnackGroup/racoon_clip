@@ -1,8 +1,0 @@
-name: iCLIP_pipe_seqkit
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - seqkit=2.3.1=h9ee0642_0
-prefix: /home/mklostermann/applications/anaconda3/envs/iCLIP_pipe_seqkit

@@ -1,58 +1,48 @@
 # where to put results
-wdir: ""
+wdir: "." # no backslash in the end of the path
 # input
-indir: "" # for multiple files after demultiplexing
-infile: "" # one undemultiplexed file
-gz: True
+infiles: "" # one undemultiplexed file or multiple demultiplexed files
 
 #SAMPLES
-samples: ""
-experiment_group_file: "" # txt file with group space sample per row
-experiment_groups: ""
+experiment_groups: "" # txt file with group space sample per row
+experiment_group_file: ""
 seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by fastX
 
 # barcodes
-barcodeLength: 10 # if already demux = umi1_len
-barcodeLength.read1: 0  # in paired end eCLIP data
+barcodeLength: "" # if already demux = umi1_len
 minBaseQuality: 10
-umi1_len: 10 # antisense of used barcodes --> this is the 3' umi of the original barcode
+umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
 umi2_len: 0
 exp_barcode_len: 0
-encode_umi: False
-encode_umi_length: "10" # is 5 for older encode eCLIPs
+encode: False
+encode_umi_length: "" # is 5 for older encode eCLIPs
 
+experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
 
 barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
-barcodes_fasta_R1: "" # only for paired end data
-quality_filter_barcodes: True # if no demultiplexing is done, is there still a barcode
+quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
 
 # demultiplexing
-demuliplexing: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
-flexbar_minReadLength: 15
+demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+min_read_length: 15
 
 #adapter adapter_trimming
-adapter_file: "racoon/workflow/params.dir/adapter.fa"
-adapter_file_R2: "racoon/workflow/params.dir/adapter.fa" # for paired en data adapter of read 2
+adapter_file: "params.dir/adapter.fa"
 adapter_cycles: 1
 adapter_trimming: True
 
 # star alignment
-paired: False
-gft: "" # has to be unzipped at the moment
+gtf: "" # has to be unzipped at the moment
 genome_fasta: "" # has to be unzipped or bgzip
-sjdbOverhang: 139 # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
+read_length: 150 # remove???  readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
 outFilterMismatchNoverReadLmax: 0.04
 outFilterMismatchNmax: 999
 outFilterMultimapNmax: 1
-alignEndsType: "Extend5pOfRead1"
 outReadsUnmapped: "Fastx"
 outSJfilterReads: "Unique"
 moreSTARParameters: ""
 
-# deduplication
+# deduplicate
 deduplicate: True
 
-# chimeric miR
-miR: False
-miR_genome_fasta: ""
-miR_starts_allowed: "1 2 3 4"
+
