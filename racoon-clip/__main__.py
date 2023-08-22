@@ -1,5 +1,5 @@
 """
-Entrypoint for racoon
+Entrypoint for racoon-clip
 
 Check out the wiki for a detailed look at customising this file:
 https://github.com/beardymcjohnface/Snaketool/wiki/Customising-your-Snaketool
@@ -63,7 +63,7 @@ def common_options(func):
         ),
         click.option(
             "--log",
-            default="racoon.log",
+            default="racoon-clip.log",
             #callback=default_to_output,
             hidden=True,
         ),
@@ -76,7 +76,7 @@ def common_options(func):
             "-wd", "--working_directory",
             help="Output directory",
             type=click.Path(dir_okay=True, writable=True, readable=True),
-            default="./racoon_out",
+            default="./racoon-clip_out",
             show_default=True,
         ),
         click.option(
@@ -264,23 +264,23 @@ def cli():
     """Snakemake-powered commandline tool to obtain single-nucleotide crosslinks from i/eCLIP data.
     \b
     For more options, run:
-    racoon command --help"""
+    racoon-clip command --help"""
     pass
 
 
 help_msg_extra = """
 \b
 CLUSTER EXECUTION:
-racoon run ... --profile [profile]
+racoon-clip run ... --profile [profile]
 For information on Snakemake profiles see:
 https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles
 \b
 RUN EXAMPLES:
-Required:           racoon run --configfile [file]
-Specify threads:    racoon run ... --threads [threads]
-Change defaults:    racoon run ... --snake-default="-k --nolock"
-Add Snakemake args: racoon run ... --dry-run --keep-going --touch
-Specify targets:    racoon run ... all print_targets
+Required:           racoon-clip run --configfile [file]
+Specify threads:    racoon-clip run ... --threads [threads]
+Change defaults:    racoon-clip run ... --snake-default="-k --nolock"
+Add Snakemake args: racoon-clip run ... --dry-run --keep-going --touch
+Specify targets:    racoon-clip run ... all print_targets
 Available targets:
     all             Run everything (default)
     print_targets   List available targets
@@ -333,7 +333,7 @@ def run( _configfile,
         deduplicate,
         **kwargs): 
     
-    """Run racoon"""
+    """Run racoon-clip"""
     # Config to add or update in configfile
     merge_config = {"output": working_directory, 
                     "log": log,
@@ -368,7 +368,7 @@ def run( _configfile,
                     "moreSTARParameters": moreSTARParameters,
                     "deduplicate": deduplicate,
                     }
-    default_config = {"output": "./racoon_out", 
+    default_config = {"output": "./racoon-clip_out", 
                     "infiles": "",
                     "experiement_groups": "",
                     "experiment_group_file":"",
