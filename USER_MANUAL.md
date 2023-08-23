@@ -1,5 +1,6 @@
 # racoon - User manual
 
+![](Workflow.png)
 xx short summary what racoon does with workflow picture
 
 xx detailed methods steps here or later?
