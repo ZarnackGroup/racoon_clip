@@ -1,2 +1,0 @@
-[console_scripts]
-racoon = racoon.__main__:main
