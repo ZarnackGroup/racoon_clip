@@ -1,0 +1,647 @@
+---
+title: 'racoon - CLIP processing report'
+author: "Melina Klostermann"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc_float: TRUE
+    toc: TRUE
+    number_sections: yes
+    fig_caption: yes
+params:
+  config: "config"
+---
+
+```{r setup, include=FALSE}
+require("knitr")
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, eval = TRUE, cache = F, echo = FALSE,  cache.lazy = FALSE,  dpi= 20, fig.width = 20, fig.height = 10, crop = NULL) #, fig.pos = "!H", out.extra = ""
+#options(knitr.table.format = "html")
+
+source("theme_html.R")
+library(ggplot2)
+theme_set(theme_html())
+```
+
+```{r libraries}
+library(tidyverse)
+library(yaml)
+library(knitr)
+# library(gridExtra)
+# library(kableExtra)
+# library(grid)
+
+```
+
+# Overview over raccon steps
+
+\newline
+\newline
+![](Workflow.png)
+
+\newline
+\newline
+
+
+
+# Configurations {.tabset}
+
+Here is a summary off the settings you chose for this analysis.
+
+```{r config}
+config_default <- yaml.load_file("../../config/config.yaml") %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame()
+config <- yaml.load_file(params$config) %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame(.)
+
+colnames(config_default) <- c("config")
+colnames(config) <- c("config")
+
+# colnames(config)
+n <- which(!(rownames(config_default) %in% rownames(config)))
+add <- data.frame(config = config_default[n,])
+rownames(add) <- rownames(config_default)[n]
+
+config <- rbind(config, add)
+kable(config)
+# config
+dir <- config["wdir",]
+dir
+
+typeof(dir)
+as.character(dir)
+
+dir <- as.character(dir)
+
+```
+
+```{r what_to_run}
+demult <- as.logical(config["demultiplex",])
+trim <- as.logical(config["adapter_trimming",])
+qual_bc <- as.logical(config["quality_filter_barcodes",]) 
+dedup <- as.logical(config["deduplicate",]) 
+no_trim <- !any(demult, trim, qual_bc)
+only_trim <- ((!demult) && trim)
+qual_bc_no_demult <- ((!demult) && qual_bc )
+
+
+```
+
+## Input files
+```{r}
+
+df <- data.frame(parameter = c("configfile", "infiles", "barcodes_fasta", "gtf", "genome_fasta"), file = c(params$config, config[c("infiles", "barcodes_fasta", "gtf", "genome_fasta"),]))
+
+rownames(df) <- NULL
+
+kable(df)  
+```
+
+## Options
+```{r}
+t <- data.frame(config[c("demultiplex", "adapter_trimming", "quality_filter_barcodes", "encode", "deduplicate"),])
+rownames(t) <- c("demuliplex", "adapter_trimming", "quality_filter_barcodes", "encode", "deduplicate")
+kable(t) 
+```
+
+## Barcode settings
+```{r}
+t <- data.frame(config[c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","exp_barcode_len", "samples", "encode", "encode_umi_length"),])
+rownames(t) <- c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","exp_barcode_len", "samples", "encode", "encode_umi_length")
+kable(t) 
+```
+
+## Read filter
+```{r}
+t <- data.frame(config[c("min_read_length"),])
+rownames(t) <- ("min_read_length")
+kable(t) 
+```
+
+## Alignment setting (STAR)
+```{r}
+t <- data.frame(config[c("read_length", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "outReadsUnmapped",  "outSJfilterReads", "moreSTARParameters"),])
+rownames(t) <- c("read_length", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "outReadsUnmapped",  "outSJfilterReads", "moreSTARParameters")
+kable(t) 
+
+```
+
+## Experiemnt groups
+```{r}
+gf <- file.exists(as.character(config["experiment_group_file",]))
+
+```
+
+```{r eval = gf }
+groups <- read.table(as.character(config["experiment_group_file",]))
+colnames(groups) <- c("Group", "Sample")
+
+kable(groups) 
+
+```
+
+```{r eval = !gf, results = 'asis'}
+cat(paste("No groups specified. Merging all samples for you."))
+```
+
+
+# {-}
+
+
+
+# {-}
+
+
+
+# Quality control of raw files 
+
+Initial quality control of the raw sequencing file is performed with FastQC. Here you can see the sequencing quality and contend per base.
+
+```{r raw_quality, eval = demult}
+# get name of file
+name_raw_fasta <- strsplit(as.character(config["infiles",]), "/") %>% unlist(.)
+l <- length(name_raw_fasta)
+name_raw_fasta <- name_raw_fasta[[l]] %>% unlist(.)
+name_raw_fasta <- strsplit(as.character(name_raw_fasta), ".", fixed = T)  %>% unlist(.) %>% .[1]
+
+# overview 
+fastqc_report_raw <- read_delim(paste0(dir,"/results/fastqc/raw/", name_raw_fasta, "_fastqc/fastqc_data.txt"), delim="\t", skip = 2, n_max = 10)
+kable(fastqc_report_raw)  
+
+# images
+include_graphics(paste0(dir,"/results/fastqc/raw/", name_raw_fasta, "_fastqc/Images/per_base_quality.png"))
+include_graphics(paste0(dir,"/results/fastqc/raw/", name_raw_fasta, "_fastqc/Images/per_base_sequence_content.png"))
+
+
+```
+
+
+```{r raw_quality_demult, eval=!demult, dpi=100, include=FALSE, out.width="100%"}
+
+fastqc_report_raw <- read_delim(paste0(dir,"/results/fastqc/raw/multiqc_data/multiqc_fastqc.txt"), delim="\t")
+fastqc_report_t <- fastqc_report_raw[,c(1,5:8,11)] %>% 
+  mutate(avg_sequence_length = round(avg_sequence_length, digits = 1)) %>%
+  arrange(as.character(Sample))
+         #Sample = substr(Sample,20,nchar(Sample)))
+
+kable(fastqc_report_t) 
+
+
+
+pbq <- list.files(path = paste0(dir,"/results/fastqc/raw"), pattern = "\\per_base_quality.png$", recursive = TRUE, full.names = T) 
+p <- nchar(paste0(dir,"/results/fastqc/raw/"))+1
+n <- nchar("/Images/per_base_quality.png")
+titles_pbq <- lapply(pbq, function(x) substr(x, p, nchar(x)-n-7 ))
+# titles_pbq
+
+pbsc <- list.files(path = paste0(dir,"/results/fastqc/raw"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
+
+# list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
+
+# pbq <- pbq %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
+# pbsc <- pbsc %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
+# titles_pbq <- titles_pbq %>% map(~ggpubr::text_grob(.x))
+# 
+# plots <- rbind(unlist(titles_pbq), unlist(pbq), unlist(pbsc)) %>% as.list()
+# 
+# marrangeGrob(grobs = plots, nrow = 1, ncol =3)  
+
+```
+
+## Quality scores across all bases {.tabset}
+
+
+```{r eval=!demult, out.width="100%", dpi = 100, results = "asis"}
+
+for(i in 1:length(pbq)){
+  cat("\n###", titles_pbq[[i]], "{-}\n")
+  cat( paste0("![](", pbq[[i]], ") \n "))
+}
+
+```
+
+## {-}
+
+## Sequence content across all bases {.tabset}
+
+```{r eval=!demult, out.width="100%", dpi = 100, results = "asis"}
+
+for(i in 1:length(pbq)){
+  cat("\n### ", titles_pbq[[i]], "{-}\n")
+  cat( paste0("![](", pbsc[[i]], ") \n"))
+}
+
+```
+
+## {-}
+
+```{r eval=qual_bc, results = 'asis'}
+cat(paste("# Quality filtering in barcode region \n Sequences are filtered for a minimum sequencing quality of", config["minBaseQuality",], "inside the barcode region to ensure correct sample and duplicate assignment.\n"))
+```
+
+```{r eval=qual_bc, results = 'asis'}
+cat("## Read numbers before and after the quality filtering step: \n ")
+```
+
+
+```{r}
+bc_filter_one_file <- (demult && qual_bc)
+bc_filter_multi_file <- ((!demult) && qual_bc)
+
+```
+
+
+```{r barcode_filter1, eval=demult}
+
+fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/raw/filtered_fastqc/fastqc_data.txt"), delim="\t", skip = 2, n_max = 10)
+read_numbers <- data.frame( steps = c("raw", "after_barcode_quality_filter"),
+                            `number of reads` = c(fastqc_report_raw$Value[4], fastqc_report_filtered$Value[4]))
+
+kable(read_numbers)  
+
+```
+
+```{r barcode_filter1_multi, eval=qual_bc_no_demult }
+
+fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/filtered/multiqc_data/multiqc_fastqc.txt"), delim="\t")
+
+read_numbers <- data.frame( Sample = fastqc_report_raw$Sample,
+                            "Raw reads [n]" = fastqc_report_raw$`Total Sequences`, 
+                            "Filtered reads [n]" = fastqc_report_filtered$`Total Sequences`) %>% 
+  arrange(as.character(Sample))
+
+kable(read_numbers)  
+
+```
+
+
+```{r eval=qual_bc, results = 'asis'}
+cat("## Sequencing quality and contend per base after the quality filtering step \n")
+```
+
+```{r barcode_filter2, eval=bc_filter_one_file}
+include_graphics(paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/per_base_quality.png"))
+include_graphics(paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/per_base_sequence_content.png"))
+
+```
+
+
+```{r barcode_filter2_multi, eval=qual_bc_no_demult , out.width="100%", dpi = 100, results = "asis"}
+
+fastqc_report_filtered_t <- fastqc_report_filtered[,c(1,5:7,11)] 
+
+# %>% 
+#   mutate(avg_sequence_length = round(avg_sequence_length, digits = 1)) %>% 
+#   arrange(as.character(Sample))
+
+
+kable(fastqc_report_filtered_t)
+
+
+# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_base_sequence_quality_plot_1.png"))
+# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_sequence_gc_content_plot_Percentages.png"))
+# 
+# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_sequence_length_distribution_plot_1.png"))
+
+
+
+pbq <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\per_base_quality.png$", recursive = TRUE, full.names = T) 
+p <- nchar(paste0(dir,"/results/fastqc/filtered/")) + 1
+n <- nchar("/Images/per_base_quality.png")
+titles_pbq <- lapply(pbq, function(x) substr(x, p ,nchar(x)-n-7 ))
+# titles_pbq
+dir
+
+pbq
+
+pbsc <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
+
+# list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
+
+# pbq <- pbq %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
+# pbsc <- pbsc %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
+# titles_pbq <- titles_pbq %>% map(~ggpubr::text_grob(.x))
+# 
+# plots <- rbind(unlist(titles_pbq), unlist(pbq), unlist(pbsc)) %>% as.list()
+# 
+# marrangeGrob(grobs = plots, nrow = 1, ncol =3)  
+
+
+# pmap(list(a = titles_pbq, b = pbq, c = pbsc), function(a,b,c) print(marrangeGrob(grobs = list(b,c), title = a, nrow=2)   ))
+
+```
+
+```{r eval=qual_bc, results = 'asis'}
+cat("### Quality scores across all bases {.tabset} \n")
+```
+
+
+```{r test, out.width="100%", dpi = 100, results = 'asis', eval=qual_bc_no_demult }
+for(i in 1:length(pbq)){
+  cat("####", titles_pbq[[i]], "{-}\n")
+  cat( paste0("![](", pbq[[i]], ") \n"))
+  cat("\n")
+}
+cat("### {-} \n")
+
+```
+
+```{r eval=qual_bc, results = 'asis'}
+cat("### Sequence content across all bases {.tabset}")
+```
+
+```{r out.width="100%", dpi = 100, results = "asis", eval=qual_bc_no_demult }
+for(i in 1:length(pbsc)){
+  cat("####", titles_pbq[[i]], "{-}\n")
+  cat( paste0("![](", pbsc[[i]], ") \n"))
+  cat("\n")
+}
+
+```
+
+```{r eval=qual_bc, results = 'asis'}
+cat("### {-}")
+```
+
+```{r}
+# demult <- (config["demuliplex",] == "TRUE")
+# trim <- (config["adapter_trimming",] == "TRUE")
+# qual_bc <- (config["quality_filter_barcodes",] == "TRUE")
+```
+
+
+
+```{r eval=demult, results = 'asis'}
+print(" # Demultiplexing and quality control of individual samples \n
+Samples are demultiplexed with flexbar and Adapters are trimmed in the same step.")
+
+```
+
+
+```{r demultiplexed_samples, out.width="100%", dpi = 100, results = "asis", eval=dedup}
+fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"), delim="\t")
+fastqc_report_filtered_t <- fastqc_report_filtered[,c(1,5:7,11)] %>% 
+  #mutate(avg_sequence_length = round(avg_sequence_length, digits = 1)) %>% 
+  arrange(as.character(Sample))
+         #Sample = substr(Sample,20,nchar(Sample)))
+
+kable(fastqc_report_filtered_t) 
+
+
+# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_base_sequence_quality_plot_1.png"))
+# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_sequence_gc_content_plot_Percentages.png"))
+# 
+# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_sequence_length_distribution_plot_1.png"))
+
+
+# pbq <- list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\per_base_quality.png$", recursive = TRUE, full.names = T) 
+# p <- nchar(paste0(dir,"/results/fastqc/separate_samples/"))+1
+# n <- nchar("/Images/per_base_quality.png")
+# titles_pbq <- lapply(pbq, function(x) substr(x, p, nchar(x)-n-7 ))
+# # titles_pbq
+# 
+# pbsc <- list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
+# 
+# # list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
+# 
+# # pbq <- pbq %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
+# # pbsc <- pbsc %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
+# # titles_pbq <- titles_pbq %>% map(~ggpubr::text_grob(.x))
+# # 
+# # plots <- rbind(unlist(titles_pbq), unlist(pbq), unlist(pbsc)) %>% as.list()
+# # 
+# # marrangeGrob(grobs = plots, nrow = 1, ncol =3)  
+# 
+# for(i in 1:length(pbq)){
+#   cat(paste0("\n  **", titles_pbq[[i]], "** \n"))
+#   cat( paste0("![](", pbq[[i]], ") \n"))
+#   cat( paste0("![](", pbsc[[i]], ") \n"))
+# }
+
+# pmap(list(a = titles_pbq, b = pbq, c = pbsc), function(a,b,c) print(marrangeGrob(grobs = list(b,c), title = a, nrow=2)   ))
+
+  
+```
+
+```{r eval=demult, results = 'asis'}
+# asis_output("# Adapter trimming \\n")
+print("## Mutations in Barcodes /n Mutations can occur during PCR amplification or read sequencing. Mutations inside the gene sequence are dealt with during the star alignment step. However, mutations in the barcode sequence can lead to assignment of that read to the wrong sample (is this that bad, if samples are only replicates?). In consequence a read with a once or multi mutated barcode will not be assigned to any sample. Here is an overview of the distance of the detected barcodes to the specified sample barcodes.")
+```
+
+```{r barcode_distances, out.width="100%", eval=FALSE}
+barcodes_found <- read_table(paste0(dir,"/results/barcode_filter/barcodes_detected.txt"), col_names = c("n", "barcode"))
+
+
+barcodes_fasta <- read_table(as.character(config["barcodes_fasta",]), col_names = F)
+barcodes_fasta <- data.frame(sample = barcodes_fasta[c(1:nrow(barcodes_fasta) %% 2 != 0),],
+                             barcode = barcodes_fasta[c(1:nrow(barcodes_fasta) %% 2 == 0),])
+colnames(barcodes_fasta) <- c("sample", "barcode")
+
+
+
+# config["umi1_len",]
+
+barcodes_fasta <- barcodes_fasta %>% mutate(., exp_barcode = substr(barcode, as.numeric(config["umi1_len",])+1, as.numeric(config["umi1_len",])+as.numeric(config["exp_barcode_len",]) ) )
+kable(barcodes_fasta, caption = "sample barcodes") 
+
+barcodes_found <- barcodes_found %>%
+  rowwise %>%
+  mutate( mismatch_0 = vcountPattern(barcode, barcodes_fasta$barcode, max.mismatch=0) %>% sum(),
+          mismatch_1 = vcountPattern(barcode, barcodes_fasta$barcode, max.mismatch=1) %>% sum(),
+          mismatch_2 = vcountPattern(barcode, barcodes_fasta$barcode, max.mismatch=2) %>% sum(),
+          mismatch_3 = vcountPattern(barcode, barcodes_fasta$barcode, max.mismatch=3) %>% sum(),
+          mismatch_4 = vcountPattern(barcode, barcodes_fasta$barcode, max.mismatch=4) %>% sum(),
+          mismatch_5 = vcountPattern(barcode, barcodes_fasta$barcode, max.mismatch=5) %>% sum(),
+          dist = case_when(mismatch_0 > 0 ~ 0,
+                           mismatch_1 > 0 ~ 1,
+                           mismatch_2 > 0 ~ 2,
+                           mismatch_3 > 0 ~ 3,
+                           mismatch_4 > 0 ~ 4,
+                           mismatch_5 > 0 ~ 5,
+                           ),
+          # dist = factor(dist, levels = dist),
+          barcode = factor(barcode, levels = barcode),
+          dist = as.character(dist))  %>%
+  arrange(dist)
+
+head(barcodes_found)
+
+ggplot(barcodes_found[c(1:100),], aes(x=barcode, y = n, fill = dist))+
+  geom_col()+
+  theme(text=element_text(size=50))
+
+
+ggplot(barcodes_found[ barcodes_found$dist != 0,], aes(x=barcode, y = log(n), fill = as.factor(dist)))+
+  geom_col()+
+  theme(text=element_text(size=50))
+
+
+
+
+
+```
+
+# Adapter trimming
+
+```{r eval=only_trim, results = 'asis'}
+cat(paste("\n Adapters are trimmed with flexbar, which would be used for demultiplexing on multiplex data. This should garantee the comaparability off multiplexed and demultiplexed data sets. \\n 
+   Used adapters are specified with adapter_file (and adapter_file_R2). The default file contains standard Illumina and eCLIP adapters. The adapters are trimmed from the 3'end of the read (--adapter-trim-end RIGHT), with a allowed error of 0.1 (--adapter-error-rate 0.1). The adapter needs to overlap for at least 1nt witht he read (--adapter-min-overlap 1). Adapter trimming can be performed in mutiple cycles as sepcified by the user, here", config["adapter_cycles",], "(adapterCycles, see configrations). Reads shorter then", config["min_read_length",],"are discarded (min_read_length, see configurartions). \\n
+   UMIs are written into the read header with (--umi-tags). If data is from ENCODE, UMIs are already removed from the reads and written in the beginning of the header. As umi-tools dedup which is used for deduplication here expects the UMI to be in the end of the read,encode can be specified to move the UMI from the beginning of the read header to the end (see configurations).
+        \\n"))
+
+```
+
+## Adapter Content before trimming
+
+Position of adapters found in the reads. If adapters are found early in the reads, this points to overdigestion of the samples.
+
+```{r }
+
+if (qual_bc & !demult){
+  include_graphics(paste0(dir,"/results/fastqc/filtered/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
+}else{
+  if(!demult){
+  include_graphics(paste0(dir,"/results/fastqc/raw/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
+  }else{
+    include_graphics(paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/adapter_content.png"))
+  }
+  }
+
+
+```
+
+## Adapter content after trimming
+
+```{r eval=only_trim, results = 'asis'}
+if(file.exists(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))){
+  include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
+}else{
+  cat("\n \n  **Trimming successfull, no adapter content left. **")
+}
+
+```
+
+```{r eval = no_trim, results = 'asis'}
+cat("No trimming was performed.")
+```
+
+# Mapping
+
+The genome annotation is indexed with STAR  --runMode genomeGenerate. Then the merged file of the chimeric reads is aligned to the genome annotation with STAR --runMode alignReads. For STAR settings see configurations. Obtained bam files are indexed with samtools index.
+
+```{r }
+star_out <- list.files(path = paste0(dir,"/results/aligned"), pattern = "*Log.final.out$", recursive = TRUE, full.names = T) %>% map(~read_delim(.x, delim="\t", col_names = c("type", "number")))
+
+star_mir_out_names <-  list.files(paste0(dir,"/results/aligned"), pattern = "*Log.final.out$", recursive = TRUE) %>%
+  gsub("chimeric_", "", . ) %>%
+  gsub(".Log.final.out", "",  . )
+
+
+names(star_out) <- star_mir_out_names 
+
+r <- c(5,8,9,23,24,25,26,28:33)
+star_out2 <- star_out %>% map(., ~.x[r,]) %>%
+  map_dfr( ~.x$number) 
+
+
+names <- star_out[[1]]$type[c(5,8,9,23,24,25,26,28:33)]
+rownames(star_out2) <- substr(names,1, nchar(star_out[[1]]$type)-2)
+
+# star_out2 <- star_out2 %>%
+#   arrange(as.character(Sample)) %>%
+#   .[, r]
+
+kable(as.data.frame(star_out2) )
+```
+
+```{r, dpi=100 }
+gg.df <- t(star_out2) %>% as.data.frame(.) %>% .[,c(1,2,6) ]
+
+gg.df$Sample <- rownames(gg.df)
+colnames(gg.df) <- c("reads",  "uniquely_mapped_reads", "mapped_reads", "Sample")
+
+
+gg.df <- gg.df %>% mutate( reads = as.numeric(reads),
+                           uniquely_mapped_reads = as.numeric(uniquely_mapped_reads),
+                           mapped_reads = as.numeric(mapped_reads) + uniquely_mapped_reads
+                           )
+
+gg.df <- gg.df %>% reshape2::melt()
+
+gg.df$variable <- factor(gg.df$variable, levels = c("reads", "mapped_reads", "uniquely_mapped_reads"))
+
+
+
+ggplot(gg.df, aes( x = Sample, y = as.numeric(value), fill = variable))+
+  geom_col(position = "dodge", stat = "idenity")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1),
+        legend.title= element_blank(),
+        legend.position = "top")+
+  ylab("Number of reads")
+
+
+
+```
+
+
+```{r eval=dedup, results = 'asis'}
+# asis_output("# Adapter trimming \\n")
+cat("# Deduplication \n
+Chimeric reads are deduplicated analogous to the non-chimeric reads with umi_tools dedup --extract-umi-method read_id --method unique.")
+```
+
+
+```{r dpi = 100, eval=dedup}
+
+umitools_out <- list.files(path = paste0(dir,"/results/aligned"), pattern = "*out.duprm.log$", recursive = TRUE, full.names = T) %>%
+  map(~read_delim(.x, delim="\t", skip = 57, col_names = c("invalue")))
+
+
+umitools_out <- map(umitools_out, ~mutate(.x, measure = substr(invalue, 29, nchar(invalue)) %>% strsplit(., split = ":")) )
+                    
+umitools_out <- map(umitools_out , ~rowwise(.x) %>%
+        mutate(type = measure[[1]],
+               number = measure[[length(measure)]]) %>%
+       .[(nrow(.)-5):(nrow(.)-2),]
+      )
+
+umitools_out_names <-  list.files(path = paste0(dir,"/results/aligned"), pattern = "*out.duprm.log$", recursive = TRUE) %>%
+  gsub("chimeric_", "", . ) %>%
+  gsub(".Aligned.sortedByCoord.out.duprm.log", "", . )
+
+names(umitools_out) <- umitools_out
+
+umitools_out_2 <- map_dfr(umitools_out, ~.x$number)
+umitools_out_2 <- t(umitools_out_2) %>% as.data.frame()
+
+colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplictaes)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nulecotide")
+
+umitools_out_2$Sample <- umitools_out_names
+rownames(umitools_out_2) <- umitools_out_names
+
+kable(umitools_out_2[,1:4])
+
+gg.umitools_out_2 <- umitools_out_2 %>% reshape2::melt(id.vars = c("Mean crosslink events per crosslinked nulecotide", "Sample"))
+gg.umitools_out_2$value <- as.numeric(gg.umitools_out_2$value)
+
+ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
+  geom_col(position = "dodge")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        legend.title= element_blank(),
+        legend.position = "top")+
+  ylab("Number of reads")
+
+```
+
+## Obtaining crosslinks
+
+The deduplicated bam files are then converted into bed files with bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1 because the UV-crosslink should be positioned 1nt before. 
+\n
+To allow visualization in a genome browser the 1nt crosslink bed file is then also converted to .bigWig file using bedGraphToBigWig. Furthermore these bigWig files are merged with bigWigMerge by the experiment groups, specified by the user.
+
+# Session Info
+
+```{r}
+sessionInfo()
+
+```
+
+
+

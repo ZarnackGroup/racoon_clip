@@ -1,0 +1,4 @@
+# Snakemake config
+input:
+output: 'racoon.out/'
+log: 'racoon/racoon.log'

@@ -6,8 +6,8 @@ def get_version():
     with open(
         os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            "racoon-clip",
-            "racoon-clip.VERSION",
+            "racoon_clip",
+            "racoon_clip.VERSION",
         )
     ) as f:
         return f.readline().strip()
@@ -39,7 +39,7 @@ CLASSIFIERS = [
 ]
 
 setup(
-    name="racoon-clip",
+    name="racoon_clip",
     packages=find_packages(),
     url="",
     python_requires=">3.9",
@@ -50,7 +50,7 @@ setup(
     author="Melina Klostermann",
     author_email="melinaklostermann@googlemail.com",
     data_files=get_data_files(),
-    py_modules=["racoon-clip"],
+    py_modules=["racoon_clip"],
     install_requires=[
         "snakemake>=7.22",
         "pyyaml>=6.0",
@@ -58,7 +58,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "racoon-clip=racoon-clip.__main__:main"
+            "racoon_clip=racoon_clip.__main__:main"
         ]
     },
     include_package_data=True,

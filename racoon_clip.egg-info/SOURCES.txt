@@ -1,0 +1,9 @@
+MANIFEST.in
+README.md
+setup.py
+racoon_clip.egg-info/PKG-INFO
+racoon_clip.egg-info/SOURCES.txt
+racoon_clip.egg-info/dependency_links.txt
+racoon_clip.egg-info/entry_points.txt
+racoon_clip.egg-info/requires.txt
+racoon_clip.egg-info/top_level.txt

@@ -1,0 +1,364 @@
+[2023:05:31 08:51:51] Updating config file with new values
+[2023:05:31 08:51:51] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 08:51:51] ---------------------
+[2023:05:31 08:51:51] | Snakemake command |
+[2023:05:31 08:51:51] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 08:51:53] ERROR: Snakemake failed
+[2023:05:31 09:00:41] Updating config file with new values
+[2023:05:31 09:00:41] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 09:00:41] ---------------------
+[2023:05:31 09:00:41] | Snakemake command |
+[2023:05:31 09:00:41] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 09:00:42] ERROR: Snakemake failed
+[2023:05:31 09:01:03] Updating config file with new values
+[2023:05:31 09:01:03] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 09:01:03] ---------------------
+[2023:05:31 09:01:03] | Snakemake command |
+[2023:05:31 09:01:03] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 09:01:03] ERROR: Snakemake failed
+[2023:05:31 11:43:45] Updating config file with new values
+[2023:05:31 11:43:45] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 11:43:45] ---------------------
+[2023:05:31 11:43:45] | Snakemake command |
+[2023:05:31 11:43:45] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 11:43:45] ERROR: Snakemake failed
+[2023:05:31 11:48:34] Updating config file with new values
+[2023:05:31 11:48:34] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 11:48:34] ---------------------
+[2023:05:31 11:48:34] | Snakemake command |
+[2023:05:31 11:48:34] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 11:48:39] ERROR: Snakemake failed
+[2023:05:31 11:51:27] Updating config file with new values
+[2023:05:31 11:51:27] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 11:51:27] ---------------------
+[2023:05:31 11:51:27] | Snakemake command |
+[2023:05:31 11:51:27] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:08:01] Updating config file with new values
+[2023:05:31 12:08:01] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:08:01] ---------------------
+[2023:05:31 12:08:01] | Snakemake command |
+[2023:05:31 12:08:01] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:11:35] ERROR: Snakemake failed
+[2023:05:31 12:19:06] Updating config file with new values
+[2023:05:31 12:19:06] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:19:06] ---------------------
+[2023:05:31 12:19:06] | Snakemake command |
+[2023:05:31 12:19:06] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:19:20] ERROR: Snakemake failed
+[2023:05:31 12:21:51] Updating config file with new values
+[2023:05:31 12:21:51] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:21:51] ---------------------
+[2023:05:31 12:21:51] | Snakemake command |
+[2023:05:31 12:21:51] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:21:55] ERROR: Snakemake failed
+[2023:05:31 12:23:02] Updating config file with new values
+[2023:05:31 12:23:02] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:23:02] ---------------------
+[2023:05:31 12:23:02] | Snakemake command |
+[2023:05:31 12:23:02] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:23:06] ERROR: Snakemake failed
+[2023:05:31 12:23:50] Updating config file with new values
+[2023:05:31 12:23:50] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:23:50] ---------------------
+[2023:05:31 12:23:50] | Snakemake command |
+[2023:05:31 12:23:50] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:23:54] ERROR: Snakemake failed
+[2023:05:31 12:24:06] Updating config file with new values
+[2023:05:31 12:24:06] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:24:06] ---------------------
+[2023:05:31 12:24:06] | Snakemake command |
+[2023:05:31 12:24:06] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:24:10] ERROR: Snakemake failed
+[2023:05:31 12:25:02] Updating config file with new values
+[2023:05:31 12:25:02] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:25:02] ---------------------
+[2023:05:31 12:25:02] | Snakemake command |
+[2023:05:31 12:25:02] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:25:06] ERROR: Snakemake failed
+[2023:05:31 12:26:22] Updating config file with new values
+[2023:05:31 12:26:22] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:26:22] ---------------------
+[2023:05:31 12:26:22] | Snakemake command |
+[2023:05:31 12:26:22] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:26:26] ERROR: Snakemake failed
+[2023:05:31 12:27:38] Updating config file with new values
+[2023:05:31 12:27:38] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:27:38] ---------------------
+[2023:05:31 12:27:38] | Snakemake command |
+[2023:05:31 12:27:38] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:27:42] ERROR: Snakemake failed
+[2023:05:31 12:29:06] Updating config file with new values
+[2023:05:31 12:29:06] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:29:06] ---------------------
+[2023:05:31 12:29:06] | Snakemake command |
+[2023:05:31 12:29:06] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:29:06] ERROR: Snakemake failed
+[2023:05:31 12:31:02] Updating config file with new values
+[2023:05:31 12:31:02] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:31:02] ---------------------
+[2023:05:31 12:31:02] | Snakemake command |
+[2023:05:31 12:31:02] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:31:09] ERROR: Snakemake failed
+[2023:05:31 12:33:00] Updating config file with new values
+[2023:05:31 12:33:00] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:33:00] ---------------------
+[2023:05:31 12:33:00] | Snakemake command |
+[2023:05:31 12:33:00] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:33:05] ERROR: Snakemake failed
+[2023:05:31 12:35:42] Updating config file with new values
+[2023:05:31 12:35:42] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:35:42] ---------------------
+[2023:05:31 12:35:42] | Snakemake command |
+[2023:05:31 12:35:42] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:35:47] ERROR: Snakemake failed
+[2023:05:31 12:37:26] Updating config file with new values
+[2023:05:31 12:37:26] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:37:26] ---------------------
+[2023:05:31 12:37:26] | Snakemake command |
+[2023:05:31 12:37:26] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:37:30] ERROR: Snakemake failed
+[2023:05:31 12:37:36] Updating config file with new values
+[2023:05:31 12:37:36] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:37:36] ---------------------
+[2023:05:31 12:37:36] | Snakemake command |
+[2023:05:31 12:37:36] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:37:40] ERROR: Snakemake failed
+[2023:05:31 12:48:24] Updating config file with new values
+[2023:05:31 12:48:24] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:48:24] ---------------------
+[2023:05:31 12:48:24] | Snakemake command |
+[2023:05:31 12:48:24] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:48:28] ERROR: Snakemake failed
+[2023:05:31 12:51:12] Updating config file with new values
+[2023:05:31 12:51:12] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:51:12] ---------------------
+[2023:05:31 12:51:12] | Snakemake command |
+[2023:05:31 12:51:12] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:51:16] ERROR: Snakemake failed
+[2023:05:31 12:54:57] Updating config file with new values
+[2023:05:31 12:54:57] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:54:57] ---------------------
+[2023:05:31 12:54:57] | Snakemake command |
+[2023:05:31 12:54:57] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:55:01] ERROR: Snakemake failed
+[2023:05:31 12:56:06] Updating config file with new values
+[2023:05:31 12:56:06] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:56:06] ---------------------
+[2023:05:31 12:56:06] | Snakemake command |
+[2023:05:31 12:56:06] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:56:10] ERROR: Snakemake failed
+[2023:05:31 12:57:13] Updating config file with new values
+[2023:05:31 12:57:13] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:57:13] ---------------------
+[2023:05:31 12:57:13] | Snakemake command |
+[2023:05:31 12:57:13] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 12:57:18] ERROR: Snakemake failed
+[2023:05:31 12:59:28] Updating config file with new values
+[2023:05:31 12:59:28] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 12:59:28] ---------------------
+[2023:05:31 12:59:28] | Snakemake command |
+[2023:05:31 12:59:28] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:00:20] Updating config file with new values
+[2023:05:31 13:00:20] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:00:20] ---------------------
+[2023:05:31 13:00:20] | Snakemake command |
+[2023:05:31 13:00:20] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:00:24] ERROR: Snakemake failed
+[2023:05:31 13:00:34] Updating config file with new values
+[2023:05:31 13:00:34] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:00:34] ---------------------
+[2023:05:31 13:00:34] | Snakemake command |
+[2023:05:31 13:00:34] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:00:38] ERROR: Snakemake failed
+[2023:05:31 13:00:55] Updating config file with new values
+[2023:05:31 13:00:55] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:00:55] ---------------------
+[2023:05:31 13:00:55] | Snakemake command |
+[2023:05:31 13:00:55] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:00:55] ERROR: Snakemake failed
+[2023:05:31 13:05:56] Updating config file with new values
+[2023:05:31 13:05:56] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:05:56] ---------------------
+[2023:05:31 13:05:56] | Snakemake command |
+[2023:05:31 13:05:56] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:06:00] ERROR: Snakemake failed
+[2023:05:31 13:12:06] Updating config file with new values
+[2023:05:31 13:12:06] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:12:06] ---------------------
+[2023:05:31 13:12:06] | Snakemake command |
+[2023:05:31 13:12:06] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:12:10] ERROR: Snakemake failed
+[2023:05:31 13:13:15] Updating config file with new values
+[2023:05:31 13:13:15] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:13:15] ---------------------
+[2023:05:31 13:13:15] | Snakemake command |
+[2023:05:31 13:13:15] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:13:20] ERROR: Snakemake failed
+[2023:05:31 13:13:55] Updating config file with new values
+[2023:05:31 13:13:55] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:13:55] ---------------------
+[2023:05:31 13:13:55] | Snakemake command |
+[2023:05:31 13:13:55] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:13:59] ERROR: Snakemake failed
+[2023:05:31 13:14:45] Updating config file with new values
+[2023:05:31 13:14:45] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:14:45] ---------------------
+[2023:05:31 13:14:45] | Snakemake command |
+[2023:05:31 13:14:45] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:14:49] ERROR: Snakemake failed
+[2023:05:31 13:17:38] Updating config file with new values
+[2023:05:31 13:17:38] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:17:38] ---------------------
+[2023:05:31 13:17:38] | Snakemake command |
+[2023:05:31 13:17:38] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:17:38] ERROR: Snakemake failed
+[2023:05:31 13:21:20] Updating config file with new values
+[2023:05:31 13:21:20] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:21:20] ---------------------
+[2023:05:31 13:21:20] | Snakemake command |
+[2023:05:31 13:21:20] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:21:20] ERROR: Snakemake failed
+[2023:05:31 13:34:57] Updating config file with new values
+[2023:05:31 13:34:57] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:34:57] ---------------------
+[2023:05:31 13:34:57] | Snakemake command |
+[2023:05:31 13:34:57] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:34:58] ERROR: Snakemake failed
+[2023:05:31 13:36:11] Updating config file with new values
+[2023:05:31 13:36:11] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:36:11] ---------------------
+[2023:05:31 13:36:11] | Snakemake command |
+[2023:05:31 13:36:11] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:36:11] ERROR: Snakemake failed
+[2023:05:31 13:37:04] Updating config file with new values
+[2023:05:31 13:37:04] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:37:04] ---------------------
+[2023:05:31 13:37:04] | Snakemake command |
+[2023:05:31 13:37:04] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:37:04] ERROR: Snakemake failed
+[2023:05:31 13:40:49] Updating config file with new values
+[2023:05:31 13:40:49] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:40:49] ---------------------
+[2023:05:31 13:40:49] | Snakemake command |
+[2023:05:31 13:40:49] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:40:49] ERROR: Snakemake failed
+[2023:05:31 13:41:01] Updating config file with new values
+[2023:05:31 13:41:01] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:41:01] ---------------------
+[2023:05:31 13:41:01] | Snakemake command |
+[2023:05:31 13:41:01] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:41:02] ERROR: Snakemake failed
+[2023:05:31 13:41:12] Updating config file with new values
+[2023:05:31 13:41:12] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:41:12] ---------------------
+[2023:05:31 13:41:12] | Snakemake command |
+[2023:05:31 13:41:12] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:41:13] ERROR: Snakemake failed
+[2023:05:31 13:43:23] Updating config file with new values
+[2023:05:31 13:43:23] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:43:23] ---------------------
+[2023:05:31 13:43:23] | Snakemake command |
+[2023:05:31 13:43:23] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:43:23] ERROR: Snakemake failed
+[2023:05:31 13:44:02] Updating config file with new values
+[2023:05:31 13:44:02] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:44:02] ---------------------
+[2023:05:31 13:44:02] | Snakemake command |
+[2023:05:31 13:44:02] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
+[2023:05:31 13:44:29] Updating config file with new values
+[2023:05:31 13:44:29] Writing config file to /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml
+[2023:05:31 13:44:29] ---------------------
+[2023:05:31 13:44:29] | Snakemake command |
+[2023:05:31 13:44:29] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon/racoon/workflow/Snakefile --configfile /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_eCLIP_encode/config_min_example_eCLIP_encode.yaml --use-conda --conda-frontend conda --jobs 1 -p --rerun-incomplete --printshellcmds --nolock --show-failed-logs
