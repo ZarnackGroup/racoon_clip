@@ -10,13 +10,41 @@ xx detailed methods steps here or later?
 xx
 
 ### from GitHub
-xx
+
+Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
+
+```
+unzip racoon_clip-1.0.0.zip
+cd racoon_clip-1.0.0
+```
+It is recommended to install racoon_clip it a fresh conda enviroment. Check the 
+
+```
+conda create -n racoon_clip pip
+conda activate racoon_clip
+```
+and install racoon with pip.
+```
+pip install --user -e .
+```
+
+You can now check the installation by running help option or a minimal example.
+
+```
+racoon_clip -h
+```
+
+
 
 ## Usage
 Once installed you can run racoon with
 ```
 racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
 ```
+### Minimal examples
+
+
+
 
 ## Config file
 Information on input data, used annotation, the output directory, and user options are passed to raccoon via a config file in .yaml format. Please find a description of all parameters in the config file below.
