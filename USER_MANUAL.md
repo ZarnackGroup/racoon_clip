@@ -17,7 +17,7 @@ Download the zip file of your prefered release from github and unzip it. Then go
 unzip racoon_clip-1.0.0.zip
 cd racoon_clip-1.0.0
 ```
-It is recommended to install racoon_clip it a fresh conda enviroment. Check the 
+It is recommended to install racoon_clip it a fresh conda enviroment.
 
 ```
 conda create -n racoon_clip pip
