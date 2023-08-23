@@ -35,43 +35,44 @@ The performed steps are an optional quality filter, optional demultiplaexing, ad
 Installation
 =========================
 
-
-### from Docker
-xx
-
-### from GitHub
+from GitHub
+------------
 
 Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
 
-```
-unzip racoon_clip-1.0.0.zip
-cd racoon_clip-1.0.0
-```
+::
+   unzip racoon_clip-1.0.0.zip
+   cd racoon_clip-1.0.0
+
 It is recommended to install racoon_clip it a fresh conda enviroment.
 
-```
-conda create -n racoon_clip pip
-conda activate racoon_clip
-```
+::
+   conda create -n racoon_clip pip
+   conda activate racoon_clip
+
 The install racoon with pip.
-```
-pip install --user -e .
-```
+
+::
+   pip install --user -e .
 
 You can now check the installation by running help option or a minimal example.
 
-```
-racoon_clip -h
-```
+::
+   racoon_clip -h
 
 
 
-## Usage
+
+Usage
+------------
+                                                                                                                                                                                                                                                                                   
 Once installed you can run racoon with
-```
-racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
-```
-### Minimal examples
+
+::                                                                                                          
+   racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
+
+Minimal examples
+-----------------                                                                                                                                                                
 
 
 
