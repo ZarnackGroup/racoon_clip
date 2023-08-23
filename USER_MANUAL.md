@@ -23,7 +23,7 @@ It is recommended to install racoon_clip it a fresh conda enviroment.
 conda create -n racoon_clip pip
 conda activate racoon_clip
 ```
-and install racoon with pip.
+The install racoon with pip.
 ```
 pip install --user -e .
 ```
