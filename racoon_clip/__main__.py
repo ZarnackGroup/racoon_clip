@@ -154,8 +154,8 @@ def common_options(func):
         click.option(
             "-filt", "--quality-filter-barcodes",
             help= "If no demultiplexing is done, should reads still be filtered for barcode / umi quality.",   
-            type=click.Choice([False, True]),
-            default=True,
+            type=click.Choice(["False", "True"]),
+            default="True",
             show_default=True,   
         ),
         click.option(
