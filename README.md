@@ -43,7 +43,7 @@ cd racoon_clip-1.0.0
 
 Then install racoon with pip.
 ```
-pip install --user -e .
+pip install -e .
 ```
 
 You can now check the installation by running help option or a minimal example.
