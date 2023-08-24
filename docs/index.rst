@@ -40,25 +40,25 @@ from GitHub
 
 Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
 
-::
+.. code-block:: bash
    unzip racoon_clip-1.0.0.zip
    cd racoon_clip-1.0.0
-::
+
 
 It is recommended to install racoon_clip it a fresh conda enviroment.
 
-..
+.. code-block:: bash
    conda create -n racoon_clip pip
    conda activate racoon_clip
 
 The install racoon with pip.
 
-::
+.. code-block:: bash
    pip install --user -e .
 
 You can now check the installation by running help option or a minimal example.
 
-::
+.. code-block:: bash
    racoon_clip -h
 
 
@@ -78,7 +78,9 @@ Minimal examples
 
 
 
-## Config file
+Config file
+-----------------
+
 Information on input data, used annotation, the output directory, and user options are passed to raccoon via a config file in .yaml format. Please find a description of all parameters in the config file below.
 To make your own config file you can copy the following default config file and save it to a .yaml file. Then adjust the parameters as needed.
 ```
@@ -135,7 +137,8 @@ miR_genome_fasta: ""
 miR_starts_allowed: "1 2 3 4"
 ```
 
-### Input files and output directory
+Input files and output directory
+--------------------------------
 * ***wdir*** (path): Path where results are written to. A folder “results” containing all output will be created. Be aware that in case a folder “results” already exists in this directory, it will be overwritten.
 * ***indir*** (path) or ***infile*** (path to file): indir should specify one folder that contains the input fastq files of all samples. When demultiplexing should be performed by racoon, indir should be left empty and instead infile should specify the multiplexed fastq file. At the moment fasta files are not supported, as they will not allow any quality filtering.
 * ***gz*** (True/False): *default True*; Whether the input file(s) are in .gz format or unzipped.
