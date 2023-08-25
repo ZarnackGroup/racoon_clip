@@ -11,7 +11,7 @@ The performed steps are an optional quality filter, optional demultiplaexing, ad
 
 The following are required before installing racoon_clip
 
-+ pip
++ either conda or pip
 + python >3.9
 + mamba
 
