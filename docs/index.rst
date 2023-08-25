@@ -9,7 +9,8 @@ Welcome to racoon_clip's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
+   installation
    tutorial 
    all_options
    methods_description
