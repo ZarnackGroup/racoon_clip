@@ -79,8 +79,11 @@ Barcodes, UMIs and adapters
 
 Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode set-ups. 
 - **iCLIP**: two UMI parts (3nt and 2nt) intersparced by the experimental barcode (4nt)
+
 - **iCLIP2**: two UMI parts (5nt and 4nt) intersparced by the experimental barcode (6nt)
+
 - **eCLIP** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
+
 - **eCLIP from ENCODE**: UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
 .. image:: ../experiment_types_schema.png
@@ -114,6 +117,7 @@ If your experiment does not follow one of these standard setups, you can define 
 For example manually defining an iCLIP or eCLIP setup manually would look like this:
 
 .. parameters::
+
    # iCLIP
    barcodeLength: 9
    umi1_len: 3
@@ -134,7 +138,13 @@ Using manual barcode setup for ENCODE (or ENCODE-like) data
 
    This is needed for the older ENCODE eCLIP data where the UMI is only 5 nucleotides long
 
+.. parameters::
 
+   "barcodeLength": 0, 
+   "umi1_len": 5,
+   "umi2_len": 0,
+   "exp_barcode_len": 10, # if already demux = umi1_len
+   "encode": True   
 
 quality filtering during barcode trimming:
 ---------------------------------
@@ -153,7 +163,7 @@ Adapters:
 
 - **adapter_cycles** (int): default 1 How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP (which is recommended in xxx for iCLIP and xxx for eCLIP).
 
-### Alignment to genome
+Alignment to genome
 ---------------------------------
 
 - **gft** (path): .gft file of used genome annotation. Note, that the file needs to be unzipped. (Can be obtained for example from https://www.gencodegenes.org/human/.) 
