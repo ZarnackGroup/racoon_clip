@@ -1,26 +1,38 @@
-Config file
+All paramterets and options
+================================
 
-Information on input data, used annotation, the output directory, and user options are passed to raccoon via a config file in .yaml format. Please find a description of all parameters in the config file below. To make your own config file you can copy the following default config file and save it to a .yaml file. Then adjust the parameters as needed. ``` # where to put results wdir: "" # input indir: "" # for multiple files after demultiplexing infile: "" # one un-demultiplexed file gz: True seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by FastX
+You can specify all parameters and options of racoon either directly in the commandline or in a configfile provided with
 
-#SAMPLES samples: "" experiment_group_file: "" # txt file with group space sample per row experiment_groups: ""
+.. code:: commandline
 
-# barcodes barcodeLength: 10 # if already demux = umi1_len barcodeLength.read1: 0 # in paired end eCLIP data minBaseQuality: 10 umi1_len: 10 # antisense of used barcodes --> this is the 3' umi of the original barcode umi2_len: 0 exp_barcode_len: 0
+   racoon_clip run .. --configfile [your_configfile]
 
-barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed quality_filter_barcodes: True # if no demultiplexing is done, is there still a barcode
+To make your own config file you can start with an empthy .yaml file or copy one of the example config files here xx and save it to a .yaml file. Then adjust the parameters as needed.
 
-# demultiplexing demuliplexing: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done flexbar_minReadLength: 15
+.. note::
 
-#adapter adapter_trimming adapter_file: "" adapter_cycles: 1 adapter_trimming: True
+   If a parameter is specified in both the provided configfile and the commandline, the commandline parameter will overwrite the configfile.
 
-# star alignment paired: False gft: "" # has to be unzipped at the moment genome_fasta: "" # has to be unzipped or bgzip sjdbOverhang: 139 # readlength -1 - barcode-length - adapter much faster to specify than to calculate from fastq file outFilterMismatchNoverReadLmax: 0.04 outFilterMismatchNmax: 999 outFilterMultimapNmax: 1 alignEndsType: "Extend5pOfRead1" outReadsUnmapped: "Fastx" outSJfilterReads: "Unique"
+raccon_clip will write a combind configfile, containing the default option, where nothing was specified, the configfile options and the commandline options (commandline parameters overwrite configfile parameters) with the file ending "_updated.yaml" to keep track of the options you used.
 
-# chimeric miR miR: False miR_genome_fasta: "" miR_starts_allowed: "1 2 3 4" ```
+
+Required input
+---------------
+The following input paramters are required from the user:
+
+
+
+
 Input files and output directory
+---------------------------------
 
-    *wdir* (path): Path where results are written to. A folder “results” containing all output will be created. Be aware that in case a folder “results” already exists in this directory, it will be overwritten.
-    *indir* (path) or *infile* (path to file): indir should specify one folder that contains the input fastq files of all samples. When demultiplexing should be performed by racoon, indir should be left empty and instead infile should specify the multiplexed fastq file. At the moment fasta files are not supported, as they will not allow any quality filtering.
-    *gz* (True/False): default True; Whether the input file(s) are in .gz format or unzipped.
-    *seq_format* ("-Q33"/"-Q64"): default "-Q33"; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a sanger sequencer.
+**wdir** (path): Path where results are written to. A folder “results” containing all output will be created. Be aware that in case a folder “results” already exists in this directory, it will be overwritten.
+
+**indir** (path) or *infile* (path to file): indir should specify one folder that contains the input fastq files of all samples. When demultiplexing should be performed by racoon, indir should be left empty and instead infile should specify the multiplexed fastq file. At the moment fasta files are not supported, as they will not allow any quality filtering.
+    
+**gz** (True/False): default True; Whether the input file(s) are in .gz format or unzipped.
+
+**seq_format** ("-Q33"/"-Q64"): default "-Q33"; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a sanger sequencer.
 
 ### Sample names * *samples* (string): A list of all sample names. The names should be the same as the file names of the input files or in case of demultiplexing should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are names sample_1.fastq, and sample_2.fastq. * *experiment_groups* (string): In addition to sample-wise output, racoon will output merged bam and bw files. Which samples are merged together is specified by the experiment groups. Example: "WT KO". If all samples belong to the same condition, specify only one group. Example: "All". The groups must correspond to the group names specified in the experiment_group_file. * *experiment_group_file* (path to txt): A .txt file specifying which samples belong to which group. Example: `
 WT sample1
