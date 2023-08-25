@@ -6,8 +6,6 @@
 Welcome to racoon_clip's documentation!
 =======================================
 
-.. image:: ../Racoon_Logo_Schrift.png
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
