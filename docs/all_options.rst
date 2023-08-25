@@ -92,8 +92,11 @@ If your experiment used one of these setups, you can use the expereriment_type p
 If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them an also allow other experimental setups racoon uses a barcode consiting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
 
 - **barcodeLength** (int): length of the complet barcode (UMI 1 + experimental barcode + UMI 2) 
+
 - **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode set to 0. 
+
 -  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
+
 - **exp_barcode_len** (int): 0 if false exp_barcode_len should be 0, no bacode filtering will be done. 
 
 
@@ -135,28 +138,37 @@ quality filtering during barcode trimming:
 ---------------------------------
 
 - **flexbar_minReadLength** (int): default 15; The minimun length a read should have after trimming of barcodes, adapters and UMIs. 
+
 - **quality_filter_barcodes** (True/False): default True # Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. 
+
 - **minBaseQuality** (int): default 10; The minimum per base quality of the barcode region of each read. Reads below this threshold are filtered out. Only applies if quality_filter_barcodes is set to True. 
 
 Adapters:
 -----------------
 - **adapter_trimming** (True/False): default True Whether adapter timming should be performed. 
+
 - **adapter_file** (path): default /params.dir/adapters.fa A fasta file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
+
 - **adapter_cycles** (int): default 1 How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP (which is recommended in xxx for iCLIP and xxx for eCLIP).
 
 ### Alignment to genome
 ---------------------------------
 
 - **gft** (path): .gft file of used genome annotation. Note, that the file needs to be unzipped. (Can be obtained for example from https://www.gencodegenes.org/human/.) 
+
 - **genome_fasta** : .fasta file of used genome annotation. Unzipped or bgzip files are supported. 
 
 parameters  passed to STAR:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 (Check STAR manual for a detailed description (https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)) 
 
-- **sjdbOverhang* (int): default 99 # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file 
+- **sjdbOverhang* (int): default 99 # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file. 
+
 - **outFilterMismatchNoverReadLmax** (ratio) : default 0.04 Ratio of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
+
 - **outFilterMismatchNmax** (int): default 999; Number of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
+
 - **outFilterMultimapNmax** (int): default 1; Maximum number of allowed multimapping. 
+
 - **outSJfilterReads**: default "Unique"
 
