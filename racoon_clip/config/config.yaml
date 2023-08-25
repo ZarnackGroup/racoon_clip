@@ -15,7 +15,6 @@ umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original
 umi2_len: 0
 exp_barcode_len: 0
 encode: False
-encode_umi_length: "" # is 5 for older encode eCLIPs
 
 experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
 
