@@ -9,9 +9,10 @@ You can specify all parameters and options of racoon either directly in the comm
 
 To make your own config file you can start with an empthy .yaml file or copy one of the example config files here xx and save it to a .yaml file. Then adjust the parameters as needed.
 
-In the commandline evry option can be specified by adding -- in front. For example:
+In the commandline every option can be specified by adding -- in front. For example:
 
 .. code:: commandline
+
    racoon_clip run ..  --configfile [your_configfile] --infiles [your_input_files]
 
 .. note::
@@ -50,7 +51,8 @@ Sample names & experiment groups
 
 - **experiment_group_file** (path to txt): A .txt file specifying which samples belong to which group. If all samples belong to the same condition, this can be left empthy and racoon_clip will automaticlly merge all samples.
 
-.. Example:: 
+.. parameters:: 
+
    WT sample1
    WT sample2
    KO sample3
@@ -66,6 +68,7 @@ Demultiplexing can optionally be performed.
 - **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
 .. parameters::
+
    >min_expamle_iCLIP_s1
    NNNGGTTNN
    >min_expamle_iCLIP_s2
