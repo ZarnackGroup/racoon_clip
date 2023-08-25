@@ -15,14 +15,6 @@ Welcome to racoon_clip's documentation!
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
 .. note::
 
    This project is under active development.
@@ -47,32 +39,36 @@ from GitHub
 
 Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
 
-.. code-block:: bash
+.. code-block:: console
+
    unzip racoon_clip-1.0.0.zip
    cd racoon_clip-1.0.0
 
 
 It is recommended to install racoon_clip it a fresh conda enviroment.
 
-.. code-block:: bash
+.. code-block:: console
+
    conda create -n racoon_clip pip
    conda activate racoon_clip
 
 The install racoon with pip.
 
-.. code-block:: bash
+.. code-block:: console
+
    pip install --user -e .
 
 You can now check the installation by running help option or a minimal example.
 
-.. code-block:: bash
+.. code-block:: console
+
    racoon_clip -h
 
 
 
 
 Usage
-------------
+=========================
                                                                                                                                                                                                                                                                                    
 Once installed you can run racoon with
 
@@ -86,7 +82,7 @@ Minimal examples
 
 
 Config file
------------------
+=========================
 
 Information on input data, used annotation, the output directory, and user options are passed to raccoon via a config file in .yaml format. Please find a description of all parameters in the config file below.
 To make your own config file you can copy the following default config file and save it to a .yaml file. Then adjust the parameters as needed.
@@ -231,6 +227,14 @@ racoon can also process miR-eCLIP data. If you have miR-eCLIP data please specif
 
 ### Examples
 xx
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
 ### Memory requirements
 xx
