@@ -6,7 +6,7 @@
 Welcome to racoon_clip's documentation!
 =======================================
 
-.. image:: ../`Racoon Logo + Schrift PNG.png`
+.. image:: "../Racoon Logo + Schrift PNG.png"
 
 .. toctree::
    :maxdepth: 2
