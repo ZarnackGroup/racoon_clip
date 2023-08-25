@@ -9,6 +9,11 @@ You can specify all parameters and options of racoon either directly in the comm
 
 To make your own config file you can start with an empthy .yaml file or copy one of the example config files here xx and save it to a .yaml file. Then adjust the parameters as needed.
 
+In the commandline evry option can be specified by adding -- in front. For example:
+
+.. code:: commandline
+   racoon_clip run ..  --configfile [your_configfile] --infiles [your_input_files]
+
 .. note::
 
    If a parameter is specified in both the provided configfile and the commandline, the commandline parameter will overwrite the configfile.
@@ -18,27 +23,31 @@ raccon_clip will write a combind configfile, containing the default option, wher
 
 Required input
 ---------------
-The following input paramters are required from the user:
+The following input paramters are at minimum required from the user:
 
+- infiles
+- genome_fasta
+- gtf
+- either experiment_type or specific umi and barcode length (umi1_len, umi2_len, encode_umi_length, exp_barcode_len, barcodeLength)
 
-
+See below for descriptions.
 
 Input files and output directory
 ---------------------------------
 
 - **wdir** (path): Path where results are written to. A folder “results” containing all output will be created. Be aware that in case a folder “results” already exists in this directory, it will be overwritten.
 
-- **infiles** (path(s) to file(s)): indir should specify one folder that contains the input fastq files of all samples. When demultiplexing should be performed by racoon, indir should be left empty and instead infile should specify the multiplexed fastq file. At the moment fasta files are not supported, as they will not allow any quality filtering.
-    
-- **gz** (True/False): default True; Whether the input file(s) are in .gz format or unzipped.
+- **infiles** (path(s) to file(s)): One or multiple filepaths to the fastq files of all samples. Multiple files should be provided in one string separated by a space. When demultiplexing should be performed by racoon, specify only one input fastq of the multiplexed reads. At the moment fasta files are not supported, as they will not allow any quality filtering.
 
 - **seq_format** ("-Q33"/"-Q64"): default "-Q33"; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a sanger sequencer.
 
 Sample names 
 ---------------------------------
 
-- **samples** (string): A list of all sample names. The names should be the same as the file names of the input files or in case of demultiplexing should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are names sample_1.fastq, and sample_2.fastq. * *experiment_groups* (string): In addition to sample-wise output, racoon will output merged bam and bw files. Which samples are merged together is specified by the experiment groups. Example: "WT KO". If all samples belong to the same condition, specify only one group. Example: "All". The groups must correspond to the group names specified in the experiment_group_file. 
-- **experiment_group_file** (path to txt): A .txt file specifying which samples belong to which group. 
+- **samples** (string): A list of all sample names. The names should be the same as the file names of the input files or in case of demultiplexing should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are names sample_1.fastq, and sample_2.fastq. 
+- **experiment_groups** (string): In addition to sample-wise output, racoon will output merged bam and bw files. Which samples are merged together is specified by the experiment groups. Example: "WT KO". If all samples belong to the same condition, this can be left empthy and racoon_clip will automaticlly merge all samples. The groups must correspond to the group names specified in the experiment_group_file. 
+
+- **experiment_group_file** (path to txt): A .txt file specifying which samples belong to which group. If all samples belong to the same condition, this can be left empthy and racoon_clip will automaticlly merge all samples.
 
 .. Example:: 
    WT sample1
@@ -50,21 +59,43 @@ Sample names
 Demultiplexing 
 ---------------------------------
 
-Demultiplexing can optionally be performed. At the moment this only works for single-stranded data. * *demuliplexing* (True/False): default False; Whether demultiplexing still has to be done. * *barcodes_fasta* (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. Example: `
->min_expamle_iCLIP_s1
-NNNGGTTNN
->min_expamle_iCLIP_s2
-NNNGGCGNN
-` ### Barcodes, UMIs and adapters Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors (see schemes below). In order to account for all of them an also allow other experimental setups racoon uses a barcode consiting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the most common combinations: xxx graf scheme
+Demultiplexing can optionally be performed. 
 
-iCLIP: two UMI parts (3nt and 2nt) intersparced by the experimental barcode (4nt) `
-barcodeLength: 9
-umi1_len: 3
-umi2_len: 2
-exp_barcode_len: 4
-` iCLIP2: two UMI parts (5nt and 4nt) intersparced by the experimental barcode (6nt)
+- **demuliplexing** (True/False): default False; Whether demultiplexing still has to be done.
+- **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
-eCLIP: barcode of 10nt (or 5nt) in the beginning (5' end) of read2 `
+.. Example:: 
+   >min_expamle_iCLIP_s1
+   NNNGGTTNN
+   >min_expamle_iCLIP_s2
+   NNNGGCGNN
+
+Barcodes, UMIs and adapters
+---------------------------------
+
+Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors (see schemes below). In order to account for all of them an also allow other experimental setups racoon uses a barcode consiting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the most common combinations: xxx graf scheme
+
+iCLIP: 
+^^^^^^
+
+two UMI parts (3nt and 2nt) intersparced by the experimental barcode (4nt)
+.. parameters::
+   barcodeLength: 9
+   umi1_len: 3
+   umi2_len: 2
+   exp_barcode_len: 4
+
+
+iCLIP2: 
+^^^^^^^
+
+two UMI parts (5nt and 4nt) intersparced by the experimental barcode (6nt)
+
+eCLIP:
+^^^^^^^
+
+barcode of 10nt (or 5nt) in the beginning (5' end) of read2 
+
 barcodeLength: 10 (5)
 umi1_len: 10 (5)
 umi2_len: 0
