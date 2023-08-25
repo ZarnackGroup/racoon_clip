@@ -21,7 +21,7 @@ It is recommended to install racoon_clip it a fresh conda enviroment.
    conda activate racoon_clip
    conda install -c conda-forge mamba
 
-The install racoon with pip.
+Then install racoon with pip.
 
 .. code-block:: console
 
