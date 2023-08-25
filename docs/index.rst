@@ -37,24 +37,22 @@ Usage
                                                                                                                                                                                                                                                                                    
 Once installed you can run racoon with
 
-::                                                                                                          
+                                                                                                      
    racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
 
-Minimal examples
------------------                                                                                                                                                                
+                                                                                                                                                              
 
+Requirements
+================
 
-
-
-
-### miR-eCLIP settings
-racoon can also process miR-eCLIP data. If you have miR-eCLIP data please specify these additional parameters in the configfile:
-* ***miR*** (True/False): *default False*; Set to true, if your data comes from a miR-eCLIP experiment.
-* ***miR_genome_fasta*** (path): .fasta file of the annotation of mature miRs that should be used. (Can be obtained for example from (https://www.mirbase.org/ftp.shtml))
-* ***miR_starts_allowed***: *default "1 2 3 4"*
-
-### Examples
 xx
+
+Citations
+=================
+
+xx
+
+
 
 
 Indices and tables
@@ -64,5 +62,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-### Memory requirements
-xx
+
