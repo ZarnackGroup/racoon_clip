@@ -10,6 +10,8 @@ Welcome to racoon_clip's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+autodoc
+
 
 
 Indices and tables
@@ -19,6 +21,10 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+.. note::
+
+   This project is under active development.
 
 racoon_clip - What is it?
 =========================
