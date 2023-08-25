@@ -42,7 +42,7 @@ Input files and output directory
 
 - **seq_format** ("-Q33"/"-Q64"): default "-Q33"; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a sanger sequencer.
 
-Sample names 
+Sample names & experiment groups
 ---------------------------------
 
 - **samples** (string): A list of all sample names. The names should be the same as the file names of the input files or in case of demultiplexing should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are names sample_1.fastq, and sample_2.fastq. 
