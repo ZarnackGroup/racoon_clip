@@ -95,6 +95,7 @@ Using a standard barcode setup
 - **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP"/"eCLIP_ENCODE"/"other"): The type of your experiment. 
 
 .. Note::
+
    There is a special type eCLIP_ENCODE, because ENCODE provided data has the UMI information no longer in the read, but appended to the end of the read names.
 
 Using manual barcode setup
@@ -124,6 +125,14 @@ For example manually defining an iCLIP or eCLIP setup manually would look like t
    umi1_len: 10 (5)
    umi2_len: 0
    exp_barcode_len: 0
+
+
+Using manual barcode setup for ENCODE (or ENCODE-like) data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. Note:: 
+
+   This is needed for the older ENCODE eCLIP data where the UMI is only 5 nucleotides long
 
 
 
