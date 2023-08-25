@@ -162,7 +162,7 @@ parameters  passed to STAR:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 (Check STAR manual for a detailed description (https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)) 
 
-- **sjdbOverhang* (int): default 99 # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file. 
+- **sjdbOverhang** (int): default 99 # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file. 
 
 - **outFilterMismatchNoverReadLmax** (ratio) : default 0.04 Ratio of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
 
