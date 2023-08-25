@@ -30,7 +30,7 @@ The install racoon with pip.
    # inside a conda env, to avoid pip clashes: Find your anaconda directory, and find the actual venv folder. It should be somewhere like /anaconda/envs/venv_name/.
    /anaconda/envs/venv_name/bin/pip install -e .
 
-You can now check the installation by running help option or and the tutorial :doc:`tutorial.rst`.
+You can now check the installation by running help option or and the :ref:`tutorial <tutorial>`.
 
 .. code-block:: console
 
