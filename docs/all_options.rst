@@ -78,20 +78,27 @@ Barcodes, UMIs and adapters
 ---------------------------------
 
 Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode set-ups. 
+- **iCLIP**: two UMI parts (3nt and 2nt) intersparced by the experimental barcode (4nt)
+- **iCLIP2**: two UMI parts (5nt and 4nt) intersparced by the experimental barcode (6nt)
+- **eCLIP** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
+- **eCLIP from ENCODE**: UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
 .. image:: ../experiment_types_schema.png
    :width: 600
 
 
-
 If your experiment used one of these setups, you can use the expereriment_type parameter:
+
+Using a standard barcode setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP"/"eCLIP_ENCODE"/"other"): The type of your experiment. 
 
 .. Note::
    There is a special type eCLIP_ENCODE, because ENCODE provided data has the UMI information no longer in the read, but appended to the end of the read names.
 
-
+Using manual barcode setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them an also allow other experimental setups racoon uses a barcode consiting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
 
 - **barcodeLength** (int): length of the complet barcode (UMI 1 + experimental barcode + UMI 2) 
@@ -103,38 +110,21 @@ If your experiment does not follow one of these standard setups, you can define 
 - **exp_barcode_len** (int): 0 if false exp_barcode_len should be 0, no bacode filtering will be done. 
 
 
-For example manually defining an iCLIP setup manually would look like this:
+For example manually defining an iCLIP or eCLIP setup manually would look like this:
 
-iCLIP: 
-^^^^^^
-
-two UMI parts (3nt and 2nt) intersparced by the experimental barcode (4nt)
 .. parameters::
+   # iCLIP
    barcodeLength: 9
    umi1_len: 3
    umi2_len: 2
    exp_barcode_len: 4
 
+   # eCLIP
+   barcodeLength: 10 (5)
+   umi1_len: 10 (5)
+   umi2_len: 0
+   exp_barcode_len: 0
 
-iCLIP2: 
-^^^^^^^
-
-two UMI parts (5nt and 4nt) intersparced by the experimental barcode (6nt)
-
-eCLIP:
-^^^^^^^
-
-barcode of 10nt (or 5nt) in the beginning (5' end) of read2 
-
-barcodeLength: 10 (5)
-umi1_len: 10 (5)
-umi2_len: 0
-exp_barcode_len: 0
-` miR-eCLIP: barcode of 10nt in the beginning of read2 (same as eCLIP) `
-barcodeLength: 10 (5)
-umi1_len: 10 (5)
-umi2_len: 0
-exp_barcode_len: 0
 
 
 quality filtering during barcode trimming:
