@@ -27,44 +27,8 @@ racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleot
 
 The performed steps are an optional quality filter, optional demultiplaexing, adapter trimming, genome alignment, optional deduplication and selection of single nucleotide crosslinks. For details on the performed steps please see xx.
 
-![](Workflow.png)
-
-
-
-
-Installation
-=========================
-
-from GitHub
-------------
-
-Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
-
-.. code-block:: console
-
-   unzip racoon_clip-1.0.0.zip
-   cd racoon_clip-1.0.0
-
-
-It is recommended to install racoon_clip it a fresh conda enviroment.
-
-.. code-block:: console
-
-   conda create -n racoon_clip pip
-   conda activate racoon_clip
-
-The install racoon with pip.
-
-.. code-block:: console
-
-   pip install --user -e .
-
-You can now check the installation by running help option or a minimal example.
-
-.. code-block:: console
-
-   racoon_clip -h
-
+.. image:: ../Workflow.png
+   :width: 600
 
 
 
