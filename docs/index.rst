@@ -12,6 +12,7 @@ Welcome to racoon_clip's documentation!
    
    tutorial 
    all_options
+   methods_description
 
 
 
