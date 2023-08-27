@@ -44,14 +44,23 @@ You should now see the following files in the folder:
  
 .. code:: bash
 
-  head barcodes
+  head barcodes.fasta
 
   > >min_example_iCLIP_s1
   > NNNGGTTNN
   > >min_example_iCLIP_s2
   > NNNGGCGNN
 
-- **groups.txt**:  
+- **groups.txt**:  A file specifying experiemnt groups. The group file has one line per sample. This line consists of first the group name and then the sample name. 
+
+.. code:: bash
+
+  head groups.txt
+  
+  > min_example_iCLIP min_example_iCLIP_s1
+  > min_example_iCLIP min_example_iCLIP_s2
+
+You can see that both samples belong to the group min_example_iCLIP. Note: This example has only one group, therfore the group.txt is not necessary. It is still shown here as an example. 
 
 - **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to change the directories to the sample fastq files
 
