@@ -36,11 +36,11 @@ Go into the folder of the example and unzip all files.
 
 You should now see the following files in the folder:
 
-**min_example_iCLIP_s1.fastq, min_example_iCLIP_s2.fastq**: Two samples with raw reads of an iCLIP experiment.
+- **min_example_iCLIP_s1.fastq, min_example_iCLIP_s2.fastq**: Two samples with raw reads of an iCLIP experiment.
 
-**adapter.fa**: A fasta file containing the adapters used in the experiment. These will be trimmed off.
+- **adapter.fa**: A fasta file containing the adapters used in the experiment. These will be trimmed off.
 
-**barcodes.fasta**: A fasta file containing the barcodes containing the experimental barcode and the UMI of each sample.
+- **barcodes.fasta**: A fasta file containing the barcodes containing the experimental barcode and the UMI of each sample.
  
 .. code: console
 
@@ -51,9 +51,9 @@ You should now see the following files in the folder:
   > >min_example_iCLIP_s2
   > NNNGGCGNN
 
-**groups.txt**:  
+- **groups.txt**:  
 
-**config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to change the directories to the sample fastq files
+- **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to change the directories to the sample fastq files
 
 Run the minimal example
 ------------------------
