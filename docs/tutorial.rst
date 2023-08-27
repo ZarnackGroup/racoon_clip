@@ -20,7 +20,7 @@ Set up one of the minimal examples
 -----------------------------------
 Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip te example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from encode and one for a multiplexed iCLIP (where racoon needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
 
-.. code:: console
+.. code:: bash
 
   cd minimal_examples
   unzip minimal_example_iCLIP.zip
@@ -28,7 +28,7 @@ Now you can run an example provided with racoon_clip.  Go into the folder minima
 
 Go into the folder of the example and unzip all files.
 
-.. code:: console
+.. code:: bash
 
   cd minimal_examples/minimal_example_iCLIP
   gunzip *
