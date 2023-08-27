@@ -88,6 +88,84 @@ You should change the following lines:
 Run the minimal example
 ------------------------
 
+You can now run the minimal example:
+
+.. code:: bash
+
+  racoon_clip run --cores <n_cores> --configfile <path/to/config_min_example_iCLIP.yaml>
+
+All resulting files will be writen into a folder "results" inside your wdir.
+
+
+Run the minimal example from commandline, without config file
+------------------------
+
+You can also run racoon without a configfile. For the iCLIP example you would need to provide the path information as described above and  to specify the experiment_type "iCLIP" (which is already done in the example config file). 
+
+.. code: bash
+
+  racoon_clip run --cores <n_cores> \
+  --experiement_type "iCLIP" \
+  --wdir "<path/where/to/put/results>" \
+  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
+  --barcodes_fasta "<path/to/barcodes.fasta>" \
+  --adapter_file "<path/to/adapter/file>" \
+  --gtf "<path/to/annotation.gtf>" \
+  --genome_fasta "<path/to/genome.fasta>"
+
+For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiemnt_type. 
+ 
+xx change codes
+.. code: bash
+
+  racoon_clip run --cores <n_cores> \
+  --experiement_type "iCLIP" \
+  --wdir "<path/where/to/put/results>" \
+  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
+  --barcodes_fasta "<path/to/barcodes.fasta>" \
+  --adapter_file "<path/to/adapter/file>" \
+  --gtf "<path/to/annotation.gtf>" \
+  --genome_fasta "<path/to/genome.fasta>"
+
+.. code: bash
+
+  racoon_clip run --cores <n_cores> \
+  --experiement_type "iCLIP" \
+  --wdir "<path/where/to/put/results>" \
+  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
+  --barcodes_fasta "<path/to/barcodes.fasta>" \
+  --adapter_file "<path/to/adapter/file>" \
+  --gtf "<path/to/annotation.gtf>" \
+  --genome_fasta "<path/to/genome.fasta>"
+
+For the multiplexed example you also need to specify --demultiplex True
+
+.. code: bash
+
+  racoon_clip run --cores <n_cores> \
+  --experiement_type "iCLIP" \
+  --demultiplex True \
+  --wdir "<path/where/to/put/results>" \
+  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
+  --barcodes_fasta "<path/to/barcodes.fasta>" \
+  --adapter_file "<path/to/adapter/file>" \
+  --gtf "<path/to/annotation.gtf>" \
+  --genome_fasta "<path/to/genome.fasta>"
+
+Understanding the output files
+------------------------------
+racoon_clip produces a variety of files during the different steps of the workflow. The files you will likely want to use downstream of racoon_clip are:
+
+- a summary on the perforemd steps look at the Report.html.
+
+- **the sample-wise whole aligned reads after duplicate removal in .bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding .bam.bai files.
+
+- **the group-wise whole aligned reads after duplicate removal in .bam format.** There will be one .bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam were all samples are merged. They are located in the results/bam_merged/ folder.
+
+- **the sample-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strand. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
+
+- **the group-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strand. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
+
 
 
 Setting up and running racoon_clip on you own data
