@@ -7,7 +7,7 @@ Get an annotation
 ------------------
 First download a human genome assembly (as fasta) and genome annotation (as gtf).You can for examle get them from GENCODE: https://www.gencodegenes.org/human/
 
-..code:: console
+.. code:: console
 
   mkdir annotation
   cd annotation
