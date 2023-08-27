@@ -33,7 +33,7 @@ Then install racoon with pip.
 
    /anaconda/envs/venv_name/bin/pip install -e .
 
-You can now check the installation by running help option or and the :ref:`tutorial <tutorial>`.
+You can now check the installation by running help option and the :ref:`tutorial <tutorial>`.
 
 .. code-block:: console
 
