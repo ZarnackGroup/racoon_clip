@@ -75,7 +75,8 @@ Open the config file and change the path` with your favorite editor.
 
 You should change the following lines:
 
-.. code:: bash
+.. code:: python
+
   wdir: "<path/where/to/put/results>"
   infiles: "<path/to/first/sample.fastq> <path/to/second/sample.fastq>"
   barcodes_fasta: "<path/to/barcodes.fasta>"
