@@ -65,6 +65,7 @@ You can see that both samples belong to the group min_example_iCLIP. Note: This 
 - **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path` to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your maschine.
 
 .. Note::
+
   All path` need to be specified as absolut path`. Relative path` (for example starting with ~) are not allowed.
 
 Open the config file and change the path` with your favorite editor.
