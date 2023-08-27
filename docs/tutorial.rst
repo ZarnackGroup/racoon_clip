@@ -8,6 +8,7 @@ Get an annotation
 First download a human genome assembly (as fasta) and genome annotation (as gtf).You can for examle get them from GENCODE: https://www.gencodegenes.org/human/
 
 ..code:: console
+
   mkdir annotation
   cd annotation
   wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh38.p14.genome.fa.gz
@@ -28,6 +29,7 @@ Now you can run an example provided with racoon_clip.  Go into the folder minima
 Go into the folder of the example and unzip all files.
 
 .. code:: console
+
   cd minimal_examples/minimal_example_iCLIP
   gunzip *
   ls
@@ -41,6 +43,7 @@ You should now see the following files in the folder:
 **barcodes.fasta**: A fasta file containing the barcodes containing the experimental barcode and the UMI of each sample.
  
 .. code: console
+
   head barcodes
 
   > >min_example_iCLIP_s1
