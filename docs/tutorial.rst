@@ -62,7 +62,26 @@ You should now see the following files in the folder:
 
 You can see that both samples belong to the group min_example_iCLIP. Note: This example has only one group, therfore the group.txt is not necessary. It is still shown here as an example. 
 
-- **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to change the directories to the sample fastq files
+- **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path` to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your maschine.
+
+.. Note::
+  All path` need to be specified as absolut path`. Relative path` (for example starting with ~) are not allowed.
+
+Open the config file and change the path` with your favorite editor.
+
+.. code:: bash
+
+  nano config_min_example_iCLIP.yaml
+
+You should change the following lines:
+
+.. code:: bash
+  wdir: "<path/where/to/put/results>"
+  infiles: "<path/to/first/sample.fastq> <path/to/second/sample.fastq>"
+  barcodes_fasta: "<path/to/barcodes.fasta>"
+  adapter_file: "<path/to/adapter/file>"
+  gtf: "<path/to/annotation.gtf>"
+  genome_fasta: "<path/to/genome.fasta>"
 
 Run the minimal example
 ------------------------
