@@ -102,7 +102,7 @@ Run the minimal example from commandline, without config file
 
 You can also run racoon without a configfile. For the iCLIP example you would need to provide the path information as described above and  to specify the experiment_type "iCLIP" (which is already done in the example config file). 
 
-.. code: bash
+.. code:: bash
 
   racoon_clip run --cores <n_cores> \
   --experiement_type "iCLIP" \
@@ -117,7 +117,7 @@ For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experi
  
 xx change codes
 
-.. code: bash
+.. code:: bash
 
   racoon_clip run --cores <n_cores> \
   --experiement_type "iCLIP" \
@@ -128,7 +128,7 @@ xx change codes
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
 
-.. code: bash
+.. code:: bash
 
   racoon_clip run --cores <n_cores> \
   --experiement_type "iCLIP" \
@@ -141,7 +141,7 @@ xx change codes
 
 For the multiplexed example you also need to specify --demultiplex True
 
-.. code: bash
+.. code:: bash
 
   racoon_clip run --cores <n_cores> \
   --experiement_type "iCLIP" \
