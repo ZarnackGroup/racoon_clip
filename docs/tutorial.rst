@@ -7,7 +7,7 @@ Get an annotation
 ------------------
 First download a human genome assembly (as fasta) and genome annotation (as gtf).You can for examle get them from GENCODE: https://www.gencodegenes.org/human/
 
-.. code:: console
+.. code:: bash
 
   mkdir annotation
   cd annotation
@@ -42,7 +42,7 @@ You should now see the following files in the folder:
 
 - **barcodes.fasta**: A fasta file containing the barcodes containing the experimental barcode and the UMI of each sample.
  
-.. code: console
+.. code: bash
 
   head barcodes
 
