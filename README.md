@@ -2,7 +2,7 @@
 
 racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleotide crosslinks in a single step. It is an automatition of the iCLIP pipeline pubished by Busch et al. 2020 ([iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites](https://doi.org/10.1016/j.ymeth.2019.11.008)) making the same processing now availabe for both iCLIP and eCLIP data in a highly reproducible manner. 
 
-The performed steps are an optional quality filter, optional demultiplaexing, adapter trimming, genome alignment, optional deduplication and selection of single nucleotide crosslinks. For details on the performed steps please have a look at the readthedocsxx.
+The performed steps are an optional quality filter, optional demultiplaexing, adapter trimming, genome alignment, optional deduplication and selection of single nucleotide crosslinks. For details on the performed steps please have a look at the [documentation](racoon-clip.readthedocs.io).
 
 ![](Workflow.png)
 
@@ -59,7 +59,7 @@ racoon_clip -h
 
 ## Documanetation and Tutorial
 
-You can find a tutarial and all options and a details description of the performed steps at xxreadthedocs.
+You can find a tutarial and all options and a details description of the performed steps at [documentation](racoon-clip.readthedocs.io).
 
 ## Citing racoon_clip
 
