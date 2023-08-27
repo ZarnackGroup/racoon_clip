@@ -42,7 +42,7 @@ You should now see the following files in the folder:
 
 - **barcodes.fasta**: A fasta file containing the barcodes containing the experimental barcode and the UMI of each sample.
  
-.. code: bash
+.. code:: bash
 
   head barcodes
 
