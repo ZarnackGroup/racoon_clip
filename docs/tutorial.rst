@@ -3,7 +3,9 @@ Tutorial
 
 Install racoon_clip as discribed :ref:`here <installation>`. 
 
-Now you can run an example provided with racoon_clip. First download a human genome assembly (as fasta) and genome annotation (as gtf).You can for examle get them from GENCODE: https://www.gencodegenes.org/human/
+Get an annotation
+------------------
+First download a human genome assembly (as fasta) and genome annotation (as gtf).You can for examle get them from GENCODE: https://www.gencodegenes.org/human/
 
 ..code:: console
   mkdir annotation
@@ -13,7 +15,9 @@ Now you can run an example provided with racoon_clip. First download a human gen
   gunzip *
 
 
-Then go into the folder minimal examples and unzip te example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from encode and one for a multiplexed iCLIP (where racoon needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
+Set up one of the minimal examples
+-----------------------------------
+Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip te example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from encode and one for a multiplexed iCLIP (where racoon needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
 
 .. code:: console
 
@@ -28,7 +32,7 @@ Go into the folder of the example and unzip all files.
   gunzip *
   ls
 
-You show see the following files:
+You should now see the following files in the folder:
 
 **min_example_iCLIP_s1.fastq, min_example_iCLIP_s2.fastq**: Two samples with raw reads of an iCLIP experiment.
 
@@ -47,6 +51,15 @@ You show see the following files:
 **groups.txt**:  
 
 **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to change the directories to the sample fastq files
+
+Run the minimal example
+------------------------
+
+
+
+Setting up and running racoon_clip on you own data
+---------------------------------------------------
+
 
 
 
