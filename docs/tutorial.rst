@@ -157,7 +157,7 @@ Understanding the output files
 ------------------------------
 racoon_clip produces a variety of files during the different steps of the workflow. The files you will likely want to use downstream of racoon_clip are:
 
-- a summary on the perforemd steps look at the Report.html.
+- **a summary on the perforemd steps** called Report.html.
 
 - **the sample-wise whole aligned reads after duplicate removal in .bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding .bam.bai files.
 
