@@ -169,8 +169,10 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 
 
-Setting up and running racoon_clip on you own data
+Customising racoon_clip
 ---------------------------------------------------
+racoon_clip offers many options to customise the workflow for your data. For a full list of options please have a look at ref: `options <all_options>`
+
 
 
 Running racoon snakemakes cluster execution
@@ -187,7 +189,7 @@ For example racoon_clip can be executed with slurm clusters like this:
   --cores 10 \
   --profile <path/to/your/slurm/profile> \
   --wait-for-files \
-  --latency-wait 15
+  --latency-wait 60
 
 Where <path/to/your/slurm/profile> should be a directory containing a config.yaml 
 
