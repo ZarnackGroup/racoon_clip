@@ -173,5 +173,50 @@ Setting up and running racoon_clip on you own data
 ---------------------------------------------------
 
 
+Running racoon snakemakes cluster execution
+--------------------------------------------
+
+As racoon_clip is based on the snakemake workflow management system, in general all snakemake commandline options can be passed to racoon_clip. For a full list of opitons check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the clsuter execution and cloud execution of racoon_clip. 
+
+For example racoon_clip can be executed with slurm clusters like this:
+
+.. code: bash
+  racoon_clip run \
+  --configfile <your_configfile.yaml> \
+  -p \
+  --cores 10 \
+  --profile <path/to/your/slurm/profile> \
+  --wait-for-files \
+  --latency-wait 15
+
+Where <path/to/your/slurm/profile> should be a directory containing a config.yaml 
+
+.. config.yaml: 
+  cluster:
+  mkdir -p logs/{rule} &&
+  sbatch
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}
+    --partition={resources.partition}
+    --job-name=smk-{rule}-{wildcards}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
+  default-resources:
+    - partition=<your_partitions>
+    - mem_mb=2000
+    - time="48:00:00"
+  jobs: 6
+
+.. Note:
+  For large datasets you might need to increase mem_mb and time
+
+
+See also: 
+
++ https://github.com/jdblischak/smk-simple-slurm/tree/main/examples/list-partitions
+
++ https://snakemake.readthedocs.io/en/stable/executing/cluster.html
+
+
+
 
 
