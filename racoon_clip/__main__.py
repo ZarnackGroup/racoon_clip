@@ -141,7 +141,7 @@ def common_options(func):
         ),
         click.option(
             "--experiment-type",
-            help= "Wheter data was preprocessed by ENCODE.",   
+            help= "Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. If your experiment used one of the setups, you can use the expereriment_type parameter instead of defining barcoedLength, umi1_len, umi2_len and exp_barcode_len, manually. ",   
             type=click.Choice(['iCLIP', 'iCLIP2', 'eCLIP', 'eCLIP_ENCODE', 'other'], case_sensitive=False),
             default='other',
             show_default=True,  
