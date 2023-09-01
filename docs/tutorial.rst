@@ -112,6 +112,7 @@ You can also run racoon without a configfile. For the iCLIP example you would ne
   --adapter_file "<path/to/adapter/file>" \
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
+  --read_length 75
 
 For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiemnt_type. 
  
@@ -171,7 +172,32 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 Customising racoon_clip
 ---------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. For a full list of options please have a look at ref: `options <all_options>`
+racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at ref: `options <all_options>` and
+
+.. code:: commandline
+
+  racoon_clip run -h
+
+Here are some examples.
+
+Demultiplexing raw data
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Changing stringency of Quality filtering
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Using cutom adapter files
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Custom barcode settings: eCLIP data with 5 nt long UMI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Allowing multimapping reads
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Turning of deduplication
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 
