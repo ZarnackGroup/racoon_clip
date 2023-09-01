@@ -50,23 +50,24 @@ Here is a summary off the settings you chose for this analysis.
 ```{r config}
 config_default <- yaml.load_file("../../config/config.yaml") %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame()
 #config <- yaml.load_file(params$config) %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame(.)
-config <-  params$config %>% map_dfr(~.x) %>% as.data.frame(.) %>% t(.)
-
+config <- params$config
 
 colnames(config_default) <- c("config")
 colnames(config) <- c("config")
 
 # colnames(config)
 n <- which(!(rownames(config_default) %in% rownames(config)))
-
 add <- data.frame(config = config_default[n,])
 rownames(add) <- rownames(config_default)[n]
-
 
 config <- rbind(config, add)
 kable(config)
 # config
 dir <- config["wdir",]
+dir
+
+typeof(dir)
+as.character(dir)
 
 dir <- as.character(dir)
 
@@ -87,11 +88,9 @@ qual_bc_no_demult <- ((!demult) && qual_bc )
 ## Input files
 ```{r}
 
-# df <- data.frame(parameter = c("configfile", "infiles", "barcodes_fasta", "gtf", "genome_fasta"), file = c(params$config, config[c("infiles", "barcodes_fasta", "gtf", "genome_fasta"),]))
-df <-  config[c("infiles", "barcodes_fasta", "gtf", "genome_fasta"),] %>% as.data.frame(.)
+df <- data.frame(parameter = c("configfile", "infiles", "barcodes_fasta", "gtf", "genome_fasta"), file = c(params$config, config[c("infiles", "barcodes_fasta", "gtf", "genome_fasta"),]))
 
-#rownames(df) <- NULL
-colnames(df) <- "Input"
+rownames(df) <- NULL
 
 kable(df)  
 ```
@@ -100,7 +99,6 @@ kable(df)
 ```{r}
 t <- data.frame(config[c("demultiplex", "adapter_trimming", "quality_filter_barcodes", "encode", "deduplicate"),])
 rownames(t) <- c("demuliplex", "adapter_trimming", "quality_filter_barcodes", "encode", "deduplicate")
-colnames(t) <- "Option"
 kable(t) 
 ```
 
@@ -108,7 +106,6 @@ kable(t)
 ```{r}
 t <- data.frame(config[c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","exp_barcode_len", "samples", "encode", "encode_umi_length"),])
 rownames(t) <- c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","exp_barcode_len", "samples", "encode", "encode_umi_length")
-colnames(t) <- "Setting"
 kable(t) 
 ```
 
@@ -116,7 +113,6 @@ kable(t)
 ```{r}
 t <- data.frame(config[c("min_read_length"),])
 rownames(t) <- ("min_read_length")
-colnames(t) <- "Setting"
 kable(t) 
 ```
 
@@ -124,7 +120,6 @@ kable(t)
 ```{r}
 t <- data.frame(config[c("read_length", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "outReadsUnmapped",  "outSJfilterReads", "moreSTARParameters"),])
 rownames(t) <- c("read_length", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "outReadsUnmapped",  "outSJfilterReads", "moreSTARParameters")
-colnames(t) <- "Setting"
 kable(t) 
 
 ```
@@ -313,6 +308,9 @@ p <- nchar(paste0(dir,"/results/fastqc/filtered/")) + 1
 n <- nchar("/Images/per_base_quality.png")
 titles_pbq <- lapply(pbq, function(x) substr(x, p ,nchar(x)-n-7 ))
 # titles_pbq
+dir
+
+pbq
 
 pbsc <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
 

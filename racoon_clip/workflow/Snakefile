@@ -25,11 +25,11 @@ import re
 
 ARGS = sys.argv
 #print(ARGS)
-CON_P = ARGS[ARGS.index("--configfile") + 1]
-pattern = r"\.yaml\s*>$"
-replacement = "_full.yaml"
-CONFIG_PATH = re.sub(pattern, replacement, CON_P)
-SNAKE_PATH = os.path.dirname(config["snakebase_config"])
+#CON_P = ARGS[ARGS.index("--configfile") + 1]
+# pattern = r"\.yaml\s*>$"
+# replacement = "_full.yaml"
+# CONFIG_PATH = re.sub(pattern, replacement, CON_P)
+SNAKE_PATH = os.path.dirname(config["snakebase"])
 
 
 # configfile: DEF_CONFIG
@@ -500,8 +500,8 @@ rule write_barcode_file:
             bc_file={params.barcode} && \
             if [[ -z "$bc_file" ]] 
             then
-                chmod +x {params.dir_script}"/workflow/scripts/rep_char.sh"
-                bc=`{params.dir_script}"/workflow/scripts/rep_char.sh" {params.barcodeLength} "N"`
+                chmod +x {params.dir_script}/workflow/scripts/rep_char.sh
+                bc=`{params.dir_script}/workflow/scripts/rep_char.sh {params.barcodeLength} "N"`
                 printf ">"bc"\n $bc \n"  >> "{output.barcode}"
             else 
                 cp {params.barcode} {output.barcode}
@@ -913,7 +913,7 @@ checkpoint merge_bw:
         echo $s 
         chmod +x $s 
         bigWigMerge $s {output.bed_p} 
-        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_p} -o {output.bed_p_sort} 
+        LC_COLLATE=C sort -k1,1 -k2,2n {output.bed_p} -o {output.bed_p_sort} 
         bedGraphToBigWig {output.bed_p_sort} {params.genome_fasta}.fai {output.bw_p}
         \
         ### merge minus files per group
@@ -922,12 +922,11 @@ checkpoint merge_bw:
         chmod +x $r 
         bigWigMerge $r {output.bed_m} 
         chmod +x {output.bed_m} 
-        LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n {output.bed_m} -o {output.bed_m_sort} 
+        LC_COLLATE=C sort -k1,1 -k2,2n {output.bed_m} -o {output.bed_m_sort} 
         bedGraphToBigWig {output.bed_m_sort} {params.genome_fasta}.fai {output.bw_m}
         """
 
 
-# bedGraphToBigWig {output.bed_m} {params.genome_fasta}.fai {output.bw_m}
 
 checkpoint merge_bam:
     input:
@@ -1242,7 +1241,7 @@ rule make_report:
         config["wdir"]+"/results/Report.html"
     params:
         wdir=config["wdir"],
-        config_path= CONFIG_PATH,
+        config= config,
         snake_path= SNAKE_PATH 
     message: 
         "========================= \n Making racoon Report \n ================================ \n" 
