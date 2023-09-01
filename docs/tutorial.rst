@@ -112,6 +112,7 @@ You can also run racoon without a configfile. For the iCLIP example you would ne
   --adapter_file "<path/to/adapter/file>" \
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
+  --read_length 75
 
 For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiemnt_type. 
  
