@@ -104,15 +104,16 @@ You can also run racoon without a configfile. For the iCLIP example you would ne
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
-  --wdir "<path/where/to/put/results>" \
-  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
-  --barcodes_fasta "<path/to/barcodes.fasta>" \
-  --adapter_file "<path/to/adapter/file>" \
-  --gtf "<path/to/annotation.gtf>" \
-  --genome_fasta "<path/to/genome.fasta>"
-  --read_length 75
+racoon_clip run --cores 6\
+ --experiment-type "iCLIP"\
+ -wdir "<path/where/to/put/results>"\
+ --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>"\
+ --samples "min_example_iCLIP_s1 min_example_iCLIP_s2"\
+ --barcodes-fasta "<path/to/barcodes.fasta>"\
+ --adapter-file "<path/to/adapter/file>"\
+ --gtf "<path/to/annotation.gtf>"\
+ --genome-fasta "<path/to/genome.fasta>"\
+ --read-length 75
 
 For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiemnt_type. 
  
@@ -121,7 +122,7 @@ xx change codes
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
+  --experiment_type "iCLIP" \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
@@ -132,7 +133,7 @@ xx change codes
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
+  --experiment_type "iCLIP" \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
@@ -145,7 +146,7 @@ For the multiplexed example you also need to specify --demultiplex True
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
+  --experiment_type "iCLIP" \
   --demultiplex True \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
