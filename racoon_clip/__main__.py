@@ -337,7 +337,7 @@ def run( _configfile,
     # Config to add or update in configfile
     merge_config = {"output": working_directory, 
                     "log": log,
-                    "snakebase_config": snake_base("config"),
+                    "snakebase": snake_base("workflow"),
                     "infiles": infiles,
                     "experiment_groups": experiment_groups,
                     "experiment_group_file": experiment_group_file,

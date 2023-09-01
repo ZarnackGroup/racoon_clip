@@ -12,6 +12,8 @@ racoon_clip.egg-info/dependency_links.txt
 racoon_clip.egg-info/entry_points.txt
 racoon_clip.egg-info/requires.txt
 racoon_clip.egg-info/top_level.txt
+racoon_clip/__pycache__/__main__.cpython-311.pyc
+racoon_clip/__pycache__/util.cpython-311.pyc
 racoon_clip/config/config.yaml
 racoon_clip/config/config_old.yaml
 racoon_clip/workflow/Snakefile
@@ -24,6 +26,7 @@ racoon_clip/workflow/envs/racoon_umi_tools_v0.2.yml
 racoon_clip/workflow/params.dir/adapter.fa
 racoon_clip/workflow/params.dir/adapter_R2.fa
 racoon_clip/workflow/rules/Report (10.08.23, 14.59).rmd
+racoon_clip/workflow/rules/Report (31.08.23, 11.50).rmd
 racoon_clip/workflow/rules/Report.rmd
 racoon_clip/workflow/rules/Workflow.png
 racoon_clip/workflow/rules/make_report.R
