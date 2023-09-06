@@ -73,7 +73,7 @@ def common_options(func):
         # all options from config file
         ##########################
         click.option(
-            "-wd", "--working_directory",
+            "-wdir", "--working_directory",
             help="Output directory",
             type=click.Path(dir_okay=True, writable=True, readable=True),
             default="./racoon_clip_out",
@@ -87,12 +87,21 @@ def common_options(func):
             #type = click.STRING()
         ),
         click.option(
+            "-s", "--samples",
+            help="Names of all samples. Should be provided in one string separated by a space. The sample names should be consistant wit the input file names (without the ending), with the experiment groups file and with the barcode file ",
+            default="",
+            show_default=False,
+            #type = click.STRING()
+        ),
+        click.option(
             "--experiment-groups",
             help= "Names of sample groups that should be merged. Should be provided in one string separated by a space. Names should correspont to the names in the experiment-group-file. If no experiment groups are specified all samples are merged and respective files are called all.bam and all.bw",          
+            default=""
         ),
         click.option(
             "--experiment-group-file",
             help= "A txt file notating the corresponding group for each sample. The format is group space sample per row. Should correspond to --experiment_groups. See user manual for example.",          
+            default=""
         ),
         click.option(
             "--seq-format",
@@ -102,10 +111,11 @@ def common_options(func):
         ),
         click.option(
             "-bl", "--barcodeLength", "barcodeLength",
-            help= "Total length of barcode (experimental barcode + UMI)",          
+            help= "Total length of barcode (experimental barcode + UMI)",     
+            default=0     
         ),
         click.option(
-            "-bl", "--minBaseQuality", "minBaseQuality",
+            "-q", "--minBaseQuality", "minBaseQuality",
             help= "Minimum sequencing quality of each base in the barcode or UMI region. Used with quality-filter-barcodes or demultiplex.",
             default=10,
             show_default=True,          
@@ -113,6 +123,7 @@ def common_options(func):
         click.option(
             "-u1", "--umi1-len",
             help= "Length of the 5' half of the UMI (for split UMIs like used for iCLIP) or total length of UMI (for unsplit UMI like eCLIP).",             
+            default=0        
         ),
         click.option(
             "-u2", "--umi2-len",
@@ -303,6 +314,7 @@ def run( _configfile,
         log, 
         working_directory, 
         infiles,
+        samples,
         experiment_groups,
         experiment_group_file,
         seq_format,
@@ -335,10 +347,11 @@ def run( _configfile,
     
     """Run racoon_clip"""
     # Config to add or update in configfile
-    merge_config = {"output": working_directory, 
+    merge_config = {"wdir": working_directory, 
                     "log": log,
                     "snakebase": snake_base("workflow"),
                     "infiles": infiles,
+                    "samples": samples,
                     "experiment_groups": experiment_groups,
                     "experiment_group_file": experiment_group_file,
                     "seq_format": seq_format,
@@ -368,9 +381,9 @@ def run( _configfile,
                     "moreSTARParameters": moreSTARParameters,
                     "deduplicate": deduplicate,
                     }
-    default_config = {"output": "./racoon_clip_out", 
+    default_config = {"wdir": "./racoon_clip_out", 
                     "infiles": "",
-                    "experiement_groups": "",
+                    "experiment_groups": "",
                     "experiment_group_file":"",
                     "seq_format": "-Q33",
                     "barcodeLength": "",
