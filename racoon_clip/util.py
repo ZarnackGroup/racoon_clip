@@ -81,30 +81,66 @@ def read_config(file):
     return _config
 
 
-def recursive_merge_config(config, overwrite_config):
+def recursive_merge_config(prio_config, non_prio_config):
     def _update(d, u):
         for (key, value) in u.items():
-            if isinstance(value, collections.abc.Mapping): # if the value does is a dict value
-                if key in d:
-                        if value is not None and value != "":
-                            d[key] = _update(d.get(key, {}), value) # makes a new entry in d and fills the value of u
-            elif key not in d:
+            #if isinstance(value, collections.abc.Mapping): # if the value is a dict value
+            if key in d:
+                    continue
+            else:
                 d[key] = value
+                # d[key] = _update(d.get(key, {}), value)      
+                #         if value is not None and value != "":
+                #              # makes a new entry in d and fills the value of u
+                # elif value is not None and value != "":  # Skip merging None or empty string values
+                #     d[key] = value
             # elif value is not None and value != "": # check if value is empthy
             #     d[key] = value
         return d
-    _update(config, overwrite_config)
+    return _update(prio_config, non_prio_config)
+    
 
 
 def update_config(u_config=None, merge=None, default_config = None, output_config=None, log=None):
     """Update config with new values"""
-    # if output_config is None:
-        # Use regex to replace the filename
-    config = read_config(u_config)
-    msg("Updating config file with new values", log=log)
-    recursive_merge_config(default_config, merge)
-    recursive_merge_config(config, default_config)
-    write_config(config, output_config, log=log)
+    # Load the commandline options
+    full_config = merge.copy()
+    msg("commandline values", log=log)
+    print(full_config)
+
+    msg("default values", log=log)
+    print(default_config)
+
+    # Load the custom config if provided and it exists
+    if u_config is not None and os.path.exists(u_config):
+        # Load the custom config here and merge it with full_config using recursive_merge_config
+        custom_config = read_config(u_config)  # Load your custom config from u_config
+        custom_config = recursive_merge_config(prio_config=custom_config, non_prio_config=default_config)
+    else:
+        msg("Custom config file not found. Using default config")
+        custom_config = default_config
+        print(custom_config)
+
+    # Merge the command line values to the default
+    msg("Updating config file with commandline values", log=log)
+    final_config = recursive_merge_config(prio_config= full_config, non_prio_config=custom_config)
+    print(final_config)
+
+
+
+    # Write the merged config to the output file
+    write_config(final_config , output_config, log=log)
+    # if not os.path.exists(u_config):
+    #     msg("Custom config file not found. Using default config")
+    #     msg("Updating config file with commandline values", log=log)
+    #     full_config=recursive_merge_config(config=full_config, overwrite_config= merge)
+    #     write_config(full_config, output_config, log=log)
+    # else:
+    #     config = read_config(u_config)
+    #     msg("Updating config file with commandline values", log=log)
+    #     recursive_merge_config(default_config, merge)
+    #     recursive_merge_config(config, default_config)
+    #     write_config(config, output_config, log=log)
 
 
 def write_config(_config, file, log=None):
@@ -171,6 +207,8 @@ def run_snakemake(
 
     snake_command = ["snakemake", "-s", snakefile_path, "--configfile", output_config, "--use-conda --conda-frontend mamba"]
 
+
+   
     # if using a configfile
     # if configfile:
     #     # copy sys default config if not present
@@ -201,8 +239,72 @@ def run_snakemake(
         snake_command += snake_default
 
     # add any additional snakemake commands
+
     if snake_args:
-        snake_command += list(snake_args)
+        # filtered_snake_args = []
+        # racoon_keys = [
+        #     "-wdir", "--working_directory", 
+        #     "-i", "--infiles", 
+        #     "-s", "--samples",
+        #     "--experiment-groups", 
+        #     "--experiment-group-file", 
+        #     "--seq-format", 
+        #     "-bl" "--barcodeLength",
+        #     "-q" "--minBaseQuality", 
+        #     "-u1", "--umi1-len",
+        #     "-eb", "--experimental-barcode-len",
+        #     "--encode",
+        #     "--encode-umi-length",
+        #     "--experiment-type",
+        #     "-b", "--barcodes-fasta",
+        #     "-filt", "--quality-filter-barcodes",
+        #     "-demux", "--demultiplex",
+        #     "-mrl", "--min-read-length",
+        #     "-af", "--adapter-file",
+        #     "-ac", "--adapter-cycles",
+        #     "-a", "--adapter-trimming",
+        #     "-gtf", "--gtf",
+        #     "-gf", "--genome-fasta",
+        #     "-rl", "--read-length",
+        #     "--outFilterMismatchNoverReadLmax", "outFilterMismatchNoverReadLmax",
+        #     "--outFilterMismatchNmax", "outFilterMismatchNmax",
+        #     "--outFilterMultimapNmax", "outFilterMultimapNmax",
+        #     "--outReadsUnmapped", "outReadsUnmapped",
+        #     "--outSJfilterReads", "outSJfilterReads",
+        #     "--moreSTARParameters", "moreSTARParameters",
+        #     "-dedup", "--deduplicate"
+        # ]
+
+        # skip_next = False  # This flag is used to skip the next element if it's a value for an option
+
+        # for i, arg in enumerate(snake_args):
+        #     if skip_next:
+        #         skip_next = False
+        #         continue  # Skip the value after the option
+            
+        #     if arg.startswith('-'):
+        #         option = arg.lstrip('-')
+        #         # Check if the option is not in default_options
+        #         if option not in racoon_keys:
+        #             filtered_snake_args.append(arg)
+        #             # If it's an option, check if the next element is its value
+        #             if i + 1 < len(snake_args) and not snake_args[i + 1].startswith('-'):
+        #                 skip_next = True  # Skip the next element (the value)
+        #     else:
+        #         filtered_snake_args.append(arg)
+
+        snake_command += snake_args
+
+    
+    # click.echo("snake args:")
+    # click.echo(snake_args)
+
+    # click.echo("default_config:")
+    # click.echo(racoon_keys)
+
+    # click.echo("Filtered snake_args:")
+    # click.echo(filtered_snake_args)
+
 
     # Run Snakemake!!!
     snake_command = " ".join(str(s) for s in snake_command)

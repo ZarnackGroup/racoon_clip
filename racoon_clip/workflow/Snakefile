@@ -38,6 +38,9 @@ SNAKE_PATH = os.path.dirname(config["snakebase"])
 
 WDIR=config["wdir"]
 SAMPLES_FULL=config["infiles"].split()
+print("samples")
+print(SAMPLES_FULL)
+
 SAMPLES=config["samples"].split()
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
 
@@ -54,7 +57,7 @@ print(QUAL_BC)
 
 # get groups
 GROUPS = set()
-if os.path.exists(config["experiment_group_file"]):
+if config["experiment_group_file"] is not None and os.path.exists(config["experiment_group_file"]):
     with open(config["experiment_group_file"], "r") as file:
         for line in file:
             columns = line.strip().split()
