@@ -104,15 +104,16 @@ You can also run racoon without a configfile. For the iCLIP example you would ne
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
-  --wdir "<path/where/to/put/results>" \
-  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
-  --barcodes_fasta "<path/to/barcodes.fasta>" \
-  --adapter_file "<path/to/adapter/file>" \
-  --gtf "<path/to/annotation.gtf>" \
-  --genome_fasta "<path/to/genome.fasta>"
-  --read_length 75
+racoon_clip run --cores 6\
+ --experiment-type "iCLIP"\
+ -wdir "<path/where/to/put/results>"\
+ --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>"\
+ --samples "min_example_iCLIP_s1 min_example_iCLIP_s2"\
+ --barcodes-fasta "<path/to/barcodes.fasta>"\
+ --adapter-file "<path/to/adapter/file>"\
+ --gtf "<path/to/annotation.gtf>"\
+ --genome-fasta "<path/to/genome.fasta>"\
+ --read-length 75
 
 For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiemnt_type. 
  
@@ -121,7 +122,7 @@ xx change codes
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
+  --experiment_type "iCLIP" \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
@@ -132,7 +133,7 @@ xx change codes
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
+  --experiment_type "iCLIP" \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
@@ -145,7 +146,7 @@ For the multiplexed example you also need to specify --demultiplex True
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiement_type "iCLIP" \
+  --experiment_type "iCLIP" \
   --demultiplex True \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
@@ -172,32 +173,11 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 Customising racoon_clip
 ---------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at ref: `options <all_options>` and
+racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at :ref: `options <all_options>` and
 
 .. code:: commandline
 
   racoon_clip run -h
-
-Here are some examples.
-
-Demultiplexing raw data
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Changing stringency of Quality filtering
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Using cutom adapter files
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Custom barcode settings: eCLIP data with 5 nt long UMI
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Allowing multimapping reads
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-Turning of deduplication
-^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 

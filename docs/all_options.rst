@@ -155,7 +155,7 @@ quality filtering during barcode trimming:
 
 - **minBaseQuality** (int): default 10; The minimum per base quality of the barcode region of each read. Reads below this threshold are filtered out. Only applies if quality_filter_barcodes is set to True. 
 
-Adapters:
+Adapters
 -----------------
 - **adapter_trimming** (True/False): default True Whether adapter timming should be performed. 
 
