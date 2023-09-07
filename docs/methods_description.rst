@@ -27,6 +27,7 @@ Genome alignment
 Reads are aligned to the specified genome with STAR (version 2.7.10). In short, the genome is indexed with ``STAR –runMode genomeGenerate``. Then, the reads of each sample are individually aligned to the genome with ``STAR –runMode alignReads --sjdbOverhang 139 --outFilterMismatchNoverReadLmax 0.04 --outFilterMismatchNmax 999 --outFilterMultimapNmax 1 --alignEndsType "Extend5pOfRead1" --outReadsUnmapped "Fastx" --outSJfilterReads "Unique"``. Obtained bam files are indexed with samtools index (version xx). All parameters except ``--alignEndsType "Extend5pOfRead1"`` can be changed via racoon options.
 
 See also:
+
 - `STAR: ultrafast universal RNA-seq aligner <https://academic.oup.com/bioinformatics/article/29/1/15/272537>`_
 - `The Sequence Alignment/Map format and SAMtools <https://academic.oup.com/bioinformatics/article/25/16/2078/204688>`_
 
@@ -42,5 +43,6 @@ The deduplicated bam files are converted into bed files using bedtools bamtobed 
 To allow for visualization, the bed files of 1 nt events were converted to bigWig files using bedGraphToBigWig (ucsc-bedgraphtobigwig version 377). Additionally, the bigWig files of replicates were merged by groups with bigWigMerge (ucsc-bigwigmerge version 377).
 
 See also:
+
 - `BEDTools: a flexible suite of utilities for comparing genomic features <https://academic.oup.com/bioinformatics/article/26/6/841/244688>`_
 - `UCSC tools <https://github.com/ucscGenomeBrowser/kent>`_
