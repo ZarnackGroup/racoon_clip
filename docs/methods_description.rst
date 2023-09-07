@@ -10,7 +10,13 @@ Sequencing reads are filtered for a Phred score >= 10 inside the unique molecula
 
 Demultiplexing, UMI & Adapter trimming
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-3’ adapters (Illumina Universal Adapter, Illumina Multiplexing Adapter, and eCLIP adapters 1-20) were trimmed with FLEXBAR (version 3.5.0) 53 using two cycles (--adapter-trim-end RIGHT --adapter-error-rate 0.1 --adapter-min-overlap 1 --adapter-cycles 2). At the same time, UMIs were trimmed from the 5’ end of the reads and stored in the read names (--umi-tags --barcode-trim-end LTAIL). Reads that were shorter than 15 nt after trimming were discarded (--min-read-length 15).
+Demultiplexing and 3’ adapters adapter trimming are performed with FLEXBAR (version 3.5.0). FLEXBAR also handles UMIs and trimms barcodes.
+
+If demulitplexing is turned on, this is done with the FLEXBAR parameters xx.
+
+3’ adapters adapters are trimmed using FLEXBAR options (`--adapter-trim-end RIGHT --adapter-error-rate 0.1 --adapter-min-overlap 1 --adapter-cycles <as specified>`` by default, but adapter trimming can also be turned off.
+
+At the same time, UMIs (and barcodes, if present) are trimmed from the 5’ end of the reads and stored in the read names (``--umi-tags --barcode-trim-end LTAIL``). Reads that are shorter than 15 nt after trimming are discarded (--min-read-length 15).
 
 Genome alignment 
 ^^^^^^^^^^^^^^^^
