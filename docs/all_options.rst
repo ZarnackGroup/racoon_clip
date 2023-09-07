@@ -1,3 +1,7 @@
+
+.. contents:: 
+    :depth: 2
+
 All paramterets and options
 ================================
 
@@ -22,7 +26,7 @@ In the commandline every option can be specified by adding -- in front. For exam
 raccon_clip will write a combind configfile, containing the default option, where nothing was specified, the configfile options and the commandline options (commandline parameters overwrite configfile parameters) with the file ending "_updated.yaml" to keep track of the options you used.
 
 
-Required input
+Requiered input
 ---------------
 The following input paramters are at minimum required from the user:
 
