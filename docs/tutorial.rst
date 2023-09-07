@@ -122,7 +122,7 @@ For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experi
 
   racoon_clip run --cores <n_cores> \
   --experiment_type "eCLIP" \
-  --wdir "<path/where/to/put/results>" \
+  -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
@@ -133,7 +133,7 @@ For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experi
 
   racoon_clip run --cores <n_cores> \
   --experiment_type "eCLIP_ENCODE" \
-  --wdir "<path/where/to/put/results>" \
+  -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
   --adapter_file "<path/to/adapter/file>" \
@@ -149,7 +149,7 @@ In addition this example shows how to merge samples by groups with --experiment-
   racoon_clip run --cores <n_cores> \
   --experiment_type "iCLIP2" \
   --demultiplex True \
-  --wdir "<path/where/to/put/results>" \
+  -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/all_samples_multiplexed.fastq>"  \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
   --adapter_file "<path/to/adapter/file>" \
