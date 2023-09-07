@@ -9,7 +9,7 @@ Install racoon_clip as described :ref:`here <installation>`.
 
 Get an annotation
 ------------------
-First download a human genome assembly (as fasta) and genome annotation (as gtf). You can for examle get them from `GENCODE<https://www.gencodegenes.org/human/>`
+First download a human genome assembly (as fasta) and genome annotation (as gtf). You can for examle get them from `GENCODE <https://www.gencodegenes.org/human/>`_.
 
 .. code:: bash
 
@@ -22,7 +22,7 @@ First download a human genome assembly (as fasta) and genome annotation (as gtf)
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE<https://www.encodeproject.org/>` and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
+Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
 
 .. code:: bash
 
@@ -212,23 +212,24 @@ For example racoon_clip can be executed with slurm clusters like this:
   --wait-for-files \
   --latency-wait 60
 
-Where <path/to/your/slurm/profile> should be a directory containing a config.yaml 
+Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, that could for example look like this: 
 
-.. config.yaml:: 
+.. code-block:: python
 
-  cluster:
-  mkdir -p logs/{rule} &&
-  sbatch
+    cluster:
+    mkdir -p logs/{rule} &&
+    sbatch
     --cpus-per-task={threads}
     --mem={resources.mem_mb}
     --partition={resources.partition}
     --job-name=smk-{rule}-{wildcards}
     --output=logs/{rule}/{rule}-{wildcards}-%j.out
-  default-resources:
+    default-resources:
     - partition=<your_partitions>
     - mem_mb=2000
     - time="48:00:00"
-  jobs: 6
+    jobs: 6
+
 
 .. Note::
 
