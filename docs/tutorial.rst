@@ -128,32 +128,37 @@ For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experi
   --genome_fasta "<path/to/genome.fasta>"
   --read-length 50
 
-xx change codes
 
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiment_type "iCLIP" \
+  --experiment_type "eCLIP_ENCODE" \
   --wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
   --adapter_file "<path/to/adapter/file>" \
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
+  --read-length 45
 
-For the multiplexed example you also need to specify --demultiplex True
+For the multiplexed example you also need to specify --demultiplex True. 
+In addition this example shows how to merge samples by groups with --experiment-groups and --experiment-group-file.
 
 .. code:: bash
 
   racoon_clip run --cores <n_cores> \
-  --experiment_type "iCLIP" \
+  --experiment_type "iCLIP2" \
   --demultiplex True \
   --wdir "<path/where/to/put/results>" \
-  --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
+  --infiles "<path/to/all_samples_multiplexed.fastq>"  \
   --barcodes_fasta "<path/to/barcodes.fasta>" \
   --adapter_file "<path/to/adapter/file>" \
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
+  --read-length 150 \
+  --experiment-groups "min_example_iCLIP2_multiplexed_g1 min_example_iCLIP2_multiplexed_g2" \
+  --experiment-group-file "<path/to/minimal_example_iCLIP_multiplexed/groups.txt>"
+
 
 Understanding the output files
 ------------------------------
@@ -175,7 +180,7 @@ Customising racoon_clip
 ---------------------------------------------------
 racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at :ref: `options <all_options>` and
 
-.. code:: commandline
+.. code:: bash
 
   racoon_clip run -h
 
@@ -188,7 +193,8 @@ As racoon_clip is based on the snakemake workflow management system, in general 
 
 For example racoon_clip can be executed with slurm clusters like this:
 
-.. code: bash
+.. code:: bash
+
   racoon_clip run \
   --configfile <your_configfile.yaml> \
   -p \
@@ -199,7 +205,8 @@ For example racoon_clip can be executed with slurm clusters like this:
 
 Where <path/to/your/slurm/profile> should be a directory containing a config.yaml 
 
-.. config.yaml: 
+.. config.yaml:: 
+
   cluster:
   mkdir -p logs/{rule} &&
   sbatch
@@ -214,7 +221,8 @@ Where <path/to/your/slurm/profile> should be a directory containing a config.yam
     - time="48:00:00"
   jobs: 6
 
-.. Note:
+.. Note::
+
   For large datasets you might need to increase mem_mb and time
 
 
