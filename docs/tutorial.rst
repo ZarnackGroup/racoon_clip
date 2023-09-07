@@ -187,7 +187,7 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 Customising racoon_clip
 ---------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at :ref: `options <all_options>` and
+racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at `options <all_options>` and
 
 .. code:: bash
 
@@ -232,7 +232,7 @@ Where <path/to/your/slurm/profile> should be a directory containing a config.yam
 
 .. Note::
 
-  For large datasets you might need to increase mem_mb and time
+  For large datasets you might need to increase mem_mb and time.
 
 
 See also: 
