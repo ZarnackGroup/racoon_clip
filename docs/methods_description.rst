@@ -24,7 +24,7 @@ See also: `FLEXBAR—Flexible Barcode and Adapter Processing for Next-Generation
 
 Genome alignment 
 ^^^^^^^^^^^^^^^^
-Reads are aligned to the specified genome with STAR (version 2.7.10). In short, the genome is indexed with ``STAR –runMode genomeGenerate``. Then, the reads of each sample are individually aligned to the genome with ``STAR –runMode alignReads --sjdbOverhang 139 --outFilterMismatchNoverReadLmax 0.04 --outFilterMismatchNmax 999 --outFilterMultimapNmax 1 --alignEndsType "Extend5pOfRead1" --outReadsUnmapped "Fastx" --outSJfilterReads "Unique"``. Obtained bam files are indexed with samtools index (version xx). All parameters except ``--alignEndsType "Extend5pOfRead1"`` can be changed via racoon options.
+Reads are aligned to the specified genome with STAR (version 2.7.10). In short, the genome is indexed with ``STAR –runMode genomeGenerate``. Then, the reads of each sample are individually aligned to the genome with ``STAR –runMode alignReads --sjdbOverhang 139 --outFilterMismatchNoverReadLmax 0.04 --outFilterMismatchNmax 999 --outFilterMultimapNmax 1 --alignEndsType "Extend5pOfRead1" --outReadsUnmapped "Fastx" --outSJfilterReads "Unique"``. Obtained bam files are indexed with samtools index (version 1.11). All parameters except ``--alignEndsType "Extend5pOfRead1"`` can be changed via racoon options.
 
 See also:
 
