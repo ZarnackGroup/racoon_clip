@@ -12,11 +12,15 @@ Demultiplexing, UMI & Adapter trimming
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Demultiplexing and 3’ adapters adapter trimming are performed with FLEXBAR (version 3.5.0). FLEXBAR also handles UMIs and trimms barcodes.
 
-If demulitplexing is turned on, this is done with the FLEXBAR parameters xx.
+If demulitplexing is turned on, this is done with the FLEXBAR via the provided barcode_fasta with FLEXBAR parameters ``--barcodes {input.barcodes} --barcode-unassigned --barcode-error-rate 0``.
 
-3’ adapters adapters are trimmed using FLEXBAR options (`--adapter-trim-end RIGHT --adapter-error-rate 0.1 --adapter-min-overlap 1 --adapter-cycles <as specified>`` by default, but adapter trimming can also be turned off.
+3’ adapters adapters are trimmed using FLEXBAR options ``--adapter-trim-end RIGHT --adapter-error-rate 0.1 --adapter-min-overlap 1 --adapter-cycles <as specified>`` by default, but adapter trimming can also be turned off.
 
-At the same time, UMIs (and barcodes, if present) are trimmed from the 5’ end of the reads and stored in the read names (``--umi-tags --barcode-trim-end LTAIL``). Reads that are shorter than 15 nt after trimming are discarded (--min-read-length 15).
+At the same time, UMIs (and barcodes, if present) are trimmed from the 5’ end of the reads and stored in the read names using FLEXBAR options ``--umi-tags --barcode-trim-end LTAIL``. 
+
+Reads that are shorter than 15 nt after trimming are discarded using FLEXBAR option ``--min-read-length 15``.
+
+See also: `FLEXBAR—Flexible Barcode and Adapter Processing for Next-Generation Sequencing Platforms <https://www.mdpi.com/2079-7737/1/3/895>` 
 
 Genome alignment 
 ^^^^^^^^^^^^^^^^
