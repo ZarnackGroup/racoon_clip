@@ -1,6 +1,9 @@
 Detailed description of steps performed by racoon
 =================================================
 
+.. contents:: 
+    :depth: 2
+
 Quality filtering 
 ^^^^^^^^^^^^^^^^^^
 Sequencing reads are filtered for a Phred score >= 10 inside the unique molecular identifier (UMI) at positions 1-10 of each read to ensure reliable sample and duplicate assignment. 
