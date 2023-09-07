@@ -212,7 +212,7 @@ These parameters should be passed in the commandline.
 Cluster execution
 ^^^^^^^^^^^^^^^^^^
 
-- ``--profile``: The path to your cluster profile folder containing a config.yaml file that could for example look like this:
+- ``--profile``: The path to your cluster profile folder containing a config.yaml file that could for example look like this (For large datasets you might need to increase mem_mb and time.):
 
 .. code-block:: bash
     
@@ -231,12 +231,6 @@ Cluster execution
     jobs: 6
 - ``--wait-for-files``: Should be specified when using a cluster execution.
 - ``--latency-wait``: Should be specified when using a cluster execution. 60 is a possible value, depnds on your workload manager.
-
-Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, 
-
-Note
-
-For large datasets you might need to increase mem_mb and time.
 
 See also:
 
