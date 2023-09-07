@@ -1,9 +1,12 @@
 
+All paramterets and options
+================================
+
 .. contents:: 
     :depth: 2
 
-All paramterets and options
-================================
+Parameter usage in general
+---------------------------
 
 You can specify all parameters and options of racoon either directly in the commandline or in a configfile provided with
 
