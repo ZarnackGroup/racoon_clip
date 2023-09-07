@@ -1,7 +1,7 @@
 Detailed description of steps performed by racoon
 =================================================
 
-.. contents:: ""
+.. contents::   
     :depth: 2
 
 Quality filtering 
