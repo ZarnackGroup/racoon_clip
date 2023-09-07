@@ -85,7 +85,7 @@ def recursive_merge_config(prio_config, non_prio_config):
     def _update(d, u):
         for (key, value) in u.items():
             #if isinstance(value, collections.abc.Mapping): # if the value is a dict value
-            if key in d:
+            if key in d and d[key] is not None and d[key] != "":
                     continue
             else:
                 d[key] = value
