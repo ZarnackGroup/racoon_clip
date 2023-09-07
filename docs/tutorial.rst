@@ -1,6 +1,10 @@
 Tutorial
 ==========
 
+.. toctree::
+ :maxdepth: 2
+
+
 Install racoon_clip as discribed :ref:`here <installation>`. 
 
 Get an annotation
