@@ -542,3 +542,79 @@ snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/S
 [2023:09:06 13:42:00] ---------------------
 
 snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:06 15:19:56] commandline values
+[2023:09:06 15:19:56] default values
+[2023:09:06 15:19:56] Updating config file with commandline values
+[2023:09:06 15:19:56] Writing config file to _updated.yaml
+[2023:09:06 15:19:56] ---------------------
+[2023:09:06 15:19:56] | Snakemake command |
+[2023:09:06 15:19:56] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:06 15:19:57] ERROR: Snakemake failed
+[2023:09:06 15:20:23] commandline values
+[2023:09:06 15:20:23] default values
+[2023:09:06 15:20:23] Updating config file with commandline values
+[2023:09:06 15:20:23] Writing config file to _updated.yaml
+[2023:09:06 15:20:23] ---------------------
+[2023:09:06 15:20:23] | Snakemake command |
+[2023:09:06 15:20:23] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:06 15:20:23] ERROR: Snakemake failed
+[2023:09:07 06:11:07] commandline values
+[2023:09:07 06:11:07] default values
+[2023:09:07 06:11:07] Updating config file with commandline values
+[2023:09:07 06:11:07] Writing config file to _updated.yaml
+[2023:09:07 06:11:07] ---------------------
+[2023:09:07 06:11:07] | Snakemake command |
+[2023:09:07 06:11:07] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:11:08] ERROR: Snakemake failed
+[2023:09:07 06:15:27] commandline values
+[2023:09:07 06:15:27] default values
+[2023:09:07 06:15:27] Updating config file with commandline values
+[2023:09:07 06:15:27] Writing config file to _updated.yaml
+[2023:09:07 06:15:27] ---------------------
+[2023:09:07 06:15:27] | Snakemake command |
+[2023:09:07 06:15:27] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:16:28] commandline values
+[2023:09:07 06:16:28] default values
+[2023:09:07 06:16:28] Updating config file with commandline values
+[2023:09:07 06:16:28] Writing config file to _updated.yaml
+[2023:09:07 06:16:28] ---------------------
+[2023:09:07 06:16:28] | Snakemake command |
+[2023:09:07 06:16:28] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:16:42] commandline values
+[2023:09:07 06:16:42] default values
+[2023:09:07 06:16:42] Updating config file with commandline values
+[2023:09:07 06:16:42] Writing config file to _updated.yaml
+[2023:09:07 06:16:42] ---------------------
+[2023:09:07 06:16:42] | Snakemake command |
+[2023:09:07 06:16:42] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:16:42] ERROR: Snakemake failed
+[2023:09:07 06:21:44] commandline values
+[2023:09:07 06:21:44] default values
+[2023:09:07 06:21:44] Updating config file with commandline values
+[2023:09:07 06:21:44] Writing config file to _updated.yaml
+[2023:09:07 06:21:44] ---------------------
+[2023:09:07 06:21:44] | Snakemake command |
+[2023:09:07 06:21:44] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:22:06] commandline values
+[2023:09:07 06:22:06] default values
+[2023:09:07 06:22:06] Updating config file with commandline values
+[2023:09:07 06:22:06] Writing config file to _updated.yaml
+[2023:09:07 06:22:06] ---------------------
+[2023:09:07 06:22:06] | Snakemake command |
+[2023:09:07 06:22:06] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6

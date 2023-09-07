@@ -350,7 +350,7 @@ rule demultiplex_flexbar:
         fasta=expand("{wdir}/results/barcode_filter/filtered.fastq.gz", wdir=WDIR), 
         barcodes=config["barcodes_fasta"]
     output:
-         expand("{wdir}/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz", sample = SAMPLES,wdir=WDIR )
+         expand("{wdir}/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz", sample = SAMPLES, wdir=WDIR )
     params:
         minReadLength=config["min_read_length"], 
         dir=expand("{wdir}/results/demultiplex/", wdir=WDIR),
