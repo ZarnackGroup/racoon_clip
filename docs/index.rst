@@ -48,15 +48,18 @@ Once installed you can run racoon with:
 Requirements
 ================
 
-- conda or mamba
+- python >3.9
+- conda or mamba 
 - pip
+
+
 
 
 
 Citations
 =================
 
-xx
+- Busch *et al.* 2020 (`iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_)
 
 
 
