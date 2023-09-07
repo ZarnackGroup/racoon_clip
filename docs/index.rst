@@ -31,22 +31,27 @@ The performed steps are an optional quality filter, optional demultiplaexing, ad
 .. image:: ../Workflow.png
    :width: 600
 
+   Steps performed by racoon_clip.
 
 
 Usage
 =========================
                                                                                                                                                                                                                                                                                    
-Once installed you can run racoon with
+Once installed you can run racoon with:
 
-                                                                                                      
+.. code:: bash
+
    racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
 
-                                                                                                                                                              
+                                                                                                                                                            
 
 Requirements
 ================
 
-xx
+- conda or mamba
+- pip
+
+
 
 Citations
 =================
