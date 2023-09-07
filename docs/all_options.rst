@@ -93,7 +93,7 @@ Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different leng
 
 - **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
 
-- **eCLIP from ENCODE:**: UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
+- **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
 .. image:: ../experiment_types_schema.png
    :width: 600
