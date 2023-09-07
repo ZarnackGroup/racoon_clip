@@ -36,12 +36,12 @@ The performed steps are an optional quality filter, optional demultiplaexing, ad
 
 Usage
 =========================
-                                                                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                                            
 Once installed you can run racoon with:
 
 .. code:: bash
 
-   racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
+   racoon_clip run --cores <number_of_cores> --configfile </path/to/config/file.yaml>
 
                                                                                                                                                             
 
