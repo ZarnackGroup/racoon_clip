@@ -5,7 +5,7 @@ Installation
 Install from GitHub
 ---------------------
 
-Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
+Download the zip file of your preferred release from github and unzip it. Then go into the unzipped folder.
 
 .. code:: bash
 
@@ -13,7 +13,7 @@ Download the zip file of your prefered release from github and unzip it. Then go
    cd racoon_clip-1.0.2
 
 
-It is recommended to install racoon_clip it a fresh conda enviroment.
+It is recommended to install racoon_clip in a fresh conda environment.
 
 .. code:: bash
 
