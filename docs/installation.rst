@@ -5,7 +5,7 @@ Installation
 Install from GitHub
 ---------------------
 
-Download the zip file of your preferred release from github and unzip it. Then go into the unzipped folder.
+Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 .. code:: bash
 
