@@ -7,7 +7,7 @@ Install from GitHub
 
 Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
 
-.. code-block:: console
+.. code:: bash
 
    unzip racoon_clip-1.0.0.zip
    cd racoon_clip-1.0.0
@@ -15,7 +15,7 @@ Download the zip file of your prefered release from github and unzip it. Then go
 
 It is recommended to install racoon_clip it a fresh conda enviroment.
 
-.. code-block:: console
+.. code:: bash
 
    conda create -n racoon_clip pip
    conda activate racoon_clip
@@ -23,7 +23,7 @@ It is recommended to install racoon_clip it a fresh conda enviroment.
 
 Then install racoon with pip.
 
-.. code-block:: console
+.. code:: bash
 
    pip install -e .
 
@@ -33,9 +33,9 @@ Then install racoon with pip.
 
    /anaconda/envs/venv_name/bin/pip install -e .
 
-You can now check the installation by running help option and the :ref:`tutorial <tutorial>`.
+You can now check the installation by running the help option and the :ref:`tutorial <tutorial>`.
 
-.. code-block:: console
+.. code:: bash
 
    racoon_clip -h
 

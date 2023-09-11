@@ -1,11 +1,15 @@
 Tutorial
 ==========
 
-Install racoon_clip as discribed :ref:`here <installation>`. 
+.. contents:: 
+    :depth: 2
+
+
+Install racoon_clip as described :ref:`here <installation>`. 
 
 Get an annotation
 ------------------
-First download a human genome assembly (as fasta) and genome annotation (as gtf).You can for examle get them from GENCODE: https://www.gencodegenes.org/human/
+First download a human genome assembly (as fasta) and genome annotation (as gtf). You can for examle get them from `GENCODE <https://www.gencodegenes.org/human/>`_.
 
 .. code:: bash
 
@@ -18,7 +22,7 @@ First download a human genome assembly (as fasta) and genome annotation (as gtf)
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip te example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from encode and one for a multiplexed iCLIP (where racoon needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
+Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
 
 .. code:: bash
 
@@ -60,7 +64,7 @@ You should now see the following files in the folder:
   > min_example_iCLIP min_example_iCLIP_s1
   > min_example_iCLIP min_example_iCLIP_s2
 
-You can see that both samples belong to the group min_example_iCLIP. Note: This example has only one group, therfore the group.txt is not necessary. It is still shown here as an example. 
+You can see that both samples belong to the group min_example_iCLIP. This example has only one group, therfore the group.txt is not necessary. It is still shown here as an example. 
 
 - **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path` to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your maschine.
 
@@ -84,6 +88,11 @@ You should change the following lines:
   adapter_file: "<path/to/adapter/file>"
   gtf: "<path/to/annotation.gtf>"
   genome_fasta: "<path/to/genome.fasta>"
+
+.. Note::
+
+  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired end ususally), but racoon only uses the read 2, which contains the crosslink site. For the adapters the default adapters from racoon can be used for this example.
+
 
 Run the minimal example
 ------------------------
@@ -115,7 +124,7 @@ You can also run racoon without a configfile. For the iCLIP example you would ne
   --genome-fasta "<path/to/genome.fasta>" \
   --read-length 75
 
-For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiemnt_type. 
+For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiment_type. 
  
 
 .. code:: bash
@@ -141,8 +150,8 @@ For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experi
   --genome_fasta "<path/to/genome.fasta>"
   --read-length 45
 
-For the multiplexed example you also need to specify --demultiplex True. 
-In addition this example shows how to merge samples by groups with --experiment-groups and --experiment-group-file.
+For the multiplexed example you also need to specify ``--demultiplex True``. 
+In addition this example shows how to merge samples by groups with ``--experiment-groups`` and ``--experiment-group-file``.
 
 .. code:: bash
 
@@ -178,7 +187,7 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 Customising racoon_clip
 ---------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at :ref: `options <all_options>` and
+racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at `options <all_options>` and
 
 .. code:: bash
 
@@ -203,27 +212,28 @@ For example racoon_clip can be executed with slurm clusters like this:
   --wait-for-files \
   --latency-wait 60
 
-Where <path/to/your/slurm/profile> should be a directory containing a config.yaml 
+Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, that could for example look like this: 
 
-.. config.yaml:: 
+.. code-block:: python
 
-  cluster:
-  mkdir -p logs/{rule} &&
-  sbatch
+    cluster:
+    mkdir -p logs/{rule} &&
+    sbatch
     --cpus-per-task={threads}
     --mem={resources.mem_mb}
     --partition={resources.partition}
     --job-name=smk-{rule}-{wildcards}
     --output=logs/{rule}/{rule}-{wildcards}-%j.out
-  default-resources:
+    default-resources:
     - partition=<your_partitions>
     - mem_mb=2000
     - time="48:00:00"
-  jobs: 6
+    jobs: 6
+
 
 .. Note::
 
-  For large datasets you might need to increase mem_mb and time
+  For large datasets you might need to increase mem_mb and time.
 
 
 See also: 

@@ -7,7 +7,7 @@ Welcome to racoon_clip's documentation!
 =======================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    installation
@@ -24,34 +24,42 @@ Welcome to racoon_clip's documentation!
 racoon_clip - What is it?
 =========================
 
-racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleotide crosslinks in a single step. It is an automatition of the iCLIP pipeline pubished by Busch *et al.* 2020 (`iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`) making the same processing now availabe for both iCLIP and eCLIP data in a highly reproducible manner. 
+racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleotide crosslinks in a single step. It is an automatition of the iCLIP pipeline pubished by Busch *et al.* 2020 (`iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_) making the same processing now availabe for both iCLIP and eCLIP data in a highly reproducible manner. 
 
-The performed steps are an optional quality filter, optional demultiplaexing, adapter trimming, genome alignment, optional deduplication and selection of single nucleotide crosslinks. For details on the performed steps please see :ref:`Detailed description of steps performed by racoon <methods_description>`.
+The performed steps are a quality filter (optional), demultiplexing (optional), adapter trimming, genome alignment,  deduplication (optional) and selection of single nucleotide crosslinks. For details on the performed steps please see :ref:`Detailed description of steps performed by racoon`.
 
-.. image:: ../Workflow.png
+.. figure:: ../Workflow.png
    :width: 600
 
+   Steps performed by racoon_clip.
 
 
 Usage
 =========================
-                                                                                                                                                                                                                                                                                   
-Once installed you can run racoon with
+                                                                                                                                                                                                                                                                            
+Once installed you can run racoon with:
 
-                                                                                                      
-   racoon --cores [number_of_cores] --configfile [/path/to/config/file.yaml]
+.. code:: bash
 
-                                                                                                                                                              
+   racoon_clip run --cores <number_of_cores> --configfile </path/to/config/file.yaml>
+
+                                                                                                                                                            
 
 Requirements
 ================
 
-xx
+- python >3.9
+- conda or mamba 
+- pip
+
+
+
+
 
 Citations
 =================
 
-xx
+- Busch *et al.* 2020 -- `iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
 
 
 
