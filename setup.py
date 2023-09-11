@@ -55,6 +55,7 @@ setup(
         "snakemake>=7.22",
         "pyyaml>=6.0",
         "Click>=8.1.3",
+        "mamba"
     ],
     entry_points={
         "console_scripts": [

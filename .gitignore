@@ -1,1 +1,4 @@
 .snakemake/
+racoon_clip/__pycache__/*
+_updated.yaml
+racoon_clip/test
