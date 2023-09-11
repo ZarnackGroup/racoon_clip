@@ -429,11 +429,11 @@ def run( _configfile,
     )
 
 
-@click.command()
-@common_options
-def example_config(configfile, **kwargs):
-    """Copy the system default config file"""
-    copy_config(configfile)
+# @click.command()
+# @common_options
+# def example_config(configfile, **kwargs):
+#     """Copy the system default config file"""
+#     copy_config(configfile)
 
 
 @click.command()
@@ -443,7 +443,7 @@ def citation(**kwargs):
 
 
 cli.add_command(run)
-cli.add_command(example_config)
+#cli.add_command(example_config)
 cli.add_command(citation)
 
 
