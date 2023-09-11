@@ -9,7 +9,7 @@ Install racoon_clip as described :ref:`here <installation>`.
 
 Get an annotation
 ------------------
-First download a human genome assembly (as fasta) and genome annotation (as gtf). You can for examle get them from `GENCODE <https://www.gencodegenes.org/human/>`_.
+First, download a human genome assembly (as fasta) and genome annotation (as gtf). You can for example get them from `GENCODE <https://www.gencodegenes.org/human/>`_.
 
 .. code:: bash
 
@@ -22,7 +22,7 @@ First download a human genome assembly (as fasta) and genome annotation (as gtf)
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial the iCLIP data set is show exemplarily, but you can run this tutorial with each of these examples.
+Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
 
 .. code:: bash
 
@@ -55,7 +55,7 @@ You should now see the following files in the folder:
   > >min_example_iCLIP_s2
   > NNNGGCGNN
 
-- **groups.txt**:  A file specifying experiemnt groups. The group file has one line per sample. This line consists of first the group name and then the sample name. 
+- **groups.txt**:  A file specifying experiment groups. The group file has one line per sample. This line consists of first the group name and then the sample name. 
 
 .. code:: bash
 
@@ -64,15 +64,15 @@ You should now see the following files in the folder:
   > min_example_iCLIP min_example_iCLIP_s1
   > min_example_iCLIP min_example_iCLIP_s2
 
-You can see that both samples belong to the group min_example_iCLIP. This example has only one group, therfore the group.txt is not necessary. It is still shown here as an example. 
+You can see that both samples belong to the group min_example_iCLIP. This example has only one group, the group.txt is not necessary. It is still shown here as an example. 
 
-- **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path` to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your maschine.
+- **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your machine.
 
 .. Note::
 
-  All path` need to be specified as absolut path`. Relative path` (for example starting with ~) are not allowed.
+  All paths` need to be specified as absolute path`. Relative paths` (for example starting with ~) are not allowed.
 
-Open the config file and change the path` with your favorite editor.
+Open the config file and change the path` with your favourite editor.
 
 .. code:: bash
 
@@ -91,7 +91,7 @@ You should change the following lines:
 
 .. Note::
 
-  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired end ususally), but racoon only uses the read 2, which contains the crosslink site. For the adapters the default adapters from racoon can be used for this example.
+  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired-end usually), but racoon only uses the read 2, which contains the crosslink site. For the adapters, the default adapters from racoon can be used for this example.
 
 
 Run the minimal example
@@ -103,13 +103,13 @@ You can now run the minimal example:
 
   racoon_clip run --cores <n_cores> --configfile <path/to/config_min_example_iCLIP.yaml>
 
-All resulting files will be writen into a folder "results" inside your wdir.
+All resulting files will be written into a folder "results" inside your wdir.
 
 
-Run the minimal example from commandline, without config file
+Run the minimal example from the command line, without the config file
 ------------------------
 
-You can also run racoon without a configfile. For the iCLIP example you would need to provide the path information as described above and  to specify the experiment_type "iCLIP" (which is already done in the example config file). 
+You can also run racoon_clip without a config file. For the iCLIP example, you would need to provide the path information as described above and  specify the experiment_type "iCLIP" (which is already done in the example config file). 
 
 .. code:: bash
 
@@ -124,7 +124,7 @@ You can also run racoon without a configfile. For the iCLIP example you would ne
   --genome-fasta "<path/to/genome.fasta>" \
   --read-length 75
 
-For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experiment_type. 
+For the other minimal examples, you would use "eCLIP" or "eCLIP_ENCODE" as experiment_type. 
  
 
 .. code:: bash
@@ -151,7 +151,7 @@ For the other minimal examples you would use "eCLIP" or "eCLIP_ENCODE" as experi
   --read-length 45
 
 For the multiplexed example you also need to specify ``--demultiplex True``. 
-In addition this example shows how to merge samples by groups with ``--experiment-groups`` and ``--experiment-group-file``.
+In addition, this example shows how to merge samples by groups with ``--experiment-groups`` and ``--experiment-group-file``.
 
 .. code:: bash
 
@@ -173,21 +173,21 @@ Understanding the output files
 ------------------------------
 racoon_clip produces a variety of files during the different steps of the workflow. The files you will likely want to use downstream of racoon_clip are:
 
-- **a summary on the perforemd steps** called Report.html.
+- **a summary of the performed steps** called Report.html.
 
-- **the sample-wise whole aligned reads after duplicate removal in .bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding .bam.bai files.
+- **The sample-wise whole aligned reads after duplicate removal in .bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding .bam.bai files.
 
-- **the group-wise whole aligned reads after duplicate removal in .bam format.** There will be one .bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam were all samples are merged. They are located in the results/bam_merged/ folder.
+- **The group-wise whole aligned reads after duplicate removal in .bam format.** There will be one .bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam where all samples are merged. They are located in the results/bam_merged/ folder.
 
-- **the sample-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strand. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
+- **The sample-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
-- **the group-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strand. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
+- **The group-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
 
 
 Customising racoon_clip
 ---------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. All setting can be passed to racoon either in the commandline or via a config file. For a full list of options please have a look at `options <all_options>` and
+racoon_clip offers many options to customise the workflow for your data. All settings can be passed to racoon either in the command line or via a config file. For a full list of options please have a look at `options <all_options>` and
 
 .. code:: bash
 
@@ -195,12 +195,12 @@ racoon_clip offers many options to customise the workflow for your data. All set
 
 
 
-Running racoon snakemakes cluster execution
+Running racoon_clip with snakemakes cluster execution
 --------------------------------------------
 
 As racoon_clip is based on the snakemake workflow management system, in general all snakemake commandline options can be passed to racoon_clip. For a full list of opitons check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the clsuter execution and cloud execution of racoon_clip. 
 
-For example racoon_clip can be executed with slurm clusters like this:
+For example, racoon_clip can be executed with slurm clusters like this:
 
 .. code:: bash
 
@@ -233,7 +233,7 @@ Where <path/to/your/slurm/profile> should be a directory containing a config.yam
 
 .. Note::
 
-  For large datasets you might need to increase mem_mb and time.
+  For large datasets, you might need to increase mem_mb and time.
 
 
 See also: 
