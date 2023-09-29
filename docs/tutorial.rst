@@ -22,7 +22,7 @@ First, download a human genome assembly (as fasta) and genome annotation (as gtf
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
+Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
 
 .. code:: bash
 
@@ -70,9 +70,9 @@ You can see that both samples belong to the group min_example_iCLIP. This exampl
 
 .. Note::
 
-  All paths` need to be specified as absolute path`. Relative paths` (for example starting with ~) are not allowed.
+  All paths need to be specified as absolute paths. Relative paths` (for example starting with ~) are not allowed.
 
-Open the config file and change the path` with your favourite editor.
+Open the config file and change the paths with your favourite editor.
 
 .. code:: bash
 
@@ -175,19 +175,19 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 - **a summary of the performed steps** called Report.html.
 
-- **The sample-wise whole aligned reads after duplicate removal in .bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding .bam.bai files.
+- **The sample-wise whole aligned reads after duplicate removal in bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding bam.bai files.
 
-- **The group-wise whole aligned reads after duplicate removal in .bam format.** There will be one .bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam where all samples are merged. They are located in the results/bam_merged/ folder.
+- **The group-wise whole aligned reads after duplicate removal in bam format.** There will be one bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam where all samples are merged. They are located in the results/bam_merged/ folder.
 
-- **The sample-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
+- **The sample-wise single nucleotide crosslink files in bw format.**: The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
-- **The group-wise single nucleotide crosslink files in .bw format.**: The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
+- **The group-wise single nucleotide crosslink files in bw format.**: The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
 
 
 Customising racoon_clip
 ---------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. All settings can be passed to racoon either in the command line or via a config file. For a full list of options please have a look at `options <all_options>` and
+racoon_clip offers many options to customise the workflow for your data. All settings can be passed to racoon_clip either in the command line or via a config file. For a full list of options please have a look at `options <all_options>` and
 
 .. code:: bash
 
@@ -198,7 +198,7 @@ racoon_clip offers many options to customise the workflow for your data. All set
 Running racoon_clip with snakemakes cluster execution
 --------------------------------------------
 
-As racoon_clip is based on the snakemake workflow management system, in general all snakemake commandline options can be passed to racoon_clip. For a full list of opitons check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the clsuter execution and cloud execution of racoon_clip. 
+As racoon_clip is based on the snakemake workflow management system, in general, all snakemake commandline options can be passed to racoon_clip. For a full list of options check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the cluster execution and cloud execution of racoon_clip. 
 
 For example, racoon_clip can be executed with slurm clusters like this:
 
