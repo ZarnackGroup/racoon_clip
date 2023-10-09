@@ -5,21 +5,20 @@ Installation
 Install from GitHub
 ---------------------
 
-Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
+Download the zip file of your preferred release from GitHub and unzip it. Then go into the unzipped folder.
 
 .. code:: bash
 
-   unzip racoon_clip-1.0.0.zip
-   cd racoon_clip-1.0.0
+   unzip racoon_clip-1.0.2.zip
+   cd racoon_clip-1.0.2
 
 
-It is recommended to install racoon_clip it a fresh conda enviroment.
+It is recommended to install racoon_clip in a fresh conda environment.
 
 .. code:: bash
 
    conda create -n racoon_clip pip
    conda activate racoon_clip
-   conda install -c conda-forge mamba
 
 Then install racoon with pip.
 
