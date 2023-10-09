@@ -1,0 +1,20 @@
+[2023:10:09 08:10:36] commandline values
+[2023:10:09 08:10:36] default values
+[2023:10:09 08:10:36] Updating config file with commandline values
+[2023:10:09 08:10:36] Writing config file to /home/mklostermann/projects/07_processed_published_data/Encode/U2AF2_HepG2/01_files_for_pipe/config_U2AF2_HepG2_single_strand_updated.yaml
+[2023:10:09 08:10:36] ---------------------
+[2023:10:09 08:10:36] | Snakemake command |
+[2023:10:09 08:10:36] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile /home/mklostermann/projects/07_processed_published_data/Encode/U2AF2_HepG2/01_files_for_pipe/config_U2AF2_HepG2_single_strand_updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:10:09 08:13:11] ERROR: Snakemake failed
+[2023:10:09 08:22:29] commandline values
+[2023:10:09 08:22:29] default values
+[2023:10:09 08:22:29] Updating config file with commandline values
+[2023:10:09 08:22:29] Writing config file to /home/mklostermann/projects/07_processed_published_data/Encode/U2AF2_HepG2/01_files_for_pipe/config_U2AF2_HepG2_single_strand_updated.yaml
+[2023:10:09 08:22:29] ---------------------
+[2023:10:09 08:22:29] | Snakemake command |
+[2023:10:09 08:22:29] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile /home/mklostermann/projects/07_processed_published_data/Encode/U2AF2_HepG2/01_files_for_pipe/config_U2AF2_HepG2_single_strand_updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:10:09 08:23:06] ERROR: Snakemake failed

@@ -115,15 +115,15 @@ def update_config(u_config=None, merge=None, default_config = None, output_confi
     if u_config is not None and os.path.exists(u_config):
         # Load the custom config here and merge it with full_config using recursive_merge_config
         custom_config = read_config(u_config)  # Load your custom config from u_config
-        custom_config = recursive_merge_config(prio_config=custom_config, non_prio_config=default_config)
+        custom_config = recursive_merge_config(prio_config=custom_config, non_prio_config=full_config)
     else:
         msg("Custom config file not found. Using default config")
-        custom_config = default_config
+        custom_config = full_config
         print(custom_config)
 
     # Merge the command line values to the default
     msg("Updating config file with commandline values", log=log)
-    final_config = recursive_merge_config(prio_config= full_config, non_prio_config=custom_config)
+    final_config = recursive_merge_config(prio_config= custom_config, non_prio_config=default_config)
     print(final_config)
 
 

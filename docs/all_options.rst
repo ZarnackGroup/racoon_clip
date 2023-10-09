@@ -26,7 +26,7 @@ In the commandline every option can be specified by adding ``--`` in front and t
 
    If a parameter is specified in both the provided configfile and the commandline, the commandline parameter will overwrite the configfile.
 
-raccon_clip will write a combined configfile, containing the default options, where nothing was specified, the configfile options and the commandline options (commandline parameters overwrite configfile parameters) with the file ending "_updated.yaml" to keep track of the options you used.
+raccon_clip will write a combined configfile, containing the default options, where nothing was specified, the configfile options and the commandline options (configfile parameters overwrite commandline parameters) with the file ending "_updated.yaml" to keep track of the options you used.
 
 
 Requiered input

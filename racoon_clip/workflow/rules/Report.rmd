@@ -587,7 +587,7 @@ ggplot(gg.df, aes( x = Sample, y = as.numeric(value), fill = variable))+
 ```{r eval=dedup, results = 'asis'}
 # asis_output("# Adapter trimming \\n")
 cat("# Deduplication \n
-Chimeric reads are deduplicated analogous to the non-chimeric reads with umi_tools dedup --extract-umi-method read_id --method unique.")
+Reads are deduplicated with umi_tools dedup --extract-umi-method read_id --method unique.")
 ```
 
 

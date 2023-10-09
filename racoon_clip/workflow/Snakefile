@@ -38,21 +38,16 @@ SNAKE_PATH = os.path.dirname(config["snakebase"])
 
 WDIR=config["wdir"]
 SAMPLES_FULL=config["infiles"].split()
-print("samples")
-print(SAMPLES_FULL)
-
 SAMPLES=config["samples"].split()
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
-
-DEMUX=config["demultiplex"] == "True"
-QUAL_BC=config["quality_filter_barcodes"] == "True"
+DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
+QUAL_BC=config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True
 GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
-ENCODE=config["encode"] == "True"
+#ENCODE=config["encode"] == "True"
 ADAPTER_FILE=config["adapter_file"] #if "adapter_file" in config else config_default["adapter_file"]
-TRIM=config["adapter_trimming"] == "True"
-DEDUP=config["deduplicate"] == "True"
+TRIM=config["adapter_trimming"] == "True" or config["adapter_trimming"] == "true" or config["adapter_trimming"] == True
 
-print(QUAL_BC)
+DEDUP=config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True
 
 
 # get groups
@@ -129,6 +124,9 @@ def get_barcode_experiment_info():
         raise ValueError('Input Error: experiment_type must be one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other".')   
     return info
 
+print(get_barcode_experiment_info()["encode"])
+ENCODE = get_barcode_experiment_info()["encode"]
+
 #############################################
 #############################################
 ### definitions for inputs
@@ -187,11 +185,11 @@ def get_bai_files(wcs):
         return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam.bai"]
 
     
-def get_bam_dedup(wcs):
+def get_bam_dedup():
     if DEDUP == True:
-        return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"]
+        return config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
     else:
-        return [config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"]
+        return config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     
 def mqc_for_readlength():
     if DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
@@ -237,17 +235,18 @@ if DEMUX != True and TRIM == True:  # without demultiplexing
 
 
 # alignment
-myoutput.append(expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.bam", sample=SAMPLES, wdir=WDIR))
+#myoutput.append(expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.bam", sample=SAMPLES, wdir=WDIR))
 
 
+# deduplication
+if DEDUP == True:  # without demultiplexing
+        myoutput.append(expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam", sample=SAMPLES, wdir=WDIR))
 
 rule all:
     input:
         myoutput,
         # # read alignment
         expand("{wdir}/results/bam_merged/{groups}.bam",  groups=GROUPS, wdir=WDIR),
-        # # # # deduplication
-        expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam", sample=SAMPLES, wdir=WDIR),
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR),
@@ -293,7 +292,7 @@ rule high_quality_barcodes:
     message: 
         "========================= \n Extracting barcodes for quality filter \n ================================ \n" 
     shell:
-        " echo {params.barcodeLength} && zcat -f < {input.fasta} | fastx_trimmer {params.seq_format} -l {params.barcodeLength} | fastq_quality_filter {params.seq_format} -q {params.minBaseQuality} -p 100 | awk 'FNR%4==1 {{ print $1 }}' | sed 's/^@//' > {output}"
+        "zcat -f < {input.fasta} | fastx_trimmer {params.seq_format} -l {params.barcodeLength} | fastq_quality_filter {params.seq_format} -q {params.minBaseQuality} -p 100 | awk 'FNR%4==1 {{ print $1 }}' | sed 's/^@//' > {output}"
 
 
 # filter fasta for selected barcodes
@@ -439,8 +438,6 @@ rule high_quality_umi:
         "envs/racoon_main_v0.2.yml"
     shell:
         """
-        echo {input.fasta} &&
-        echo {output} &&
         zcat -f < {input.fasta} | fastx_trimmer {params.seq_format} -l {params.barcodeLength} | fastq_quality_filter {params.seq_format} -q {params.minBaseQuality} -p 100 | awk 'FNR%4==1 {{ print $1 }}' | sed 's/^@//' > {output}
         """
 
@@ -462,8 +459,6 @@ rule filter_umi_quality:
     shell:
         #"bash workflow/scripts/filter_barcode_quality.sh {input.fastq} {input.list} && touch {output.token}"
         """ 
-        echo {input.fastq} && \
-        echo {input.list} && \
         seqkit grep -f {input.list} {input.fastq} | awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' > {output.file} 
         """
 
@@ -751,7 +746,7 @@ rule deduplication:
         then
             umi_tools dedup -I {input.bam} -L {params.log} -S {output.bam} --extract-umi-method read_id --method unique
         else 
-            cp {input.bam} {output.bam}
+            mv {input.bam} {output.bam}
         fi
         """
 
@@ -788,10 +783,11 @@ rule make_genome_index:
 
 
 
+
 rule get_crosslinks:
     input:
         genome_idx=config["genome_fasta"]+".fai",
-        bam= config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",
+        bam= get_bam_dedup(),
         chkpnt=config["wdir"]+"/results/tmp/.{sample}.bai.chkpnt"
     output:
         bed="{wdir}/results/tmp/{sample}.Aligned.sortedByCoord.out.duprm.bed",
@@ -810,15 +806,12 @@ rule get_crosslinks:
         """
         #### Convert all read locations to intervals in bed file format using BEDTools
         bedtools bamtobed -i {input.bam} > {output.bed} 
-        echo "done 1"  
         \
         #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
         bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} 
-        echo "done 2" 
         #### Extract the 5' end of the shifted intervals and pile up into coverage track in bedgraph file format (separately for each strand) using BEDTools (in case of RPM-normalised coverage tracks, use additional parameter -scale with 1,000,000/#mappedReads)
         bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort > {output.bed_plus} 
         bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort  > {output.bed_minus} 
-        echo "done 3"  
         """
 
 rule turn_crosslinks_to_bw:
@@ -913,7 +906,6 @@ checkpoint merge_bw:
         """
         ### merge plus files per group
         s="$(awk '{{ print "{params.wdir}/results/bw/" $2 ".Aligned.sortedByCoord.out.duprm.plus.bw"}}' {input.groups} )" 
-        echo $s 
         chmod +x $s 
         bigWigMerge $s {output.bed_p} 
         LC_COLLATE=C sort -k1,1 -k2,2n {output.bed_p} -o {output.bed_p_sort} 
@@ -921,7 +913,6 @@ checkpoint merge_bw:
         \
         ### merge minus files per group
         r="$(awk '{{ print "{params.wdir}/results/bw/" $2 ".Aligned.sortedByCoord.out.duprm.minus.bw"}}' {input.groups} )" 
-        echo $r 
         chmod +x $r 
         bigWigMerge $r {output.bed_m} 
         chmod +x {output.bed_m} 
@@ -934,22 +925,27 @@ checkpoint merge_bw:
 checkpoint merge_bam:
     input:
         groups = config["wdir"]+"/results/tmp/groups/{groups}.txt",
-        bam = expand(config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam", sample = SAMPLES)
+        bam = expand(get_bam_dedup(), sample = SAMPLES)
     output:
         bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam"
     params: 
-        wdir = config['wdir']
+        wdir = config['wdir'],
+        dedup=DEDUP
+    threads: 1
     conda:
         "envs/racoon_main_v0.2.yml"
     message: 
         "========================= \n Merging .bam files of group {wildcards.groups} \n ================================ \n" 
     shell:
         """
-        ### merge files per group
-        s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" && \
-        echo $s && \
-        chmod +x $s && \
-        samtools merge -f {output.bam_merge} $s
+        if [[ "{params.dedup}" == "True" ]]; then
+            s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
+            samtools merge -f {output.bam_merge} $s
+        else
+            s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
+            samtools merge -f {output.bam_merge} $s
+        fi
+
         """
 
 
@@ -1200,12 +1196,14 @@ if DEMUX != True and QUAL_BC == True:
     stats.append(config["wdir"]+"/results/fastqc/filtered/multiqc_report.html")
 if DEMUX != True and TRIM == True:
     stats.append(config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html")
+if DEDUP == True:
+    stats.append(config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html")
 
 rule fastqc_stats:
     input:
         f1=stats,
         f3=config["wdir"]+"/results/fastqc/separate_samples_bam/multiqc_report.html",
-        f4=config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html"
+        
 
     output:
         touch(config["wdir"]+"/results/tmp/.fastqc_stats_chkpnt")
@@ -1229,7 +1227,6 @@ rule fastqc_stats:
 
         if [ {params.demux} != True ] && [ {params.qual_bc} == True ]
         then
-            echo "condition worked"
             unzip -o -q "{params.wdir}/results/fastqc/filtered/*.zip" -d {params.wdir}/results/fastqc/filtered/ 
         fi
 
