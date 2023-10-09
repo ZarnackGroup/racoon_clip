@@ -618,3 +618,51 @@ snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/S
 [2023:09:07 06:22:06] ---------------------
 
 snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:28:26] commandline values
+[2023:09:07 06:28:26] default values
+[2023:09:07 06:28:26] Updating config file with commandline values
+[2023:09:07 06:28:26] Writing config file to _updated.yaml
+[2023:09:07 06:28:26] ---------------------
+[2023:09:07 06:28:26] | Snakemake command |
+[2023:09:07 06:28:26] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6
+[2023:09:07 06:41:16] commandline values
+[2023:09:07 06:41:16] default values
+[2023:09:07 06:41:16] Updating config file with commandline values
+[2023:09:07 06:41:16] Writing config file to _updated.yaml
+[2023:09:07 06:41:16] ---------------------
+[2023:09:07 06:41:16] | Snakemake command |
+[2023:09:07 06:41:16] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6 /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/barcodes.fasta --experiment_groups min_example_iCLIP2_multiplexed_g1 min_example_iCLIP2_multiplexed_g2 --experiment_group_file: /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/groups.txt
+[2023:09:07 06:41:16] ERROR: Snakemake failed
+[2023:09:07 06:41:43] commandline values
+[2023:09:07 06:41:43] default values
+[2023:09:07 06:41:43] Updating config file with commandline values
+[2023:09:07 06:41:43] Writing config file to _updated.yaml
+[2023:09:07 06:41:43] ---------------------
+[2023:09:07 06:41:43] | Snakemake command |
+[2023:09:07 06:41:43] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6 /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/barcodes.fasta --experiment-group_file /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/groups.txt
+[2023:09:07 06:41:43] ERROR: Snakemake failed
+[2023:09:07 06:41:51] commandline values
+[2023:09:07 06:41:51] default values
+[2023:09:07 06:41:51] Updating config file with commandline values
+[2023:09:07 06:41:51] Writing config file to _updated.yaml
+[2023:09:07 06:41:51] ---------------------
+[2023:09:07 06:41:51] | Snakemake command |
+[2023:09:07 06:41:51] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6 /media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/barcodes.fasta
+[2023:09:07 06:41:52] ERROR: Snakemake failed
+[2023:09:07 06:48:33] commandline values
+[2023:09:07 06:48:33] default values
+[2023:09:07 06:48:33] Updating config file with commandline values
+[2023:09:07 06:48:33] Writing config file to _updated.yaml
+[2023:09:07 06:48:33] ---------------------
+[2023:09:07 06:48:33] | Snakemake command |
+[2023:09:07 06:48:33] ---------------------
+
+snakemake -s /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow/Snakefile --configfile _updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 6

@@ -26,7 +26,7 @@ demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_b
 min_read_length: 15
 
 #adapter adapter_trimming
-adapter_file: "params.dir/adapter.fa"
+adapter_file: ""
 adapter_cycles: 1
 adapter_trimming: True
 
