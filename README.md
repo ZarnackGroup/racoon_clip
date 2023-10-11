@@ -35,8 +35,8 @@ mamba activate racoon_clip
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
-unzip racoon_clip-1.0.0.zip
-cd racoon_clip-1.0.0
+unzip racoon_clip-1.0.3.zip
+cd racoon_clip-1.0.3
 ```
 
 Then install racoon with pip.
