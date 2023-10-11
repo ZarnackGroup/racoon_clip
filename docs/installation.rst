@@ -9,8 +9,8 @@ Download the zip file of your preferred release from GitHub and unzip it. Then g
 
 .. code:: bash
 
-   unzip racoon_clip-1.0.2.zip
-   cd racoon_clip-1.0.2
+   unzip racoon_clip-1.0.3.zip
+   cd racoon_clip-1.0.3
 
 
 It is recommended to install racoon_clip in a fresh conda environment.
