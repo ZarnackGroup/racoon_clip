@@ -48,7 +48,7 @@ Once installed you can run racoon with:
 Requirements
 ================
 
-- python >3.9
+- python >=3.9
 - conda or mamba 
 - pip
 
