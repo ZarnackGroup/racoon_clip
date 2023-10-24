@@ -57,7 +57,7 @@ racoon_clip -h
 
 ## Documentation and Tutorial
 
-You can find a tutorial and all options and a details description of the performed steps at [documentation](racoon-clip.readthedocs.io).
+You can find a tutorial and all options and a details description of the performed steps at [documentation](https://racoon-clip.readthedocs.io/en/latest/).
 
 ## Citing racoon_clip
 
