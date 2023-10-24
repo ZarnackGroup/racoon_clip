@@ -17,14 +17,14 @@ The following are required before installing racoon_clip
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with:
 
 ```
-conda create -n racoon_clip pip
+conda create -n racoon_clip python=3.9.0 pip
 conda activate racoon_clip
 ```
 
 or 
 
 ```
-mamba create -n racoon_clip pip
+mamba create -n racoon_clip python=3.9.0 pip
 mamba activate racoon_clip
 ``` 
 
