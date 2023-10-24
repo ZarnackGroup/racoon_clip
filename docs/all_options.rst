@@ -8,13 +8,63 @@ All parameters and options
 Parameter usage in general
 ---------------------------
 
-You can specify all parameters and options of racoon either directly in the command line or in a config file provided with
+You can specify all parameters and options of racoon either directly in the command line or in a config.yaml file provided with
 
 .. code:: commandline
 
    racoon_clip run .. --configfile <your_configfile> --cores <n_cores>
 
-To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed.
+To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters, that should be used in default, do not need to be specified in the config.yaml file. Here is an exmaple of a config.yaml file containing all default options:
+
+This tutorial will walk you through some minimal examples.
+
+.. code:: bash
+    
+    # where to put results
+    wdir: "." # no backslash in the end of the path
+    # input
+    infiles: "" # one undemultiplexed file or multiple demultiplexed files
+    
+    #SAMPLES
+    experiment_groups: "" # txt file with group space sample per row
+    experiment_group_file: ""
+    seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by fastX
+    
+    # barcodes
+    barcodeLength: "" # if already demux = umi1_len
+    minBaseQuality: 10
+    umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
+    umi2_len: 0
+    exp_barcode_len: 0
+    encode: False
+    
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
+    
+    barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
+    quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
+    
+    # demultiplexing
+    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    min_read_length: 15
+    
+    #adapter adapter_trimming
+    adapter_file: ""
+    adapter_cycles: 1
+    adapter_trimming: True
+    
+    # star alignment
+    gtf: "" # has to be unzipped at the moment
+    genome_fasta: "" # has to be unzipped or bgzip
+    read_length: 150 
+    outFilterMismatchNoverReadLmax: 0.04
+    outFilterMismatchNmax: 999
+    outFilterMultimapNmax: 1
+    outReadsUnmapped: "Fastx"
+    outSJfilterReads: "Unique"
+    moreSTARParameters: ""
+    
+    # deduplicate
+    deduplicate: True
 
 In the command line every option can be specified by adding ``--`` in front and turning ``_`` to ""-"" in the option name. For example:
 
