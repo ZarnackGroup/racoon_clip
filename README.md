@@ -11,8 +11,8 @@ The performed steps are an optional quality filter, optional demultiplexing, ada
 
 The following are required before installing racoon_clip
 
-+ either conda/mamba or pip
-+ python =>3.9
++ mamba >= 1.3.1
++ python >= 3.9
 
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with:
 
