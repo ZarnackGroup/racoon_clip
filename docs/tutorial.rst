@@ -5,7 +5,7 @@ Tutorial
     :depth: 2
 
 
-Install racoon_clip as described :ref:`here <installation>`. 
+Install racoon_clip as described :ref:`here <installation>`_. 
 
 Get an annotation
 ------------------
