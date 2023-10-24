@@ -13,7 +13,7 @@ Setting up racoon_clip works via providing a config.yaml file or by specifying a
 
 This tutorial will walk you through some minimal examples.
 
-.. code:: bash
+.. code:: python
     
     # where to put results
     wdir: "." # no backslash in the end of the path
@@ -128,9 +128,31 @@ You can see that both samples belong to the group min_example_iCLIP. This exampl
 
 Open the config file and change the paths with your favourite editor.
 
-.. code:: bash
+.. code:: python
 
-  nano config_min_example_iCLIP.yaml
+    # where to put results
+    wdir: "<path/to/output/dir>"
+    
+    # input
+    infiles: "<path/to/minimal_example/minimal_example_iCLIP/min_example_iCLIP_s1.fastq>, "<path/to/minimal_example/minimal_example_iCLIP/min_example_iCLIP_s2.fastq>" # for multiple files after demultiplexing
+    samples: "min_example_iCLIP_s1 min_example_iCLIP_s2"
+    
+    # barcodes
+    experiment_type: "iCLIP"
+    
+    barcodes_fasta: ""<path/to/minimal_example/minimal_example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
+    # make sure the barcodes have the same names as the samples
+    
+    # demultiplexing
+    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    
+    #adapter adapter_trimming
+    adapter_file: "<path/to/minimal_example/minimal_example_iCLIP/adapter.fa>"
+    
+    # star alignment
+    gtf: "<path/to/annotation.gtf>" # has to be unzipped at the moment
+    genome_fasta: "<path/to/genome.fa>" # has to be unzipped or bgzip
+    read_length: 75 # readlength 
 
 You should change the following lines:
 
