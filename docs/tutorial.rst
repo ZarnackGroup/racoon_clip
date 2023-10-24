@@ -9,7 +9,7 @@ Install racoon_clip as described :ref:`here <installation>`.
 
 Get an annotation
 ------------------
-First, download a human genome assembly (as fasta) and genome annotation (as gtf). You can for example get them from `GENCODE <https://www.gencodegenes.org/human/>`_.
+First, download a human genome assembly (as fasta) and genome annotation (as gtf). You can for example get them from `GENCODE <https://www.gencodegenes.org/human/>`_ or from `ENSEMBL <http://www.ensembl.org/index.html>`_.
 
 .. code:: bash
 
