@@ -187,7 +187,13 @@ Please also have a look at `options <all_options>` for how to provide barcode, U
     adapter_trimming:True/False
     deduplicate:deduplicate
 
+Selecting experimental type
+---------------------------
 
+You can select one of the 4 standard experiment types with 
+
+.. code:: python
+    experiment_type:“iCLIP”/”iCLIP2”/”eCLIP”/”eCLIP_ENCODE”
 
 Run the minimal example
 ------------------------
