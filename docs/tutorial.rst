@@ -9,7 +9,9 @@ Install racoon_clip as described :ref:`here <installation>`.
 
 Full list of yaml file options
 ------------------------------
-Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file.
+Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file. You can find an explanation of all parameters `here <all_options>`.
+
+This tutorial will walk you through some minimal examples.
 
 .. code:: bash
     
@@ -48,7 +50,7 @@ Setting up racoon_clip works via providing a config.yaml file or by specifying a
     # star alignment
     gtf: "" # has to be unzipped at the moment
     genome_fasta: "" # has to be unzipped or bgzip
-    read_length: 150 # remove???  readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
+    read_length: 150 
     outFilterMismatchNoverReadLmax: 0.04
     outFilterMismatchNmax: 999
     outFilterMultimapNmax: 1
