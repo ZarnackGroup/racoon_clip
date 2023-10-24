@@ -9,7 +9,7 @@ Install racoon_clip as described :ref:`here <installation>`.
 
 Full list of yaml file options
 ------------------------------
-Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file. You can find an explanation of all parameters `here <all_options>`.
+Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file. You can find an explanation of all parameters :ref:`here <all_options>`.
 
 This tutorial will walk you through some minimal examples.
 
