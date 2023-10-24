@@ -14,14 +14,15 @@ The following are required before installing racoon_clip
 + mamba >= 1.3.1
 + python >= 3.9
 
-It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with:
+It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
 
 ```
+conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'
 conda create -n racoon_clip python=3.9.0 pip
 conda activate racoon_clip
 ```
 
-or 
+or if you already have mamba installed:
 
 ```
 mamba create -n racoon_clip python=3.9.0 pip
