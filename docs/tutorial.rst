@@ -84,14 +84,33 @@ You should change the following lines:
 
   wdir: "<path/where/to/put/results>"
   infiles: "<path/to/first/sample.fastq> <path/to/second/sample.fastq>"
-  barcodes_fasta: "<path/to/barcodes.fasta>"
-  adapter_file: "<path/to/adapter/file>"
+  barcodes_fasta: "<path/to/barcodes.fasta>" # not needed for eCLIP data
+  adapter_file: "<path/to/adapter/file>" 
   gtf: "<path/to/annotation.gtf>"
   genome_fasta: "<path/to/genome.fasta>"
 
 .. Note::
 
   The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired-end usually), but racoon only uses the read 2, which contains the crosslink site. For the adapters, the default adapters from racoon can be used for this example.
+
+Selecting optional steps
+------------------------
+
+The following steps can be turned on and off as needed in the config file. (For the tutorial you can use the default options.)
+
++ **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. The filter is applied on the combined region of UMI and barcode in iCLIP data or only UMI in eCLIP data and automatically turned off for experiment_type:"eCLIP_ENCODE".
++ **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
++ **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
++ **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
+
+Please also have a look at `options <all_options>` for how to provide barcode, UMI and adapter information.
+
+.. code:: python
+    quality_filter_barcodes:True/False
+    demultiplex:False/True
+    adapter_trimming:True/False
+    deduplicate:deduplicate
+
 
 
 Run the minimal example
