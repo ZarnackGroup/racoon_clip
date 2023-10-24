@@ -12,6 +12,7 @@ Full list of yaml file options
 Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file.
 
 .. code:: bash
+
 # where to put results
 wdir: "." # no backslash in the end of the path
 # input
