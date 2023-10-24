@@ -17,7 +17,7 @@ It is recommended to install racoon_clip in a fresh conda environment.
 
 .. code:: bash
 
-   conda create -n racoon_clip pip
+   conda create -n racoon_clip python=3.9.0 pip
    conda activate racoon_clip
 
 Then install racoon with pip.
