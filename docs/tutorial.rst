@@ -126,7 +126,7 @@ You can see that both samples belong to the group min_example_iCLIP. This exampl
 
   All paths need to be specified as absolute paths. Relative paths` (for example starting with ~) are not allowed.
 
-Open the config file and change the paths with your favourite editor.
+This is how the config file config_min_example_iCLIP.yaml looks like: 
 
 .. code:: python
 
@@ -239,7 +239,6 @@ For the other minimal examples, you would use "eCLIP" or "eCLIP_ENCODE" as exper
   --experiment_type "eCLIP_ENCODE" \
   -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
-  --barcodes_fasta "<path/to/barcodes.fasta>" \
   --adapter_file "<path/to/adapter/file>" \
   --gtf "<path/to/annotation.gtf>" \
   --genome_fasta "<path/to/genome.fasta>"
