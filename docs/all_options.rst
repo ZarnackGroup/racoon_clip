@@ -14,9 +14,8 @@ You can specify all parameters and options of racoon either directly in the comm
 
    racoon_clip run .. --configfile <your_configfile> --cores <n_cores>
 
-To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters, that should be used in default, do not need to be specified in the config.yaml file. Here is an exmaple of a config.yaml file containing all default options:
+To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters, that should be used in default, do not need to be specified in the config.yaml file. Here is an example of a config.yaml file containing all default options:
 
-This tutorial will walk you through some minimal examples.
 
 .. code:: bash
     
