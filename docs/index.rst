@@ -49,8 +49,8 @@ Requirements
 ================
 
 - python >=3.9
-- conda or mamba 
-- pip
+- mamba >= 1.3.1
+
 
 
 
