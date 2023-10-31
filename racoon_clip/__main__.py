@@ -152,8 +152,8 @@ def common_options(func):
         ),
         click.option(
             "--experiment-type",
-            help= "Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. If your experiment used one of the setups, you can use the expereriment_type parameter instead of defining barcoedLength, umi1_len, umi2_len and exp_barcode_len, manually. ",   
-            type=click.Choice(['iCLIP', 'iCLIP2', 'eCLIP', 'eCLIP_ENCODE', 'other'], case_sensitive=False),
+            help= "Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. For eCLIP there are tow options for either 5nt long UMIs (old eCLIPs) or 20nt UMIs (newer eCLIPs). There is also a preset option for reads without a barcode or UMI (noBarcode_noUMI). If your experiment used one of the setups, you can use the expereriment-type parameter instead of defining barcoedLength, umi1_len, umi2_len and exp_barcode_len, manually.",   
+            type=click.Choice(["iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI","eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI", "other"], case_sensitive=False),
             default='other',
             show_default=True,  
         ),

@@ -81,6 +81,9 @@ no_trim <- !any(demult, trim, qual_bc)
 only_trim <- ((!demult) && trim)
 qual_bc_no_demult <- ((!demult) && qual_bc )
 
+if(config["experiment_type",] == "noBarcode_noUMI"){
+  dedup <- FALSE}
+
 
 ```
 
@@ -498,14 +501,20 @@ Position of adapters found in the reads. If adapters are found early in the read
 ```{r }
 
 if (qual_bc & !demult){
-  include_graphics(paste0(dir,"/results/fastqc/filtered/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
+ f = paste0(dir,"/results/fastqc/filtered/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png")
 }else{
   if(!demult){
-  include_graphics(paste0(dir,"/results/fastqc/raw/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
+    f= paste0(dir,"/results/fastqc/raw/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png")
+    }else{
+    f=paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/adapter_content.png")
+ }}
+    
+    
+if(file.exists(f)){
+    include_graphics(f)
   }else{
-    include_graphics(paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/adapter_content.png"))
-  }
-  }
+    cat("\n \n  **No adapter content was detected in the raw files. **") }
+
 
 
 ```
