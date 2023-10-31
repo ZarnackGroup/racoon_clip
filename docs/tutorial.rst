@@ -125,6 +125,17 @@ This depends on the experiment_type. If not specified otherwise racoon_clip will
 | **"noBarcode_noUMI":**
 | Adapter trimming > Alignment > Crosslink detection
 
+How to turn optional steps on or off
+--------------------------------------
+You can use the following parameters to turn step on or off:
+
+.. code:: python
+
+    demultiplex: True/False
+    quality_filter_barcodes: True/False
+    adapter_trimming: True/False
+    deduplicate: True/False
 
 
+    
 
