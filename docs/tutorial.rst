@@ -113,10 +113,14 @@ Which steps will racoon_clip run by default?
 ---------------------------
 This depends on the experiment_type. If not specified otherwise racoon_clip will run the following:
 
-- **iCLIP,iCLIP2 and other:** Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
-- **eCLIP_5ntUMI and eCLIP_10ntUMI:** Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
-- **"eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI":** Adapter trimming > Alignment > Deduplication > Crosslink detection
-- **"noBarcode_noUMI":** Adapter trimming > Alignment > Crosslink detection
+**iCLIP, iCLIP2 and other:** \\
+Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
+
+**eCLIP_5ntUMI and eCLIP_10ntUMI:** \\
+Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
+
+**"eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI":** Adapter trimming > Alignment > Deduplication > Crosslink detection
+**"noBarcode_noUMI":** Adapter trimming > Alignment > Crosslink detection
 
 
 
