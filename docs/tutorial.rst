@@ -14,6 +14,14 @@ You can run racoon_clip with the following command:
 
    racoon_clip run --configfile <your_configfile> --cores <n_cores> [OPTIONS]
 
+Execution parameters
+^^^^^^^^^^^^^^^^^^^^
+These parameters should be passed in the command line.
+
+- ``--cores``: Number of cores for the execution.
+- ``--verbose``: Print all commands of the process to the console.
+- ``--log``: *default "racoon_clip.log"*; Name of log file.
+
 How to pass parameters to racoon_clip
 ---------------------------
 
@@ -235,6 +243,37 @@ For example, manually defining an iCLIP or eCLIP setup manually would look like 
    umi2_len: 0
    exp_barcode_len: 0
 
+
+How to customise genome alignment
+---------------------------------
+
+Required input
+^^^^^^^^^^^^^^^
+- **gtf** (path): .gft file of used genome annotation. Note, that the file needs to be unzipped. (Can be obtained for example from https://www.gencodegenes.org/human/.) 
+
+- **genome_fasta** : .fasta file of used genome annotation. Unzipped or bgzip files are supported. 
+
+- **read_length** (int): *default 150*; The length of the new sequencing reads.
+
+Additional parameters 
+^^^^^^^^^^^^^^^^^^^^^
+Multiple additional parameters can be passed for the alignment. For example multimappers can be allowed with:
+
+- **outFilterMultimapNmax** (int): *default 1*; Maximum number of allowed multimappers. 
+
+Furthermore, these parameters can fine-tune the stringency of the alignment:
+
+- **outFilterMismatchNoverReadLmax** (ratio): *default 0.04*; Ratio of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
+
+- **outFilterMismatchNmax** (int): *default 999*; Number of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
+
+- **outSJfilterReads**: *default "Unique"*
+
+There is also an option to pass all other STAR parameters with:
+
+- **moreSTARParameters**: Here all other STAR parameters can be passed.
+
+Check the `STAR manual <https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf>`_ for a detailed description and all options.
 
 
 
