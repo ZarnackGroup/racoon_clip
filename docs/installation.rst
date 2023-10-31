@@ -9,16 +9,25 @@ Download the zip file of your preferred release from GitHub and unzip it. Then g
 
 .. code:: bash
 
-   unzip racoon_clip-1.0.3.zip
-   cd racoon_clip-1.0.3
+   wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.0.4.zip
+   unzip racoon_clip-1.0.4.zip
+   cd racoon_clip-1.0.4
 
 
-It is recommended to install racoon_clip in a fresh conda environment.
+It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
 
-.. code:: bash
+```
+conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'
+conda create -n racoon_clip python=3.9.0 pip
+conda activate racoon_clip
+```
 
-   conda create -n racoon_clip python=3.9.0 pip
-   conda activate racoon_clip
+or if you already have mamba installed:
+
+```
+mamba create -n racoon_clip python=3.9.0 pip
+mamba activate racoon_clip
+``` 
 
 Then install racoon with pip.
 
@@ -26,11 +35,11 @@ Then install racoon with pip.
 
    pip install -e .
 
-   # inside a conda env, to avoid pip clashes: 
-   # Find your anaconda directory, and find the actual venv folder. 
-   # (It should be somewhere like /anaconda/envs/venv_name/.)
+   # Inside a conda environment, do the following to avoid pip clashes: 
+   # Find your anaconda directory and the folder of the environment. 
+   # (It should be somewhere like /anaconda/envs/racoon_clip/.)
 
-   /anaconda/envs/venv_name/bin/pip install -e .
+   /anaconda/envs/racoon_clip/bin/pip install -e .
 
 You can now check the installation by running the help option and the :ref:`tutorial <tutorial>`.
 
