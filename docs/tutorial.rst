@@ -109,7 +109,7 @@ A minimal config file would therefore look like this
     # for the demultiplexing functionality or for data with experiment_type "iCLIP" or "iCLIP2"
     barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
 
-Which steps will racoon_clip run by default?
+Which steps will racoon_clip run by default
 ---------------------------
 This depends on the experiment_type. If not specified otherwise racoon_clip will run the following:
 
@@ -119,15 +119,15 @@ This depends on the experiment_type. If not specified otherwise racoon_clip will
 | **eCLIP_5ntUMI and eCLIP_10ntUMI:** 
 | Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
-| **"eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI":** 
+| **eCLIP_ENCODE_5ntUMI and eCLIP_ENCODE_10ntUMI:** 
 | Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
-| **"noBarcode_noUMI":**
+| **noBarcode_noUMI:**
 | Adapter trimming > Alignment > Crosslink detection
 
 How to turn optional steps on or off
 --------------------------------------
-You can use the following parameters to turn step on or off:
+You can use the following parameters to turn steps on or off:
 
 .. code:: python
 
@@ -135,6 +135,107 @@ You can use the following parameters to turn step on or off:
     quality_filter_barcodes: True/False
     adapter_trimming: True/False
     deduplicate: True/False
+
+
+Demultiplexing 
+^^^^^^^^^^^^^^^^^
+Demultiplexing is at the moment only possible for single-end read data. Both the UMI and the barcode need to be positioned in the beginning of the read.
+
+- **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
+- **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
+
+This is an example of a barcode fasta for an iCLIP experiment. It is important that the barcode names (after >) are exactly the same as the specified sample names and the names of the input read files. The UMIs are added as Ns
+
+.. code-block:: text
+
+   >min_expamle_iCLIP_s1
+   NNNGGTTNN
+   >min_expamle_iCLIP_s2
+   NNNGGCGNN
+
+Quality filtering during barcode trimming
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **flexbar_minReadLength** (int): *default 15*; The minimum length a read should have after trimming of barcodes, adapters and UMIs. Shorter reads are removed.
+
+- **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. 
+
+- **minBaseQuality** (int): *default 10*; The minimum per base quality of the barcode region of each read. Reads below this threshold are filtered out. This only applies if quality_filter_barcodes is set to True. 
+
+Adapters
+^^^^^^^^^^
+- **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
+
+- **adapter_file** (path): *default /params.dir/adapters.fa*; A fasta file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
+
+- **adapter_cycles** (int): *default 1*; How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP.
+
+
+Deduplication
+^^^^^^^^^^^^^^
+- **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
+
+
+
+Preset and custom options Barcodes and UMIs 
+---------------------------------
+
+Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode setups. 
+
+- **iCLIP**: two UMI parts (3nt and 2nt) interspaced by the experimental barcode (4nt)
+
+- **iCLIP2**: two UMI parts (5nt and 4nt) interspaced by the experimental barcode (6nt)
+
+- **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
+
+- **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
+
+.. image:: ../experiment_types_schema.png
+   :width: 600
+    Most common barcode setups.
+
+
+If your experiment used one of these setups, you can use the expereriment_type parameter:
+
+Using a standard barcode setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP"/"eCLIP_ENCODE"/"other"): *default: "other"*; The type of your experiment. 
+
+.. Note::
+
+   There is a special type eCLIP_ENCODE, because ENCODE provided data has the UMI information no longer in the read, but appended to the end of the read names.
+
+Using manual barcode setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them and also allow other experimental setups racoon uses a barcode consisting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
+
+- **barcodeLength** (int): length of the complete barcode (UMI 1 + experimental barcode + UMI 2) 
+
+- **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode set to 0. 
+
+-  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
+
+- **exp_barcode_len** (int): 0 if false exp_barcode_len should be 0, no barcode filtering will be done. 
+
+
+For example, manually defining an iCLIP or eCLIP setup manually would look like this:
+
+.. code-block:: python
+
+   # iCLIP
+   barcodeLength: 9
+   umi1_len: 3
+   umi2_len: 2
+   exp_barcode_len: 4
+
+   # eCLIP
+   barcodeLength: 10 (5)
+   umi1_len: 10 (5)
+   umi2_len: 0
+   exp_barcode_len: 0
+
+
 
 
     
