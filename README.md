@@ -36,6 +36,7 @@ mamba activate racoon_clip
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
+wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.0.4.zip
 unzip racoon_clip-1.0.4.zip
 cd racoon_clip-1.0.4
 ```
