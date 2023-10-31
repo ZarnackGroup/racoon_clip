@@ -14,6 +14,8 @@ You can run racoon_clip with the following command:
 
    racoon_clip run --configfile <your_configfile> --cores <n_cores> [OPTIONS]
 
+How to pass parameters to racoon_clip
+---------------------------
 
 You can specify all parameters and options of racoon either directly in the command line or in a config file config.yaml file.
 
@@ -66,5 +68,46 @@ Here is a config file listing all default options:
     
     # deduplicate
     deduplicate: True
+
+All these options can also be specified in the command line instead of the config file. For the command line parameters check out
+
+.. code:: bash
+
+   racoon_clip run -h
+
+
+What you need to specify 
+---------------------------
+
+The following input parameters are required from the user:
+
+- infiles
+- samples
+- genome_fasta
+- gtf
+- either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, exp_barcode_len, barcodeLength)
+- read_length
+- in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP or iCLIP2 barcode included)
+
+A minimal config file would therefore look like this
+
+.. code:: python
+    
+    # where to put results
+    wdir: "output/path" # no backslash in the end of the path
+    # input
+    infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one undemultiplexed file or multiple demultiplexed files
+    samples: "sample1 sample2"
+    # annotation
+    gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
+    genome_fasta: "path/to/genome_assembly.fa" # has to be unzipped or bgzip
+    read_length: N 
+
+    # experiemnt type
+    experiment_type: "iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other" 
+
+    # for the demultiplexing functionality or for data with experiment_type "iCLIP" or "iCLIP2"
+    barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
+
 
 
