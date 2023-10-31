@@ -41,13 +41,13 @@ SAMPLES_FULL=config["infiles"].split()
 SAMPLES=config["samples"].split()
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
 DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
-QUAL_BC=config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True
+QUAL_BC=(config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
 #ENCODE=config["encode"] == "True"
 ADAPTER_FILE=config["adapter_file"] #if "adapter_file" in config else config_default["adapter_file"]
 TRIM=config["adapter_trimming"] == "True" or config["adapter_trimming"] == "true" or config["adapter_trimming"] == True
-
-DEDUP=config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True
+ 
+DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 
 
 # get groups
@@ -85,7 +85,15 @@ def get_barcode_experiment_info():
             "exp_barcode_len": 15,
             "encode": False
         }
-    elif TYPE== "eCLIP":
+    elif TYPE== "eCLIP_5ntUMI":
+        info = {
+            "barcodeLength": 0, 
+            "umi1_len": 5, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 0,
+            "exp_barcode_len": 5,
+            "encode": False
+        }
+    elif TYPE== "eCLIP_10ntUMI":
         info = {
             "barcodeLength": 0, 
             "umi1_len": 10, # antisense of used barcodes --> this is the 3' umi of the original barcode
@@ -93,13 +101,29 @@ def get_barcode_experiment_info():
             "exp_barcode_len": 10,
             "encode": False
         }
-    elif TYPE== "eCLIP_ENCODE":
+    elif TYPE== "eCLIP_ENCODE_5ntUMI":
+        info = {
+            "barcodeLength": 0, 
+            "umi1_len": 5, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 0,
+            "exp_barcode_len": 5, # if already demux = umi1_len
+            "encode": True    
+        }
+    elif TYPE== "eCLIP_ENCODE_10ntUMI":
         info = {
             "barcodeLength": 0, 
             "umi1_len": 10, # antisense of used barcodes --> this is the 3' umi of the original barcode
             "umi2_len": 0,
             "exp_barcode_len": 10, # if already demux = umi1_len
             "encode": True    
+        }
+    elif TYPE== "noBarcode_noUMI":
+        info = {
+            "barcodeLength": 0, 
+            "umi1_len": 0, # antisense of used barcodes --> this is the 3' umi of the original barcode
+            "umi2_len": 0,
+            "exp_barcode_len": 0, # if already demux = umi1_len
+            "encode": False
         }
     elif TYPE== "other": 
         if config["barcodeLength"] == "":
@@ -117,11 +141,11 @@ def get_barcode_experiment_info():
             "barcodeLength": config["barcodeLength"], # if already demux = umi1_len
             "umi1_len": config["umi1_len"], # antisense of used barcodes --> this is the 3' umi of the original barcode
             "umi2_len": config["umi2_len"],
-            "exp_barcode_len": config["exp_barcode_len"],
+            "exp_barcode_len": config["experimental_barcode_len"],
             "encode": config["encode"]
         }
     else:
-        raise ValueError('Input Error: experiment_type must be one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other".')   
+        raise ValueError('Input Error: experiment_type must be one of "iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other".')   
     return info
 
 print(get_barcode_experiment_info()["encode"])
@@ -242,11 +266,14 @@ if DEMUX != True and TRIM == True:  # without demultiplexing
 if DEDUP == True:  # without demultiplexing
         myoutput.append(expand("{wdir}/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam", sample=SAMPLES, wdir=WDIR))
 
+# merge multiple samples
+if len(SAMPLES) > 1:
+    myoutput.append(expand("{wdir}/results/bam_merged/{groups}.bam",  groups=GROUPS, wdir=WDIR))
+   
+
 rule all:
     input:
         myoutput,
-        # # read alignment
-        expand("{wdir}/results/bam_merged/{groups}.bam",  groups=GROUPS, wdir=WDIR),
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR),
@@ -488,7 +515,7 @@ rule write_barcode_file:
         "========================= \n Initialise barcodes + UMIs \n ================================ \n" 
     shell:
         """
-        if [[ {params.encode} == True ]]
+        if [[ {params.encode} == True ]] || [[ "{params.barcodeLength}" != 0 ]]
         then
             touch {output.barcode}
         else
@@ -535,7 +562,7 @@ rule adapter_trimming_flexbar_single_end:
         "========================= \n Adapter trimming for {wildcards.sample} \n ================================ \n barcodes and UMIs are also trimmed off, if present \n provided barcodes: {params.barcode} \n provided adapters: {params.adapter}"  
     shell:
         """
-        if [[ "{params.encode}" == "False" ]]; then
+        if [[ "{params.encode}" == "False" ]] && [[ "{params.barcodeLength}" != 0 ]]; then
             flexbar -r {input.fasta} \
             --zip-output GZ \
             --threads {threads} \
@@ -655,6 +682,7 @@ rule align:
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"],
         dedup = DEDUP,
+        trim=TRIM
     message: 
             "========================= \n Aligning {wildcards.sample} to genome \n ================================ \n" 
     threads: 2 # x each sample automatically assigned by snakemake
@@ -669,8 +697,9 @@ rule align:
         chmod -R +x {params.wdir}/{params.dir} && \
         cd {params.wdir}/{params.dir} && \
         
-        if [[ {params.dedup} == True ]]
+        if [[ {input.reads} =~ \.gz$ ]]
         then
+            echo "gzip"
             STAR --runMode alignReads \
             --genomeDir {params.index} \
             --outFileNamePrefix {wildcards.sample}. \
@@ -942,7 +971,7 @@ checkpoint merge_bam:
             s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
             samtools merge -f {output.bam_merge} $s
         else
-            s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
+            s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.bam"}}' {input.groups} )" 
             samtools merge -f {output.bam_merge} $s
         fi
 
