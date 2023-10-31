@@ -1,4 +1,4 @@
-# racoon_clip
+# racoon_clip v 1.0.4
 
 racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleotide crosslinks in a single step. It is an automation of the iCLIP pipeline published by Busch et al. 2020 ([iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites](https://doi.org/10.1016/j.ymeth.2019.11.008)) making the same processing now available for both iCLIP and eCLIP data in a highly reproducible manner. 
 
@@ -36,8 +36,8 @@ mamba activate racoon_clip
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
-unzip racoon_clip-1.0.3.zip
-cd racoon_clip-1.0.3
+unzip racoon_clip-1.0.4.zip
+cd racoon_clip-1.0.4
 ```
 
 Then install racoon with pip.
