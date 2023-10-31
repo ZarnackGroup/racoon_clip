@@ -96,7 +96,7 @@ A minimal config file would therefore look like this
     # where to put results
     wdir: "output/path" # no backslash in the end of the path
     # input
-    infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one undemultiplexed file or multiple demultiplexed files
+    infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one un-demultiplexed file or multiple demultiplexed files
     samples: "sample1 sample2"
     # annotation
     gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
@@ -108,6 +108,16 @@ A minimal config file would therefore look like this
 
     # for the demultiplexing functionality or for data with experiment_type "iCLIP" or "iCLIP2"
     barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
+
+Which steps will racoon_clip run by default?
+---------------------------
+This depends on the experiment_type. If not specified otherwise racoon_clip will run the following:
+
+- **iCLIP,iCLIP2 and other:** Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
+- **eCLIP_5ntUMI and eCLIP_10ntUMI:** Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
+- **"eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI":** Adapter trimming > Alignment > Deduplication > Crosslink detection
+- **"noBarcode_noUMI":** Adapter trimming > Alignment > Crosslink detection
+
 
 
 
