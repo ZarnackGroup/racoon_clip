@@ -269,6 +269,7 @@ if DEDUP == True:  # without demultiplexing
 # merge multiple samples
 if len(SAMPLES) > 1:
     myoutput.append(expand("{wdir}/results/bam_merged/{groups}.bam",  groups=GROUPS, wdir=WDIR))
+    myoutput.append(expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR))
    
 
 rule all:
@@ -276,7 +277,6 @@ rule all:
         myoutput,
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
-        expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR),
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
