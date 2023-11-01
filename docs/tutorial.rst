@@ -27,7 +27,7 @@ How to pass workflow parameters to racoon_clip
 
 You can specify all workflow parameters and options of racoon_clip either directly in the command line or in a config file config.yaml file.
 
-Here is a config file listing all default options:
+Here is a config file listing all default options. This tutorial will walk you through most parameters, you can find a complete explanation of all parameters :ref:`here <all_options>`.
 
 .. code:: python
     
@@ -276,6 +276,45 @@ There is also an option to pass all other STAR parameters with:
 Check the `STAR manual <https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf>`_ for a detailed description and all options.
 
 
+How to run racoon_clip with snakemakes cluster execution
+--------------------------------------------
+
+As racoon_clip is based on the snakemake workflow management system, in general, all snakemake commandline options can be passed to racoon_clip. For a full list of options check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the cluster execution and cloud execution of racoon_clip. 
+
+For example, racoon_clip can be executed with slurm clusters like this:
+
+.. code:: bash
+
+  racoon_clip run \
+  --configfile <your_configfile.yaml> \
+  -p \
+  --cores 10 \
+  --profile <path/to/your/slurm/profile> \
+  --wait-for-files \
+  --latency-wait 60
+
+Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, that could for example look like this: 
+
+.. code-block:: python
+
+    cluster:
+    mkdir -p logs/{rule} &&
+    sbatch
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}
+    --partition={resources.partition}
+    --job-name=smk-{rule}-{wildcards}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
+    default-resources:
+    - partition=<your_partitions>
+    - mem_mb=2000
+    - time="48:00:00"
+    jobs: 6
+
+
+.. Note::
+
+  For large datasets, you might need to increase mem_mb and time.
 
     
 
