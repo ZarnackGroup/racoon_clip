@@ -22,24 +22,24 @@ These parameters should be passed in the command line.
 - ``--verbose``: Print all commands of the process to the console.
 - ``--log``: *default "racoon_clip.log"*; Name of log file.
 
-How to pass parameters to racoon_clip
+How to pass workflow parameters to racoon_clip
 ---------------------------
 
-You can specify all parameters and options of racoon either directly in the command line or in a config file config.yaml file.
+You can specify all workflow parameters and options of racoon_clip either directly in the command line or in a config file config.yaml file.
 
 Here is a config file listing all default options:
 
 .. code:: python
     
-    # where to put results
-    wdir: "." # no backslash in the end of the path
+    # Where to put results
+    wdir: "." # No backslash in the end of the path
     # input
-    infiles: "" # one undemultiplexed file or multiple demultiplexed files
+    infiles: "" # one un-demultiplexed file or multiple demultiplexed files
     
     #SAMPLES
     experiment_groups: "" # txt file with group space sample per row
     experiment_group_file: ""
-    seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by fastX
+    seq_format: "-Q33" # -Q33 for Illumina -Q64 for Sanger needed by fastX
     
     # barcodes
     barcodeLength: "" # if already demux = umi1_len
@@ -55,7 +55,7 @@ Here is a config file listing all default options:
     quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
     
     # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no barcode filtering will be done
     min_read_length: 15
     
     #adapter adapter_trimming
@@ -87,7 +87,7 @@ All these options can also be specified in the command line instead of the confi
 What you need to specify 
 ---------------------------
 
-The following input parameters are required from the user:
+The following input is required from the user:
 
 - infiles
 - samples
@@ -152,7 +152,7 @@ Demultiplexing is at the moment only possible for single-end read data. Both the
 - **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
 - **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
-This is an example of a barcode fasta for an iCLIP experiment. It is important that the barcode names (after >) are exactly the same as the specified sample names and the names of the input read files. The UMIs are added as Ns
+This is an example of a barcode fasta for an iCLIP experiment. It is important that the barcode names (after >) are exactly the same as the specified sample names and the names of the input read files. The UMIs are added as Ns.
 
 .. code-block:: text
 
@@ -208,7 +208,7 @@ If your experiment used one of these setups, you can use the expereriment_type p
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP"/"eCLIP_ENCODE"/"other"): *default: "other"*; The type of your experiment. 
+- **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your barcode setup. 
 
 .. Note::
 
@@ -216,7 +216,7 @@ Using a standard barcode setup
 
 Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them and also allow other experimental setups racoon uses a barcode consisting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
+If your data does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them and also allow other experimental setups racoon uses a barcode consisting of **umi1 + experimental_barcode + umi2** is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode&UMI architecture:
 
 - **barcodeLength** (int): length of the complete barcode (UMI 1 + experimental barcode + UMI 2) 
 
@@ -257,7 +257,7 @@ Required input
 
 Additional parameters 
 ^^^^^^^^^^^^^^^^^^^^^
-Multiple additional parameters can be passed for the alignment. For example multimappers can be allowed with:
+Multiple additional parameters can be passed for the alignment. For example, multimapping reads can be allowed with:
 
 - **outFilterMultimapNmax** (int): *default 1*; Maximum number of allowed multimappers. 
 
