@@ -13,13 +13,11 @@ Welcome to racoon_clip's documentation!
    installation
    tutorial 
    all_options
+   examples
    methods_description
 
 
 
-.. note::
-
-   This project is under active development.
 
 racoon_clip - What is it?
 =========================
