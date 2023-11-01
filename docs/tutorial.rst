@@ -255,6 +255,16 @@ Required input
 
 - **read_length** (int): *default 150*; The length of the new sequencing reads.
 
+You can, for example, get the gtf and the genome_fasta from `GENCODE <https://www.gencodegenes.org/human/>`_ or from `ENSEMBL <http://www.ensembl.org/index.html>`_.
+
+.. code:: bash
+
+  mkdir annotation
+  cd annotation
+  wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh38.p14.genome.fa.gz
+  wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz
+  gunzip *
+
 Additional parameters 
 ^^^^^^^^^^^^^^^^^^^^^
 Multiple additional parameters can be passed for the alignment. For example, multimapping reads can be allowed with:
