@@ -1,3 +1,4 @@
+.. _all-options:
 
 All parameters and options
 ================================
