@@ -11,55 +11,7 @@ Full list of yaml file options
 ------------------------------
 Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file. You can find an explanation of all parameters :ref:`here <all_options>`.
 
-This tutorial will walk you through some minimal examples.
-
-.. code:: python
-    
-    # where to put results
-    wdir: "." # no backslash in the end of the path
-    # input
-    infiles: "" # one undemultiplexed file or multiple demultiplexed files
-    
-    #SAMPLES
-    experiment_groups: "" # txt file with group space sample per row
-    experiment_group_file: ""
-    seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by fastX
-    
-    # barcodes
-    barcodeLength: "" # if already demux = umi1_len
-    minBaseQuality: 10
-    umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
-    umi2_len: 0
-    exp_barcode_len: 0
-    encode: False
-    
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
-    
-    barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
-    quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
-    
-    # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
-    min_read_length: 15
-    
-    #adapter adapter_trimming
-    adapter_file: ""
-    adapter_cycles: 1
-    adapter_trimming: True
-    
-    # star alignment
-    gtf: "" # has to be unzipped at the moment
-    genome_fasta: "" # has to be unzipped or bgzip
-    read_length: 150 
-    outFilterMismatchNoverReadLmax: 0.04
-    outFilterMismatchNmax: 999
-    outFilterMultimapNmax: 1
-    outReadsUnmapped: "Fastx"
-    outSJfilterReads: "Unique"
-    moreSTARParameters: ""
-    
-    # deduplicate
-    deduplicate: True
+Here is a walk-through for some minimal examples.
 
 Get an annotation
 ------------------
@@ -294,46 +246,6 @@ racoon_clip offers many options to customise the workflow for your data. All set
   racoon_clip run -h
 
 
-
-Running racoon_clip with snakemakes cluster execution
---------------------------------------------
-
-As racoon_clip is based on the snakemake workflow management system, in general, all snakemake commandline options can be passed to racoon_clip. For a full list of options check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the cluster execution and cloud execution of racoon_clip. 
-
-For example, racoon_clip can be executed with slurm clusters like this:
-
-.. code:: bash
-
-  racoon_clip run \
-  --configfile <your_configfile.yaml> \
-  -p \
-  --cores 10 \
-  --profile <path/to/your/slurm/profile> \
-  --wait-for-files \
-  --latency-wait 60
-
-Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, that could for example look like this: 
-
-.. code-block:: python
-
-    cluster:
-    mkdir -p logs/{rule} &&
-    sbatch
-    --cpus-per-task={threads}
-    --mem={resources.mem_mb}
-    --partition={resources.partition}
-    --job-name=smk-{rule}-{wildcards}
-    --output=logs/{rule}/{rule}-{wildcards}-%j.out
-    default-resources:
-    - partition=<your_partitions>
-    - mem_mb=2000
-    - time="48:00:00"
-    jobs: 6
-
-
-.. Note::
-
-  For large datasets, you might need to increase mem_mb and time.
 
 
 See also: 
