@@ -1,4 +1,4 @@
-.. _all-options:
+.. _all_options:
 
 All parameters and options
 ================================
