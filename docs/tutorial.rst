@@ -97,6 +97,10 @@ The following input is required from the user:
 - read_length
 - in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP or iCLIP2 barcode included)
 
+.. Note::
+
+  All paths need to be specified as absolute paths. Relative paths` (for example starting with ~) are not allowed.
+
 A minimal config file would therefore look like this
 
 .. code:: python
