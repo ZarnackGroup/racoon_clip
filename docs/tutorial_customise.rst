@@ -4,6 +4,76 @@ Tutorial: Customise racoon_clip
 .. contents:: 
     :depth: 2
 
+How to pass workflow parameters to racoon_clip
+---------------------------
+
+You can specify all workflow parameters and options of racoon_clip either directly in the command line or in a config file config.yaml file.
+
+Here is a config file listing all default options. This tutorial will walk you through most parameters, you can find a complete explanation of all parameters :ref:`here <all_options>`.
+
+.. code:: python
+    
+    # Where to put results
+    wdir: "." # No backslash in the end of the path
+    # input
+    infiles: "" # one un-demultiplexed file or multiple demultiplexed files
+    
+    #SAMPLES
+    experiment_groups: "" # txt file with group space sample per row
+    experiment_group_file: ""
+    seq_format: "-Q33" # -Q33 for Illumina -Q64 for Sanger needed by fastX
+    
+    # barcodes
+    barcodeLength: "" # if already demux = umi1_len
+    minBaseQuality: 10
+    umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
+    umi2_len: 0
+    exp_barcode_len: 0
+    encode: False
+    
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
+    
+    barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
+    quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
+    
+    # demultiplexing
+    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no barcode filtering will be done
+    min_read_length: 15
+    
+    #adapter adapter_trimming
+    adapter_file: ""
+    adapter_cycles: 1
+    adapter_trimming: True
+    
+    # star alignment
+    gtf: "" # has to be unzipped at the moment
+    genome_fasta: "" # has to be unzipped or bgzip
+    read_length: 150 
+    outFilterMismatchNoverReadLmax: 0.04
+    outFilterMismatchNmax: 999
+    outFilterMultimapNmax: 1
+    outReadsUnmapped: "Fastx"
+    outSJfilterReads: "Unique"
+    moreSTARParameters: ""
+    
+    # deduplicate
+    deduplicate: True
+
+All these options can also be specified in the command line instead of the config file. For the command line parameters check out
+
+.. code:: bash
+
+   racoon_clip run -h
+
+
+Execution parameters
+^^^^^^^^^^^^^^^^^^^^
+These parameters should be passed in the command line.
+
+- ``--cores``: Number of cores for the execution.
+- ``--verbose``: Print all commands of the process to the console.
+- ``--log``: *default "racoon_clip.log"*; Name of log file.
+
 
 Preset and custom options Barcodes and UMIs 
 ---------------------------------
