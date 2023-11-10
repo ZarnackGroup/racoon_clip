@@ -43,7 +43,7 @@ Then install racoon with pip.
 
    /anaconda/envs/racoon_clip/bin/pip install -e .
 
-You can now check the installation by running the help option and the :ref:`tutorial <tutorial>`.
+You can now check the installation by running the help option and then :ref:`quickstart <tutorial>` your analysis.
 
 .. code:: bash
 
