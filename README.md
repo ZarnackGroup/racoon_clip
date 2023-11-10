@@ -68,9 +68,9 @@ You can find a tutorial and all options and a details description of the perform
 
 You can test racoon_clip with one of the [minimal example data sets](https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples). See [here](https://racoon-clip.readthedocs.io/en/latest/examples.html#) for a walk-through of the examples.
 
-racoon_clip produces a variety of files during the different steps of the workflow. The files you will likely want to use downstream of racoon_clip are:
+racoon_clip produces a variety of files during the different steps of the workflow that will all be stored in a folder called results. These are the main output files form the results folder:
 
-- a summary of the performed steps called Report.html.
+- A summary of the performed steps called Report.html.
 
 - The sample-wise whole aligned reads after duplicate removal in bam format. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding bam.bai files.
 
