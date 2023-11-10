@@ -839,8 +839,8 @@ rule get_crosslinks:
         #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
         bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} 
         #### Extract the 5' end of the shifted intervals and pile up into coverage track in bedgraph file format (separately for each strand) using BEDTools (in case of RPM-normalised coverage tracks, use additional parameter -scale with 1,000,000/#mappedReads)
-        bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort > {output.bed_plus} 
-        bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | bedtools sort  > {output.bed_minus} 
+        bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n > {output.bed_plus} 
+        bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n  > {output.bed_minus} 
         """
 
 rule turn_crosslinks_to_bw:
