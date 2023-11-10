@@ -141,6 +141,8 @@ Deduplication
 
 
 
+How to customise racoon_clips behaviour
+------------------
 
-    
+Check out how to customise racoon_clip  :ref:`here <tutorial>`. 
 
