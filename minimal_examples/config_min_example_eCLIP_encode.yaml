@@ -5,7 +5,7 @@ infiles: "<path/to/minimal_example/minimal_example_eCLIP/min_example_eCLIP_encod
 samples: "min_example_eCLIP_encode_s1 min_example_eCLIP_encode_s2"
 
 # barcodes
-experiment_type: "eCLIP_ENCODE"
+experiment_type: "eCLIP_ENCODE_10ntUMI"
 quality_filter_barcodes: False
 adapter_cycles: 2
 
