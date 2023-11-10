@@ -145,7 +145,7 @@ Selecting experimental type
 You can select one of the 4 standard experiment types with 
 
 .. code:: python
-    experiment_type:“iCLIP”/”iCLIP2”/”eCLIP”/”eCLIP_ENCODE”
+    experiment_type:"iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"
 
 Run the minimal example
 ------------------------
