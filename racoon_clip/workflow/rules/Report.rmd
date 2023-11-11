@@ -605,40 +605,45 @@ Reads are deduplicated with umi_tools dedup --extract-umi-method read_id --metho
 umitools_out <- list.files(path = paste0(dir,"/results/aligned"), pattern = "*out.duprm.log$", recursive = TRUE, full.names = T) %>%
   map(~read_delim(.x, delim="\t", skip = 57, col_names = c("invalue")))
 
+# umitools_out <- map(umitools_out, ~ umitools_out[(length(umitools_out) - 6):length(umitools_out), ])
 
 umitools_out <- map(umitools_out, ~mutate(.x, measure = substr(invalue, 29, nchar(invalue)) %>% strsplit(., split = ":")) )
+
+head(umitools_out)
+
                     
-umitools_out <- map(umitools_out , ~rowwise(.x) %>%
-        mutate(type = measure[[1]],
-               number = measure[[length(measure)]]) %>%
-       .[(nrow(.)-5):(nrow(.)-2),]
-      )
+umitools_out <- map(umitools_out, ~ rowwise(.x) %>%
+  mutate(
+    type = measure[[1]],
+    number = measure[[length(measure)]]
+  ) %>%
+  .[(nrow(.) - 5):(nrow(.) - 2), ])
 
-umitools_out_names <-  list.files(path = paste0(dir,"/results/aligned"), pattern = "*out.duprm.log$", recursive = TRUE) %>%
-  gsub("chimeric_", "", . ) %>%
-  gsub(".Aligned.sortedByCoord.out.duprm.log", "", . )
+# umitools_out_names <-  list.files(path = paste0(dir,"/results/aligned"), pattern = "*out.duprm.log$", recursive = TRUE) %>%
+#   gsub("chimeric_", "", . ) %>%
+#   gsub(".Aligned.sortedByCoord.out.duprm.log", "", . )
 
-names(umitools_out) <- umitools_out
+# names(umitools_out) <- umitools_out
 
-umitools_out_2 <- map_dfr(umitools_out, ~.x$number)
-umitools_out_2 <- t(umitools_out_2) %>% as.data.frame()
+# umitools_out_2 <- map_dfr(umitools_out, ~.x$number)
+# umitools_out_2 <- t(umitools_out_2) %>% as.data.frame()
 
-colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplictaes)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nulecotide")
+# colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplictaes)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nulecotide")
 
-umitools_out_2$Sample <- umitools_out_names
-rownames(umitools_out_2) <- umitools_out_names
+# umitools_out_2$Sample <- umitools_out_names
+# rownames(umitools_out_2) <- umitools_out_names
 
-kable(umitools_out_2[,1:4])
+# kable(umitools_out_2[,1:4])
 
-gg.umitools_out_2 <- umitools_out_2 %>% reshape2::melt(id.vars = c("Mean crosslink events per crosslinked nulecotide", "Sample"))
-gg.umitools_out_2$value <- as.numeric(gg.umitools_out_2$value)
+# gg.umitools_out_2 <- umitools_out_2 %>% reshape2::melt(id.vars = c("Mean crosslink events per crosslinked nulecotide", "Sample"))
+# gg.umitools_out_2$value <- as.numeric(gg.umitools_out_2$value)
 
-ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
-  geom_col(position = "dodge")+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-        legend.title= element_blank(),
-        legend.position = "top")+
-  ylab("Number of reads")
+# ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
+#   geom_col(position = "dodge")+
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         legend.title= element_blank(),
+#         legend.position = "top")+
+#   ylab("Number of reads")
 
 ```
 

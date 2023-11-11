@@ -1,27 +1,26 @@
 # where to put results
-wdir: "/media/storage/home/mklostermann/projects/04_minimal_examples_racoon/min_example_iCLIP_multiplexed"
+wdir: "<path/to/output/dir>"
 # input
-infiles: "/media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/min_example_iCLIP2_multiplexed.fastq"
-# barcodes
+infiles: "<path/to/minimal_example/minimal_example_iCLIP_multiplexed/min_example_iCLIP2_multiplexed.fastq.gz>"
+
 experiment_type: "iCLIP2"
 
-barcodes_fasta: "/media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/barcodes.fasta" # ! antisense of used barcodes, not needed if already demultiplexed
-# make sure the barcodes have the same names as the samples
+barcodes_fasta: "<path/to/minimal_example/minimal_example_iCLIP_multiplexed/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
+
 
 # demultiplexing
-demultiplex: True # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+demultiplex: True 
 
 #adapter adapter_trimming
-adapter_file: "/media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP/adapter.fa"
+adapter_file: "<path/to/minimal_example/minimal_example_iCLIP_multiplexed/adapter.fa>"
 
 # star alignment
-gft: "/media/storage/home/mklostermann/annotations/gencode.v30.annotation.gtf" # has to be unzipped at the moment
-genome_fasta: "/media/storage/home/mklostermann/annotations/GRCh38.p12.genome.fa" # has to be unzipped or bgzip
+gtf: "<path/to/annotation.gtf>" # has to be unzipped at the moment
+genome_fasta: "<path/to/genome.fa>" # has to be unzipped or bgzip
 read_length: 150
 
 
-
 experiment_groups: "min_example_iCLIP2_multiplexed_g1 min_example_iCLIP2_multiplexed_g2" # txt file with group space sample per row
-experiment_group_file: "/media/storage/home/mklostermann/projects/03_eiCLIP_pipeline/eiCLIP_pipeline/minimal_example/minimal_example_iCLIP_multiplexed/groups.txt"
+experiment_group_file: "<path/to/minimal_example/groups.txt>"
 
 samples: "min_example_iCLIP2_multiplexed_s1 min_example_iCLIP2_multiplexed_s2 min_example_iCLIP2_multiplexed_s3 min_example_iCLIP2_multiplexed_s4"

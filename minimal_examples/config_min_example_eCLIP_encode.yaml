@@ -1,8 +1,8 @@
 # where to put results
 wdir: "<path/to/output/dir>"
 # input
-infiles: "<path/to/minimal_example/minimal_example_eCLIP/min_example_eCLIP_encode_s1.fastq>, "<path/to/minimal_example/minimal_example_eCLIP/min_example_eCLIP_encode_s2.fastq>" # for multiple files after demultiplexing
-samples: "min_example_eCLIP_encode_s1 min_example_eCLIP_encode_s2"
+infiles: "<path/to/minimal_example/minimal_example_eCLIP/min_example_eCLIP_encode_s1.fastq> <path/to/minimal_example/minimal_example_eCLIP/min_example_eCLIP_encode_s2.fastq>" # for multiple files after demultiplexing
+samples: "min_example_eCLIP_encode_s1_R2 min_example_eCLIP_encode_s2_R2"
 
 # barcodes
 experiment_type: "eCLIP_ENCODE_10ntUMI"
