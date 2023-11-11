@@ -60,6 +60,10 @@ Citations
 
 - Busch *et al.* 2020 -- `iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
 
+- Huppertz *et al.* 2014 -- `iCLIP: protein-RNA interactions at nucleotide resolution <https://pubmed.ncbi.nlm.nih.gov/24184352/>`_
+
+
+
 
 
 
