@@ -513,9 +513,12 @@ rule write_barcode_file:
         dir_script= SNAKE_PATH
     message: 
         "========================= \n Initialise barcodes + UMIs \n ================================ \n" 
+ # Explanation: for encode data or data without bacrode and UMI no barcode file is needed. In both cases do nothing.
+ #  if barcodes exist the user should specify them in a fa file. In this case copy the user input barcode fiel to the right location.
+ # If there is only a UMI but no barcode, write a barcode file consisting of Ns in the length of the UMI
     shell:
         """
-        if [[ {params.encode} == True ]] || [[ "{params.barcodeLength}" != 0 ]]
+        if [[ {params.encode} == True ]] || [[ "{params.barcodeLength}" == 0 ]]
         then
             touch {output.barcode}
         else
