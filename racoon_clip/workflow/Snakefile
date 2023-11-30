@@ -1273,22 +1273,22 @@ rule fastqc_stats:
 
         """
 
-rule get_R_conda_env:
-    input:
-    output:
-        config["wdir"]+"/results/tmp/conda_r_prefix.txt"
-    params:
-        wdir=config["wdir"],
-        config= config,
-        snake_path= SNAKE_PATH
-    message: 
-        "========================= \n Making racoon Report \n ================================ \n" 
-    conda:
-        "envs/racoon_R_v0.1.yml"
-    shell:
-        """
-        echo $CONDA_PREFIX | cat > {output}
-        """
+# rule get_R_conda_env:
+#     input:
+#     output:
+#         config["wdir"]+"/results/tmp/conda_r_prefix.txt"
+#     params:
+#         wdir=config["wdir"],
+#         config= config,
+#         snake_path= SNAKE_PATH
+#     message: 
+#         "========================= \n Making racoon Report \n ================================ \n" 
+#     conda:
+#         "envs/racoon_R_v0.1.yml"
+#     shell:
+#         """
+#         echo $CONDA_PREFIX | cat > {output}
+#         """
 
 
 
@@ -1297,7 +1297,7 @@ rule make_report:
     input:
         #flowchart=config["wdir"]+"/results/dag.svg",
         stats=config["wdir"]+"/results/tmp/.fastqc_stats_chkpnt",
-        conda_prefix=config["wdir"]+"/results/tmp/conda_r_prefix.txt"
+        # conda_prefix=config["wdir"]+"/results/tmp/conda_r_prefix.txt"
     output:
         config["wdir"]+"/results/Report.html"
     params:

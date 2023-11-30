@@ -611,7 +611,12 @@ umitools_out <- map(umitools_out, ~mutate(.x, measure = substr(invalue, 29, ncha
 
 head(umitools_out)
 
-                    
+umitools_out = map(umitools_out, ~mutate(.x,
+ measure=modify_if(measure,
+                           .p = is_empty,
+                           .f = ~NA_character_))
+)
+
 umitools_out <- map(umitools_out, ~ rowwise(.x) %>%
   mutate(
     type = measure[[1]],
