@@ -15,6 +15,7 @@ The following are required before installing racoon_clip
 
 + mamba >= 1.3.1
 + python >= 3.9
++ *or* docker
 
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
 
@@ -57,6 +58,15 @@ You can now check the installation by running the help option or a minimal examp
 ```
 racoon_clip -h
 ```
+
+## from Docker Image
+
+You can also use the racoon_clip Docker Image:
+
+```
+docker pull melinak/racoon_clip:v1.0.9
+```
+
 
 
 ## Documentation and Tutorial
