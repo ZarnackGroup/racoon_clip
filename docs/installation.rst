@@ -49,3 +49,13 @@ You can now check the installation by running the help option and then :ref:`qui
 
    racoon_clip -h
 
+Install from Docker Image
+---------------------
+
+You can also use the racoon_clip Docker Image:
+
+.. code:: bash
+
+   docker pull melinak/racoon_clip:v1.0.9
+
+
