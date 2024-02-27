@@ -1,4 +1,5 @@
-snakemake>=7.22
+snakemake==7.29
 pyyaml>=6.0
 Click>=8.1.3
+
 
