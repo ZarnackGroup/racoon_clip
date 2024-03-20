@@ -10,14 +10,16 @@ output:
     fig_caption: yes
 params:
   config: "config"
+  output_dir: "output_dir" 
+  snake_dir: "snake_dir"
 ---
 
 ```{r setup, include=FALSE}
 require("knitr")
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, eval = TRUE, cache = F, echo = FALSE,  cache.lazy = FALSE,  dpi= 20, fig.width = 20, fig.height = 10, crop = NULL) #, fig.pos = "!H", out.extra = ""
-#options(knitr.table.format = "html")
+# options(knitr.table.format = "html")
 
-source("theme_html.R")
+source(paste0(params$snake_dir, "/workflow/rules/theme_html.R"))
 library(ggplot2)
 theme_set(theme_html())
 ```
@@ -36,7 +38,7 @@ library(knitr)
 
 \newline
 \newline
-![](Workflow.png)
+![](tmp/Workflow.png)
 
 \newline
 \newline
@@ -48,10 +50,16 @@ library(knitr)
 Here is a summary off the settings you chose for this analysis.
 
 ```{r config}
-config_default <- yaml.load_file("../../config/config.yaml") %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame()
+getwd()
+
+config_default <- yaml.load_file(paste0(params$snake_dir, "/config/config.yaml")) %>%
+  map_dfr(., ~.x) %>%
+  t(.) %>%
+  as.data.frame()
 #config <- yaml.load_file(params$config) %>% map_dfr(., ~.x) %>% t(.) %>% as.data.frame(.)
 config <-  params$config %>% map_dfr(~.x) %>% as.data.frame(.) %>% t(.)
 
+params$snake_dir
 
 colnames(config_default) <- c("config")
 colnames(config) <- c("config")
