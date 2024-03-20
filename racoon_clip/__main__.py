@@ -153,7 +153,7 @@ def common_options(func):
         click.option(
             "--experiment-type",
             help= "Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. For eCLIP there are tow options for either 5nt long UMIs (old eCLIPs) or 20nt UMIs (newer eCLIPs). There is also a preset option for reads without a barcode or UMI (noBarcode_noUMI). If your experiment used one of the setups, you can use the expereriment-type parameter instead of defining barcoedLength, umi1_len, umi2_len and exp_barcode_len, manually.",   
-            type=click.Choice(["iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI","eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI", "other"], case_sensitive=False),
+            type=click.Choice(["iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI","eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI", "miReCLIP", "other"], case_sensitive=False),
             default='other',
             show_default=True,  
         ),
@@ -259,6 +259,16 @@ def common_options(func):
             default="True",
             show_default=True, 
         ), 
+        click.option(
+            "-mir-gf", "--mir-genome-fasta",
+            help= "Micro RNA genome assably as unzipped or bgzipped fasta file.",   
+            default="",
+        ),
+        click.option(
+            "-mir-st", "--mir-starts-allowed",
+            help= "A vector of values that gives the allowed start positions of the micro RNA in the read. At least one start position needs to be allowed.",  
+            default="1 2 3 4", 
+        ),
 
 
     ]
@@ -343,6 +353,8 @@ def run( _configfile,
         outSJfilterReads,
         moreSTARParameters,
         deduplicate,
+        mir_genome_fasta,
+        mir_starts_allowed,
         **kwargs): 
     
     """Run racoon_clip"""
@@ -380,6 +392,8 @@ def run( _configfile,
                     "outSJfilterReads": outSJfilterReads,
                     "moreSTARParameters": moreSTARParameters,
                     "deduplicate": deduplicate,
+                    "mir_genome_fasta": mir_genome_fasta,
+                    "mir_starts_allowed": mir_starts_allowed,
                     }
     default_config = {"wdir": "./racoon_clip_out", 
                     "infiles": "",
@@ -411,6 +425,8 @@ def run( _configfile,
                     "outSJfilterReads": "Unique",
                     "moreSTARParameters": "",
                     "deduplicate": True,
+                    "mir_genome_fasta": "",
+                    "mir_starts_allowed": "1 2 3 4",
                     }
     # Create a new dictionary containing non-default values given by the user
     non_default_config = {key: value for key, value in merge_config.items() if value != default_config.get(key)}
