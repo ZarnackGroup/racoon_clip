@@ -1,4 +1,4 @@
-Detailed description of steps performed by racoon
+Detailed description of steps performed by racoon_clip
 =================================================
 
 .. contents::   
