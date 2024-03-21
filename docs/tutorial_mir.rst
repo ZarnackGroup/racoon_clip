@@ -20,7 +20,32 @@ A detailed description of the miR-eCLIp experiment can be found `here <https://d
 How to analyse miR-eCLIP data with racoon_clip
 -----------------------------
 
-racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the performed steps). For this some additional parameters need to be specified.
+racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the performed steps). For this some additional parameters need to be specified. Here is an example for a config file:
+
+.. code:: python
+
+    experiment_type: "miReCLIP"    
+    
+    # Where to put the results
+    wdir: "output/path" # no backslash at the end of the path
+
+    # input
+    infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one un-demultiplexed file or multiple demultiplexed files
+
+    #SAMPLES
+    samples: "sample1 sample2"
+
+    # annotation
+    gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
+    genome_fasta: "path/to/genome_assembly.fa" # has to be unzipped or bgzip
+    read_length: N 
+
+    #adapters
+    adapter_cycles: 2
+    
+    # chimeric miR
+    mir_genome_fasta: "path/to/miR-genome.fasta" # for example from miRbase
+    mir_starts_allowed: "0 1 2 3 4"
 
 
 
