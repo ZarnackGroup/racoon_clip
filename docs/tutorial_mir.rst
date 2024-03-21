@@ -62,6 +62,7 @@ You get the following output files:
 - **mir_analysis/aligned_mir**: Contains the alignemnt of the miR part of the chimeric reads to the miR sequences as BAM files.
 - **mir_analysis/aligned_chimeric_bam**: Contains the target RNA part of the chimeric reads aligned to the genome as BAM files.
 - **mir_analysis/crosslinks**: Contains the crosslinks of the target RNAs in BW files and BED files. In the BED files the read anmes contain the name of the corresponding miR, that belongs to the read.
+- all other output files from the standard racoon_clip analysis
 
 
 How does racoon_clip process miR-eCLIP data?
