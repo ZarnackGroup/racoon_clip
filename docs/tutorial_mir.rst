@@ -29,21 +29,21 @@ racoon_clip includes an option to analyse miR-eCLIP data (see below for a detail
     # Where to put the results
     wdir: "output/path" # no backslash at the end of the path
 
-    # input
+    # Input
     infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one un-demultiplexed file or multiple demultiplexed files
 
-    #SAMPLES
+    # Samples
     samples: "sample1 sample2"
 
-    # annotation
+    # Annotation
     gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
     genome_fasta: "path/to/genome_assembly.fa" # has to be unzipped or bgzip
     read_length: N 
 
-    #adapters
+    # Adapters
     adapter_cycles: 2
     
-    # chimeric miR
+    # Chimeric miR
     mir_genome_fasta: "path/to/miR-genome.fasta" # for example from miRbase
     mir_starts_allowed: "0 1 2 3 4"
 
