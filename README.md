@@ -1,4 +1,4 @@
-# racoon_clip v 1.0.9
+# racoon_clip v 1.1.0
 
 <img src="Racoon_Logo_Schrift.png" width="400">
 
@@ -40,8 +40,8 @@ Download the zip file of your preferred release from Git Hub and unzip it. Then 
 
 ```
 wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.0.9.zip
-unzip racoon_clip-1.0.9.zip
-cd racoon_clip-1.0.9
+unzip racoon_clip-1.1.0.zip
+cd racoon_clip-1.1.0
 ```
 
 Then install racoon with pip.
