@@ -14,7 +14,7 @@ The chimeric reads consits of the miRNA seqeunce at the 5' end and the sequence 
 A detailed description of the miR-eCLIp experiment can be found `here <https://doi.org/10.1101/2022.02.13.480296>`_. 
 
 .. figure:: ../mir-eCLIP.png
-   :width: 600
+   :width: 200
 
 
 How to analyse miR-eCLIP data with racoon_clip
