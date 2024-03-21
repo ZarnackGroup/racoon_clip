@@ -56,6 +56,12 @@ Here is an example config file:
 What are the output files?
 ---------------------------
 
+You get the following output files:
+
+- **Report_miR.html**: An html report, that with overall statistics on the obtained miRs.
+- **mir_analysis/aligned_mir**: Contains the alignemnt of the miR part of the chimeric reads to the miR sequences as BAM files.
+- **mir_analysis/aligned_chimeric_bam**: Contains the target RNA part of the chimeric reads aligned to the genome as BAM files.
+- **mir_analysis/crosslinks**: Contains the crosslinks of the target RNAs in BW files and BED files. In the BED files the read anmes contain the name of the corresponding miR, that belongs to the read.
 
 
 How does racoon_clip process miR-eCLIP data?
