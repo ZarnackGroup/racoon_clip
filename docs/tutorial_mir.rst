@@ -11,4 +11,7 @@ What is miR-eCLIP?
 miR-eCLIP is a type of CLIP experiment that allows the mapping of microRNA binding sites on their target RNAs. 
 During the experiment reverse transcription produces to a certain extent chimeric reads via read through. 
 The chimeric reads consits of the miRNA seqeunce at the 5' end and the sequence of the target RNA next to the UV-crosslink. 
-A detailed description of the miR-eCLIp experiemnt can be found `here <https://doi.org/10.1101/2022.02.13.480296>`_ . 
+A detailed description of the miR-eCLIp experiemnt can be found `here <https://doi.org/10.1101/2022.02.13.480296>`_. 
+
+.. figure:: ../mir-eCLIP.png
+   :width: 600
