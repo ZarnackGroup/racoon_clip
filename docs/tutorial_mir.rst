@@ -22,7 +22,7 @@ How to analyse miR-eCLIP data with racoon_clip
 
 racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the performed steps). For this some additional parameters need to be specified.
 
-.. figure:: ../mirECLIP_racoon.png
+.. figure:: ../mir-eCLIP_racoon_schema.png
    :width: 600
 
 How does racoon_clip process miR-eCLIP data?
