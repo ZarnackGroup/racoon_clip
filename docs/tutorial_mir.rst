@@ -20,7 +20,12 @@ A detailed description of the miR-eCLIp experiment can be found `here <https://d
 How to analyse miR-eCLIP data with racoon_clip
 -----------------------------
 
-racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the performed steps). For this some additional parameters need to be specified. Here is an example for a config file:
+racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the performed steps). For this the experiment type "miReCLIP" should be specified and a fasta file of all microRNAs needs to be provided (mir_genome_fasta).
+
+In addition one can allow different start positions for the miRNA in the chimeric reads, as we observed that sometimes a few additional nucleotides between the end of the adapter and the miR start (mir_starts_allowed). 
+
+All other parameters are anologus to the normal racoon_clip parameters. 
+Here is an example for a config file:
 
 .. code:: python
 
