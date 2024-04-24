@@ -62,10 +62,12 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --tag melinak/racoon_clip:latest \
             --tag melinak/racoon_clip:v.${RELEASE_VERSION} \
+            -f docker/Dockerfile \
             .
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
             --tag melinak/racoon_clip:latest \
             --tag melinak/racoon_clip:${RELEASE_VERSION} \
+            -f docker/Dockerfile \
             .
