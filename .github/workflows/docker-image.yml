@@ -33,8 +33,15 @@ jobs:
         id: tag
         uses: dawidd6/action-get-tag@v1
       
+      # If not manually triggered, set release version from tag
+      - name: Set release version from tag
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          echo "Tag version: ${{ steps.tag.outputs.tag }}"
+          export RELEASE_VERSION="${{ steps.tag.outputs.tag }}"
+      
       - name: Update Dockerfile with new version
-        run: sed -i "s#VERSION_PLACEHOLDER#${{ steps.tag.outputs.tag }}/g" docker/Dockerfile
+        run: sed -i "s#VERSION_PLACEHOLDER#$RELEASE_VERSION#g" docker/Dockerfile
       
       - name: Login to Docker Hub
         uses: docker/login-action@v1
