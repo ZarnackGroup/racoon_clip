@@ -20,7 +20,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       
+      # Check if workflow is triggered by workflow_dispatch
+      - name: Check if manually triggered
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Manually triggered with release version: ${{ github.event.inputs.release_version }}"
+          export RELEASE_VERSION="${{ github.event.inputs.release_version }}"
+      
+      # If not manually triggered, get git tag
       - name: Get git tag
+        if: github.event_name != 'workflow_dispatch'
         id: tag
         uses: dawidd6/action-get-tag@v1
       
