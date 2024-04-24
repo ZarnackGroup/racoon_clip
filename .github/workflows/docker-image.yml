@@ -13,6 +13,9 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     
+    env:
+      RELEASE_VERSION: ${{ github.event.inputs.release_version }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -24,8 +27,7 @@ jobs:
       - name: Check if manually triggered
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "Manually triggered with release version: ${{ github.event.inputs.release_version }}"
-          export RELEASE_VERSION="${{ github.event.inputs.release_version }}"
+          echo "Manually triggered with release version: $RELEASE_VERSION"
       
       # If not manually triggered, get git tag
       - name: Get git tag
@@ -39,7 +41,7 @@ jobs:
         run: |
           echo "Tag version: ${{ steps.tag.outputs.tag }}"
           export RELEASE_VERSION="${{ steps.tag.outputs.tag }}"
-
+      
       # Remove leading "v" from RELEASE_VERSION
       - name: Remove leading "v" from RELEASE_VERSION
         run: |
@@ -59,12 +61,11 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --tag melinak/racoon_clip:latest \
-            --tag melinak/racoon_clip:v.${{ RELEASE_VERSION }} \
+            --tag melinak/racoon_clip:v.${RELEASE_VERSION} \
             .
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
             --tag melinak/racoon_clip:latest \
-            --tag melinak/racoon_clip:${{ RELEASE_VERSION }} \
+            --tag melinak/racoon_clip:${RELEASE_VERSION} \
             .
-        
