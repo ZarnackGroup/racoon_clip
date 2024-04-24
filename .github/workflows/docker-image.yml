@@ -51,6 +51,10 @@ jobs:
           RELEASE_VERSION=$(echo "${RELEASE_VERSION}" | sed 's/^v\.//')
           echo "RELEASE_VERSION after removing leading 'v': $RELEASE_VERSION"
           export RELEASE_VERSION
+      
+      - name: Verify RELEASE_VERSION
+        run: |
+          echo "RELEASE_VERSION after export: $RELEASE_VERSION"
 
       
       - name: Update Dockerfile with new version
