@@ -34,12 +34,12 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --tag melinak/racoon_clip:latest \
-            --tag melinak/racoon_clip:${{ steps.get_release_version.outputs.VERSION }} \
+            --tag melinak/racoon_clip:${{ steps.tag.outputs.VERSION }} \
             .
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
             --tag melinak/racoon_clip:latest \
-            --tag melinak/racoon_clip:${{ steps.get_release_version.outputs.VERSION }} \
+            --tag melinak/racoon_clip:${{ steps.tag.outputs.VERSION }} \
             .
         
