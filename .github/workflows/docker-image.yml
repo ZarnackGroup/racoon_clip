@@ -45,7 +45,7 @@ jobs:
       # Remove leading "v" from RELEASE_VERSION
       - name: Remove leading "v" from RELEASE_VERSION
         run: |
-          export RELEASE_VERSION=$(echo $RELEASE_VERSION | sed 's/^v//')
+          export RELEASE_VERSION=$(echo $RELEASE_VERSION | sed 's/^v\.//')
       
       - name: Update Dockerfile with new version
         run: sed -i "s#VERSION_PLACEHOLDER#$RELEASE_VERSION#g" docker/Dockerfile
