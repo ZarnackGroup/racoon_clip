@@ -2,6 +2,10 @@ name: Docker Build and Push
 
 on:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Specify the release version'
+        required: true
   release:
     types: [published]
 
