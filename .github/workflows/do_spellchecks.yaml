@@ -1,23 +1,42 @@
 name: Spellcheck Action
+
 on: 
   push:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Spellcheck
+  build_markdown:
+    name: Spellcheck Markdown
     runs-on: ubuntu-latest
     steps:
-    # The checkout step
-    - uses: actions/checkout@v3
-    - uses: rojopolis/spellcheck-github-actions@0.36.0
-      name: Spellcheck
-      with:
-        source_files: README.md USER_MANUAL.md 
-        task_name: Markdown
-        output_file: spellcheck-output.txt
-    - uses: actions/upload-artifact@v3
-      if: '!cancelled()' # Do not upload artifact if job was cancelled
-      with:
-        name: Spellcheck Output
-        path: spellcheck-output.txt
+      # The checkout step
+      - uses: actions/checkout@v3
+      - uses: rojopolis/spellcheck-github-actions@0.36.0
+        name: Spellcheck Markdown
+        with:
+          source_files: README.md USER_MANUAL.md racoon_clip/__main__.py
+          task_name: Markdown
+          output_file: markdown_spellcheck-output.txt
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()' # Do not upload artifact if job was cancelled
+        with:
+          name: Markdown Spellcheck Output
+          path: markdown_spellcheck-output.txt
+
+  build_rst:
+    name: Spellcheck reStructuredText
+    runs-on: ubuntu-latest
+    steps:
+      # The checkout step
+      - uses: actions/checkout@v3
+      - uses: rojopolis/spellcheck-github-actions@0.36.0
+        name: Spellcheck reStructuredText
+        with:
+          source_files: '*.rst'
+          task_name: reStructuredText
+          output_file: rst_spellcheck-output.txt
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()' # Do not upload artifact if job was cancelled
+        with:
+          name: reStructuredText Spellcheck Output
+          path: rst_spellcheck-output.txt
