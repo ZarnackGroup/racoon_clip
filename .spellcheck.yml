@@ -6,7 +6,7 @@ matrix:
     encoding: utf-8
     dictionary:
     wordlists:
-    - docs/src/dictionary/custom.txt
+    - .github/workflows/spellcheck_wordlist.txt
   pipeline:
   - pyspelling.filters.markdown:
       ignores:
