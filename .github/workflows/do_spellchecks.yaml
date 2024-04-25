@@ -9,15 +9,16 @@ jobs:
     name: Spellcheck Markdown
     runs-on: ubuntu-latest
     steps:
-      # The checkout step
-      - uses: actions/checkout@v3
-      - uses: rojopolis/spellcheck-github-actions@0.36.0
-        name: Spellcheck Markdown
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Spellcheck Markdown
+        uses: rojopolis/spellcheck-github-actions@0.36.0
         with:
-          source_files: README.md USER_MANUAL.md
+          source_files: README.md USER_MANUAL.md 
           task_name: Markdown
           output_file: markdown_spellcheck-output.txt
-      - uses: actions/upload-artifact@v3
+      - name: Upload Markdown Spellcheck Output
+        uses: actions/upload-artifact@v3
         if: '!cancelled()' # Do not upload artifact if job was cancelled
         with:
           name: Markdown Spellcheck Output
@@ -27,15 +28,16 @@ jobs:
     name: Spellcheck reStructuredText
     runs-on: ubuntu-latest
     steps:
-      # The checkout step
-      - uses: actions/checkout@v3
-      - uses: rojopolis/spellcheck-github-actions@0.36.0
-        name: Spellcheck reStructuredText
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Spellcheck reStructuredText
+        uses: rojopolis/spellcheck-github-actions@0.36.0
         with:
           source_files: 'docs/*.rst'
           task_name: reStructuredText
           output_file: rst_spellcheck-output.txt
-      - uses: actions/upload-artifact@v3
+      - name: Upload reStructuredText Spellcheck Output
+        uses: actions/upload-artifact@v3
         if: '!cancelled()' # Do not upload artifact if job was cancelled
         with:
           name: reStructuredText Spellcheck Output
