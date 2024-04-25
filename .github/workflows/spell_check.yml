@@ -57,6 +57,7 @@ name: Check Spelling
 #     ... otherwise adjust the `with:` as you wish
 
 on:
+  workflow_dispatch:
   push:
     branches:
     - "**"
