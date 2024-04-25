@@ -6,6 +6,16 @@ matrix:
     encoding: utf-8
   pipeline:
   - pyspelling.filters.markdown:
+      ignores:
+      - RBP
+      - crosslinks
+      - eCLIP
+      - et
+      - iCLIP
+      - deduplication
+      - demultiplexing
+      - conda
+      - 
   - pyspelling.filters.html:
       comments: false
       ignores:
