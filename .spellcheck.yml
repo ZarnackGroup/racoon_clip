@@ -15,7 +15,8 @@ matrix:
       - deduplication
       - demultiplexing
       - conda
-      - 
+      - al.
+      - racoon_clip
   - pyspelling.filters.html:
       comments: false
       ignores:
