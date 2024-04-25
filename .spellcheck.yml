@@ -4,19 +4,12 @@ matrix:
     lang: en
   dictionary:
     encoding: utf-8
+    dictionary:
+    wordlists:
+    - docs/src/dictionary/custom.txt
   pipeline:
   - pyspelling.filters.markdown:
       ignores:
-      - RBP
-      - crosslinks
-      - eCLIP
-      - et
-      - iCLIP
-      - deduplication
-      - demultiplexing
-      - conda
-      - al.
-      - racoon_clip
   - pyspelling.filters.html:
       comments: false
       ignores:
