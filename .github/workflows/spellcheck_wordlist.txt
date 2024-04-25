@@ -1,0 +1,10 @@
+RBP
+crosslinks
+eCLIP
+et
+iCLIP
+deduplication
+demultiplexing
+conda
+al.
+racoon_clip
