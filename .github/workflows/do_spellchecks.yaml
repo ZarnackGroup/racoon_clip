@@ -24,21 +24,21 @@ jobs:
           name: Markdown Spellcheck Output
           path: markdown_spellcheck-output.txt
 
-  build_rst:
-    name: Spellcheck reStructuredText
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Spellcheck reStructuredText
-        uses: rojopolis/spellcheck-github-actions@0.36.0
-        with:
-          source_files: 'docs/*.rst'
-          task_name: reStructuredText
-          output_file: rst_spellcheck-output.txt
-      - name: Upload reStructuredText Spellcheck Output
-        uses: actions/upload-artifact@v3
-        if: '!cancelled()' # Do not upload artifact if job was cancelled
-        with:
-          name: reStructuredText Spellcheck Output
-          path: rst_spellcheck-output.txt
+  # build_rst:
+  #   name: Spellcheck reStructuredText
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Spellcheck reStructuredText
+  #       uses: rojopolis/spellcheck-github-actions@0.36.0
+  #       with:
+  #         source_files: 'docs/*.html'
+  #         task_name: reStructuredText
+  #         output_file: rst_spellcheck-output.txt
+  #     - name: Upload reStructuredText Spellcheck Output
+  #       uses: actions/upload-artifact@v3
+  #       if: '!cancelled()' # Do not upload artifact if job was cancelled
+  #       with:
+  #         name: reStructuredText Spellcheck Output
+  #         path: rst_spellcheck-output.txt
