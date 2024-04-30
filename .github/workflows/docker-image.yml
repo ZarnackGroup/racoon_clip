@@ -28,6 +28,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           echo "Manually triggered with release version: $RELEASE_VERSION"
+          echo "${{ steps.tag.outputs.tag }}=$RELEASE_VERSION" >> $GITHUB_ENV
       
       # If not manually triggered, get git tag
       - name: Get git tag
@@ -47,7 +48,7 @@ jobs:
       - name: Remove leading "v" from RELEASE_VERSION
         shell: bash
         env:
-            RELEASE_VERSION: ${{ github.event.inputs.release_version }}
+            RELEASE_VERSION: ${{ steps.tag.outputs.tag }}
         run: |
           RELEASE_VERSION=$(echo "${RELEASE_VERSION}" | sed 's/^v\.//')
           echo "RELEASE_VERSION after removing leading 'v': $RELEASE_VERSION"
