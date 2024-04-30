@@ -42,7 +42,7 @@ jobs:
         run: |
           echo "Tag version: ${{ steps.tag.outputs.tag }}"
           echo "${{ steps.tag.outputs.tag }}=$RELEASE_VERSION" >> $GITHUB_ENV
-          #export RELEASE_VERSION="${{ steps.tag.outputs.tag }}"
+          export RELEASE_VERSION="${{ steps.tag.outputs.tag }}"
       
       # Remove leading "v" from RELEASE_VERSION
       - name: Remove leading "v" from RELEASE_VERSION
