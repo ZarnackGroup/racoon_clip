@@ -42,7 +42,7 @@ setup(
     name="racoon_clip",
     packages=find_packages(),
     url="",
-    python_requires=">3.9",
+    python_requires=">=3.9",
     description="Snakemake-powered commandline tool to obtain single-nucleotide crosslinks from i/eCLIP data.",
     long_description=get_description(),
     long_description_content_type="text/markdown",
