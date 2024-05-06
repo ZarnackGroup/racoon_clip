@@ -56,6 +56,6 @@ You can also use the racoon_clip Docker Image:
 
 .. code:: bash
 
-   docker pull melinak/racoon_clip:v1.0.9
+   docker pull melinak/racoon_clip:latest
 
 
