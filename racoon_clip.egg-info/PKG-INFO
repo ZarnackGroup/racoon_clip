@@ -22,8 +22,10 @@ The performed steps are an optional quality filter, optional demultiplaexing, ad
 The following are required before installing racoon_clip
 
 + either conda or pip
-+ python >3.9
++ python >=3.9
 + mamba
+
++ or docker
 
 It is recommended to install racoon_clip it a fresh conda/mamba enviroment. You could for example install the prequisites with:
 
