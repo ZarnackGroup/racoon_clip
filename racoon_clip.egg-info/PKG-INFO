@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: racoon-clip
-Version: 1.1.1
+Version: 1.1.2
 Summary: Snakemake-powered commandline tool to obtain single-nucleotide crosslinks from i/eCLIP data.
 Home-page: 
 Author: Melina Klostermann
@@ -46,11 +46,12 @@ mamba activate racoon_clip
 
 ### from GitHub
 
-Download the zip file of your prefered release from github and unzip it. Then go into the unziped folder.
+Download the zip file of your preferred release from github and unzip it. Then go into the unziped folder.
 
 ```
-unzip racoon_clip-1.0.0.zip
-cd racoon_clip-1.0.0
+wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.2.zip
+unzip racoon_clip-1.1.2.zip
+cd racoon_clip-1.1.2
 ```
 
 Then install racoon with pip.
@@ -62,7 +63,7 @@ pip install -e .
 
 ```
 
-You can now check the installation by running help option or a minimal example.
+You can now check the installation by running the help option or a minimal example.
 
 ```
 racoon_clip -h
@@ -71,8 +72,9 @@ racoon_clip -h
 
 ## Documanetation and Tutorial
 
-You can find a tutarial and all options and a details description of the performed steps at [documentation](racoon-clip.readthedocs.io).
+You can find a tutorial and all options and a details description of the performed steps at [documentation](racoon-clip.readthedocs.io).
 
 ## Citing racoon_clip
 
-xx
+Klostermann & Zarnack 2024: racoon_clip – a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data
+https://doi.org/10.1101/2024.02.27.582237 
