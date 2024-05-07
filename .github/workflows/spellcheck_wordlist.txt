@@ -20,3 +20,5 @@ html
 txt
 bw
 doi
+Klostermann
+Zarnack
