@@ -1,5 +1,6 @@
-Please cite racoon in your paper using this article:
-
+Please cite racoon_clip in your paper using this article:
+Klostermann & Zarnack 2024: racoon_clip – a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data
+https://doi.org/10.1101/2024.02.27.582237
 
 Please consider also citing these dependencies:
 Snaketool:
