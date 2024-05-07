@@ -27,7 +27,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           echo "Manually triggered with release version: $RELEASE_VERSION"
-          echo "${{ steps.tag.outputs.tag }}=$RELEASE_VERSION" >> $GITHUB_ENV
+          #echo "${{ steps.tag.outputs.tag }}=$RELEASE_VERSION" >> $GITHUB_ENV
       
       # If not manually triggered, get git tag
       - name: Get git tag
