@@ -1,4 +1,4 @@
-# racoon_clip v 1.1.1
+# racoon_clip v 1.1.2
 
 <img src="Racoon_Logo_Schrift.png" width="400">
 
@@ -39,9 +39,9 @@ mamba activate racoon_clip
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
-wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.1.zip
-unzip racoon_clip-1.1.1.zip
-cd racoon_clip-1.1.1
+wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.2.zip
+unzip racoon_clip-1.1.2.zip
+cd racoon_clip-1.1.2
 ```
 
 Then install racoon with pip.
@@ -64,7 +64,7 @@ racoon_clip -h
 You can also use the racoon_clip Docker Image:
 
 ```
-docker pull melinak/racoon_clip
+docker pull melinak/racoon_clip:latest
 ```
 
 
@@ -95,4 +95,5 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 ## Citing racoon_clip
 
-We are currently working on the racoon_clip manuscript.
+
+Klostermann & Zarnack 2024: [racoon_clip – a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data](https://doi.org/10.1101/2024.02.27.582237) 
