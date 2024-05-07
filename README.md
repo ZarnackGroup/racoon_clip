@@ -92,7 +92,6 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 
 
-
 ## Citing racoon_clip
 
 
