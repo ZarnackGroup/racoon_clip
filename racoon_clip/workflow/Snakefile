@@ -1695,7 +1695,7 @@ rule align_chimeric:
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
         outFilterMismatchNmax=config["outFilterMismatchNmax"],
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        sjdbOverhang=config["sjdbOverhang"],
+        sjdbOverhang=config["read_length"] - 1 - int(get_barcode_experiment_info()["barcodeLength"]),
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"]
     threads: 2 # x each sample automatically assigned by snakemake
