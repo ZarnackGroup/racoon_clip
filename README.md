@@ -1,4 +1,4 @@
-# racoon_clip v 1.1.2
+# racoon_clip v 1.1.3
 
 <img src="Racoon_Logo_Schrift.png" width="400">
 
@@ -39,9 +39,9 @@ mamba activate racoon_clip
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
-wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.2.zip
-unzip racoon_clip-1.1.2.zip
-cd racoon_clip-1.1.2
+wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.3.zip
+unzip racoon_clip-1.1.3.zip
+cd racoon_clip-1.1.3
 ```
 
 Then install racoon with pip.
