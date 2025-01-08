@@ -92,7 +92,7 @@ This is how the config file config_min_example_iCLIP.yaml looks like:
     # barcodes
     experiment_type: "iCLIP"
     
-    barcodes_fasta: ""<path/to/minimal_example/minimal_example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
+    barcodes_fasta: "<path/to/minimal_example/minimal_example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
     # make sure the barcodes have the same names as the samples
     
     # demultiplexing
