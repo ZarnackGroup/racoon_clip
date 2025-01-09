@@ -20,7 +20,7 @@ The following are required before installing racoon_clip
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
 
 ```
-conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'
+conda install -n base --override-channels -c conda-forg::mamba=1 'python_abi=*=*cp*'
 conda create -n racoon_clip python=3.9.0 pip
 conda activate racoon_clip
 ```
