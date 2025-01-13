@@ -4,3 +4,5 @@ _updated.yaml
 racoon_clip/test
 racoon_clip/__pycache__/__main__.cpython-311.pyc
 racoon_clip/__pycache__/util.cpython-311.pyc
+racoon_clip/example_data/old/*
+racoon_clip/example_data/example_annotation_human_chr21?*.sjdbOverhang*
