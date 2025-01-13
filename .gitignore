@@ -7,3 +7,6 @@ racoon_clip/__pycache__/util.cpython-311.pyc
 .Rproj.user
 .DS_Store
 .Rhistory
+racoon_clip/example_data/old/*
+racoon_clip/example_data/example_annotation_human_chr21?*sjdbOverhang*
+

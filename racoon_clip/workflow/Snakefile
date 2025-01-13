@@ -494,8 +494,9 @@ rule encode_umi:
         "========================= \n Handeling encode UMI position \n ================================ \n provided length of UMI: {params.umi_length}"
     shell:
         """
-        zcat -f < {input} | awk 'BEGIN{{FS=" "}} NR%4==1 {{print "@" substr($1, ({params.umi_length}+3), 500) "_" substr($1, 2, {params.umi_length}) " " $2 }}; NR%4==2 {{print}} ; NR%4==3 {{print}}; NR%4==0 {{print}};' | gzip > {output}
+        zcat -f < {input} | awk 'BEGIN{{FS=" "}} NR%4==1 {{print "@" substr($1, ({params.umi_length}+3), 500) "_" substr($1, 2, {params.umi_length})}}; NR%4==2 {{print}} ; NR%4==3 {{print}}; NR%4==0 {{print}};' | gzip > {output}
         """
+ # " " $2
 
 
 
