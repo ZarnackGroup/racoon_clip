@@ -1,5 +1,5 @@
 ---
-title: 'racoon - CLIP processing report'
+title: 'racoon_clip processing report'
 author: "Melina Klostermann"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -34,7 +34,7 @@ library(knitr)
 
 ```
 
-# Overview over raccon steps
+# Overview of steps performed
 
 \newline
 \newline
@@ -47,7 +47,7 @@ library(knitr)
 
 # Configurations {.tabset}
 
-Here is a summary off the settings you chose for this analysis.
+Here is a summary of the settings you have chosen for this analysis.
 
 ```{r config}
 getwd()
@@ -140,7 +140,7 @@ kable(t)
 
 ```
 
-## Experiemnt groups
+## Experimental groups
 ```{r}
 gf <- file.exists(as.character(config["experiment_group_file",]))
 
@@ -155,7 +155,7 @@ kable(groups)
 ```
 
 ```{r eval = !gf, results = 'asis'}
-cat(paste("No groups specified. Merging all samples for you."))
+cat(paste("No groups specified. We will combine all samples for you."))
 ```
 
 
@@ -236,7 +236,7 @@ for(i in 1:length(pbq)){
 
 ## {-}
 
-## Sequence content across all bases {.tabset}
+## Sequence content over all bases {.tabset}
 
 ```{r eval=!demult, out.width="100%", dpi = 100, results = "asis"}
 
@@ -250,11 +250,11 @@ for(i in 1:length(pbq)){
 ## {-}
 
 ```{r eval=qual_bc, results = 'asis'}
-cat(paste("# Quality filtering in barcode region \n Sequences are filtered for a minimum sequencing quality of", config["minBaseQuality",], "inside the barcode region to ensure correct sample and duplicate assignment.\n"))
+cat(paste("# Quality filtering in barcode region \n Sequences are filtered for a minimum base quality of", config["minBaseQuality",], "within the barcode region to ensure correct sample and duplicate assignment.\n"))
 ```
 
 ```{r eval=qual_bc, results = 'asis'}
-cat("## Read numbers before and after the quality filtering step: \n ")
+cat("## Read numbers before and after the quality filtering step \n ")
 ```
 
 
@@ -358,7 +358,7 @@ cat("### {-} \n")
 ```
 
 ```{r eval=qual_bc, results = 'asis'}
-cat("### Sequence content across all bases {.tabset}")
+cat("### Sequence content over all bases {.tabset}")
 ```
 
 ```{r out.width="100%", dpi = 100, results = "asis", eval=qual_bc_no_demult }
@@ -384,7 +384,7 @@ cat("### {-}")
 
 ```{r eval=demult, results = 'asis'}
 print(" # Demultiplexing and quality control of individual samples \n
-Samples are demultiplexed with flexbar and Adapters are trimmed in the same step.")
+Samples are demultiplexed with Flexbar and adapters are trimmed in the same step.")
 
 ```
 
@@ -436,7 +436,7 @@ kable(fastqc_report_filtered_t)
 
 ```{r eval=demult, results = 'asis'}
 # asis_output("# Adapter trimming \\n")
-print("## Mutations in Barcodes /n Mutations can occur during PCR amplification or read sequencing. Mutations inside the gene sequence are dealt with during the star alignment step. However, mutations in the barcode sequence can lead to assignment of that read to the wrong sample (is this that bad, if samples are only replicates?). In consequence a read with a once or multi mutated barcode will not be assigned to any sample. Here is an overview of the distance of the detected barcodes to the specified sample barcodes.")
+print("## Mutations in barcodes /n Mutations can occur during PCR amplification or read sequencing. Mutations within the gene sequence are dealt with during the star alignment step. However, mutations in the barcode sequence can cause the read to be assigned to the wrong sample. As a result, a read with a single or multiple mutated barcode will not be assigned to any sample. Here is an overview of the distance between the detected barcodes and the specified sample barcodes.")
 ```
 
 ```{r barcode_distances, out.width="100%", eval=FALSE}
@@ -448,9 +448,6 @@ barcodes_fasta <- data.frame(sample = barcodes_fasta[c(1:nrow(barcodes_fasta) %%
                              barcode = barcodes_fasta[c(1:nrow(barcodes_fasta) %% 2 == 0),])
 colnames(barcodes_fasta) <- c("sample", "barcode")
 
-
-
-# config["umi1_len",]
 
 barcodes_fasta <- barcodes_fasta %>% mutate(., exp_barcode = substr(barcode, as.numeric(config["umi1_len",])+1, as.numeric(config["umi1_len",])+as.numeric(config["exp_barcode_len",]) ) )
 kable(barcodes_fasta, caption = "sample barcodes") 
@@ -495,16 +492,16 @@ ggplot(barcodes_found[ barcodes_found$dist != 0,], aes(x=barcode, y = log(n), fi
 # Adapter trimming
 
 ```{r eval=only_trim, results = 'asis'}
-cat(paste("\n Adapters are trimmed with flexbar, which would be used for demultiplexing on multiplex data. This should garantee the comaparability off multiplexed and demultiplexed data sets. \\n 
-   Used adapters are specified with adapter_file (and adapter_file_R2). The default file contains standard Illumina and eCLIP adapters. The adapters are trimmed from the 3'end of the read (--adapter-trim-end RIGHT), with a allowed error of 0.1 (--adapter-error-rate 0.1). The adapter needs to overlap for at least 1nt witht he read (--adapter-min-overlap 1). Adapter trimming can be performed in mutiple cycles as sepcified by the user, here", config["adapter_cycles",], "(adapterCycles, see configrations). Reads shorter then", config["min_read_length",],"are discarded (min_read_length, see configurartions). \\n
-   UMIs are written into the read header with (--umi-tags). If data is from ENCODE, UMIs are already removed from the reads and written in the beginning of the header. As umi-tools dedup which is used for deduplication here expects the UMI to be in the end of the read,encode can be specified to move the UMI from the beginning of the read header to the end (see configurations).
+cat(paste("\n  The adapters are trimmed with Flexbar which would be used for demultiplexing on multiplexed data. This should ensure compatibility between multiplexed and demultiplexed data sets. \\n 
+   The adapters used are specified with the adapter_file parameter. The default file contains standard Illumina and eCLIP adapters. The adapters are trimmed from the 3' end of the read (--adapter-trim-end RIGHT), with an allowed error of 0.1 (--adapter-error-rate 0.1). The adapter must overlap the read by at least 1nt (--adapter-min-overlap 1). Adapter trimming can be done in multiple cycles as specified by the user, here", config["adapter_cycles",], "(adapterCycles, see configurations). Reads shorter than", config["min_read_length",],"are discarded (min_read_length, see configurations). \\n
+   UMIs are written into the read header with (--umi-tags). If the data is from ENCODE, UMIs are already removed from the read and written to the beginning of the header. As umi-tools dedup, which is used here for deduplication, expects the UMI to be at the end of the read, encode: True can be specified to move the UMI from the beginning of the read header to the end (see configurations).
         \\n"))
 
 ```
 
-## Adapter Content before trimming
+## Adapter content before trimming
 
-Position of adapters found in the reads. If adapters are found early in the reads, this points to overdigestion of the samples.
+Position of adapters found in the reads. If adapters are found early in the reads, this indicates over digestion of the samples.
 
 ```{r }
 
@@ -533,18 +530,18 @@ if(file.exists(f)){
 if(file.exists(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))){
   include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
 }else{
-  cat("\n \n  **Trimming successfull, no adapter content left. **")
+  cat("\n \n  **Trimming successful, no adapter contents left. **")
 }
 
 ```
 
 ```{r eval = no_trim, results = 'asis'}
-cat("No trimming was performed.")
+cat("No trimming has been performed.")
 ```
 
-# Mapping
+# Alignment
 
-The genome annotation is indexed with STAR  --runMode genomeGenerate. Then the merged file of the chimeric reads is aligned to the genome annotation with STAR --runMode alignReads. For STAR settings see configurations. Obtained bam files are indexed with samtools index.
+The genome annotation is indexed using STAR --runMode genomeGenerate. The merged file of chimeric reads is then aligned to the genome annotation using STAR --runMode alignReads. For STAR settings, see Configurations. The resulting bam files are indexed using samtools index.
 
 ```{r }
 star_out <- list.files(path = paste0(dir,"/results/aligned"), pattern = "*Log.final.out$", recursive = TRUE, full.names = T) %>% map(~read_delim(.x, delim="\t", col_names = c("type", "number")))
@@ -641,7 +638,7 @@ names(umitools_out) <- umitools_out
 umitools_out_2 <- map_dfr(umitools_out, ~.x$number)
 umitools_out_2 <- t(umitools_out_2) %>% as.data.frame()
 
-colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplictaes)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nulecotide")
+colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplictaes)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nucleotide")
 umitools_out_2$Sample <- umitools_out_names
 rownames(umitools_out_2) <- umitools_out_names
 
@@ -661,11 +658,11 @@ ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
 
 ## Obtaining crosslinks
 
-The deduplicated bam files are then converted into bed files with bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1 because the UV-crosslink should be positioned 1nt before. 
+The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1 because the UV crosslink should be positioned 1nt earlier. 
 \n
-To allow visualization in a genome browser the 1nt crosslink bed file is then also converted to .bigWig file using bedGraphToBigWig. Furthermore these bigWig files are merged with bigWigMerge by the experiment groups, specified by the user.
+To allow visualisation in a genome browser, the 1nt crosslink bed file is also converted to a .bigWig file using bedGraphToBigWig. These bigWig files are then merged with bigWigMerge by the experiment groups specified by the user.
 
-# Session Info
+# Session info
 
 ```{r}
 sessionInfo()
