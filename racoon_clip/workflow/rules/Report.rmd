@@ -19,6 +19,14 @@ require("knitr")
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, eval = TRUE, cache = F, echo = FALSE,  cache.lazy = FALSE,  dpi= 20, fig.width = 20, fig.height = 10, crop = NULL) #, fig.pos = "!H", out.extra = ""
 # options(knitr.table.format = "html")
 
+# Params for direct run
+# local path on MAC
+# params$snake_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip"
+# # test eCLIP
+# params$output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_eCLIP"
+# params$config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml") %>% unlist()
+
+
 source(paste0(params$snake_dir, "/workflow/rules/theme_html.R"))
 library(ggplot2)
 theme_set(theme_html())
@@ -31,6 +39,7 @@ library(knitr)
 # library(gridExtra)
 # library(kableExtra)
 # library(grid)
+
 
 ```
 
@@ -146,7 +155,7 @@ gf <- file.exists(as.character(config["experiment_group_file",]))
 
 ```
 
-```{r eval = gf }
+```{r eval=gf}
 groups <- read.table(as.character(config["experiment_group_file",]))
 colnames(groups) <- c("Group", "Sample")
 
@@ -389,7 +398,7 @@ Samples are demultiplexed with Flexbar and adapters are trimmed in the same step
 ```
 
 
-```{r demultiplexed_samples, out.width="100%", dpi = 100, results = "asis", eval=dedup}
+```{r demultiplexed_samples, out.width="100%", dpi = 100, results = "asis", eval=demult}
 fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"), delim="\t")
 fastqc_report_filtered_t <- fastqc_report_filtered[,c(1,5:7,11)] %>% 
   #mutate(avg_sequence_length = round(avg_sequence_length, digits = 1)) %>% 
@@ -588,10 +597,11 @@ gg.df$variable <- factor(gg.df$variable, levels = c("reads", "mapped_reads", "un
 
 ggplot(gg.df, aes( x = Sample, y = as.numeric(value), fill = variable))+
   geom_col(position = "dodge", stat = "idenity")+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1),
+  theme(#axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1),
         legend.title= element_blank(),
         legend.position = "top")+
-  ylab("Number of reads")
+  ylab("Number of reads")+
+  coord_flip()
 
 
 
@@ -604,6 +614,11 @@ cat("# Deduplication \n
 Reads are deduplicated with umi_tools dedup --extract-umi-method read_id --method unique.")
 ```
 
+## Obtaining crosslinks
+
+The (deduplicated) bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1 because the UV crosslink should be positioned 1nt earlier. 
+\n
+To allow visualisation in a genome browser, the 1nt crosslink bed file is also converted to a .bigWig file using bedGraphToBigWig. These bigWig files are then merged with bigWigMerge by the experiment groups specified by the user.
 
 ```{r dpi = 100, eval=dedup}
 
@@ -644,7 +659,7 @@ rownames(umitools_out_2) <- umitools_out_names
 
 kable(umitools_out_2[,1:4])
 
-gg.umitools_out_2 <- umitools_out_2 %>% reshape2::melt(id.vars = c("Mean crosslink events per crosslinked nulecotide", "Sample"))
+gg.umitools_out_2 <- umitools_out_2 %>% reshape2::melt(id.vars = c("Mean crosslink events per crosslinked nucleotide", "Sample"))
 gg.umitools_out_2$value <- as.numeric(gg.umitools_out_2$value)
 
 ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
@@ -652,15 +667,12 @@ ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         legend.title= element_blank(),
         legend.position = "top")+
-  ylab("Number of reads")
+  ylab("Number of reads")+
+  coord_flip()
 
 ```
 
-## Obtaining crosslinks
 
-The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1 because the UV crosslink should be positioned 1nt earlier. 
-\n
-To allow visualisation in a genome browser, the 1nt crosslink bed file is also converted to a .bigWig file using bedGraphToBigWig. These bigWig files are then merged with bigWigMerge by the experiment groups specified by the user.
 
 # Session info
 

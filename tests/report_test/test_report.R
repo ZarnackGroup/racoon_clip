@@ -12,6 +12,7 @@
 test_report <- function(config, output_dir, snake_dir){
   
   report_original_path <- paste0(snake_dir, "/workflow/rules/Report.rmd")
+  dir.create(paste0(output_dir, "/results/tmp/"))
   report_tmp_path <- paste0(output_dir, "/results/tmp/Report.rmd")
   file.copy(report_original_path, report_tmp_path, overwrite = TRUE)
   
@@ -33,10 +34,12 @@ test_report <- function(config, output_dir, snake_dir){
 snake_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip"
 
 
-
 # test eCLIP
 output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_eCLIP"
-config <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml"
+config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml") %>% unlist()
+
+
+test_report(config, output_dir, snake_dir)
 
 
 # !Check that there is a test set with adapter content
