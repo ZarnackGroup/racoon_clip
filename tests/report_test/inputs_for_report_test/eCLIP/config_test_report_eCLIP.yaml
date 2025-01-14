@@ -1,5 +1,5 @@
 # where to put results
-wdir: "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP/results" # changes for local test usage
+wdir: "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP" # changes for local test usage
 
 # input
 infiles: "/home/mklostermann/projects/04_minimal_examples_racoon/test_eCLIP/test_eCLIP_s1.chr21.fastq /home/mklostermann/projects/04_minimal_examples_racoon/test_eCLIP/test_eCLIP_s2.chr21.fastq" # for multiple files after demultiplexing
