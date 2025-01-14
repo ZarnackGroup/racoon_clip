@@ -1,6 +1,8 @@
 # -----------------
 # test make report
 # ------------------
+library(tidyverse)
+library(yaml)
 
 # make function for testing
 
