@@ -10,3 +10,4 @@ racoon_clip/example_data/example_annotation_human_chr21?*sjdbOverhang*
 .Rhistory
 .Rproj.user/*
 tests/report_test/test_report_eCLIP/*
+.Rproj.user

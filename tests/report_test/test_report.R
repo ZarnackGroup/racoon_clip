@@ -31,15 +31,40 @@ test_report <- function(config, output_dir, snake_dir){
 
 
 # local path on MAC
+#---------------------
 snake_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip"
 
 
 # test eCLIP
+#----------------------
 output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_eCLIP"
 config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml") %>% unlist()
 
+test_report(config, output_dir, snake_dir)
+
+# test eCLIP Encode
+#----------------------
+output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_eCLIP_ENCODE"
+config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/eCLIP_ENCODE/config_test_eCLIP_ENC.yaml") %>% unlist()
 
 test_report(config, output_dir, snake_dir)
+
+
+# test iCLIP 
+#----------------------
+output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_iCLIP"
+config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/iCLIP/config_test_iCLIP.yaml") %>% unlist()
+
+test_report(config, output_dir, snake_dir)
+
+
+# test iCLIP multiplexed
+#----------------------
+output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_iCLIP"
+config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/iCLIP/config_test_iCLIP.yaml") %>% unlist()
+
+test_report(config, output_dir, snake_dir)
+
 
 
 # !Check that there is a test set with adapter content
