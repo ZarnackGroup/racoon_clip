@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Spellcheck Markdown
         uses: rojopolis/spellcheck-github-actions@0.36.0
         with:
@@ -18,7 +18,7 @@ jobs:
           task_name: Markdown
           output_file: markdown_spellcheck-output.txt
       - name: Upload Markdown Spellcheck Output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: '!cancelled()' # Do not upload artifact if job was cancelled
         with:
           name: Markdown Spellcheck Output
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Spellcheck reStructuredText
         uses: rojopolis/spellcheck-github-actions@0.36.0
         with:
@@ -37,7 +37,7 @@ jobs:
           task_name: reStructuredText
           output_file: rst_spellcheck-output.txt
       - name: Upload reStructuredText Spellcheck Output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: '!cancelled()' # Do not upload artifact if job was cancelled
         with:
           name: reStructuredText Spellcheck Output
