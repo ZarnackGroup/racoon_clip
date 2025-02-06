@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Spellcheck Markdown
-        uses: rojopolis/spellcheck-github-actions@0.36.0
+        uses: rojopolis/spellcheck-github-actions@0.46.0
         with:
           source_files: README.md USER_MANUAL.md 
           task_name: Markdown
@@ -24,21 +24,19 @@ jobs:
           name: Markdown Spellcheck Output
           path: markdown_spellcheck-output.txt
 
-  build_rst:
-    name: Spellcheck reStructuredText
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Spellcheck reStructuredText
-        uses: rojopolis/spellcheck-github-actions@0.36.0
-        with:
-          source_files: 'docs/*.rst'
-          task_name: reStructuredText
-          output_file: rst_spellcheck-output.txt
-      - name: Upload reStructuredText Spellcheck Output
-        uses: actions/upload-artifact@v4
-        if: '!cancelled()' # Do not upload artifact if job was cancelled
-        with:
-          name: reStructuredText Spellcheck Output
-          path: rst_spellcheck-output.txt
+  # build_rst:
+  #   name: Spellcheck reStructuredText
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Install Dependencies
+  #       run: pip install pyspelling
+
+  #     - name: Run PySpelling
+  #       run: pyspelling --config /.spellcheck.yml
+
+  #     - name: Upload reStructuredText Spellcheck Output
+  #       uses: actions/upload-artifact@v4
+  #       if: '!cancelled()' # Do not upload artifact if job was cancelled
+  #       with:
+  #         name: reStructuredText Spellcheck Output
+  #         path: rst_spellcheck-output.txt
