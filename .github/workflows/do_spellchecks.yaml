@@ -33,7 +33,7 @@ jobs:
       - name: Spellcheck reStructuredText
         uses: rojopolis/spellcheck-github-actions@0.36.0
         with:
-          source_files: 'docs/*.rst'
+          source_files: "docs/*.rst"
           task_name: reStructuredText
           output_file: rst_spellcheck-output.txt
       - name: Upload reStructuredText Spellcheck Output
