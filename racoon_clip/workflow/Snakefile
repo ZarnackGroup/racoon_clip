@@ -751,11 +751,11 @@ rule align:
         trim=TRIM
     message: 
             "========================= \n Aligning {wildcards.sample} to genome \n ================================ \n" 
-    threads: 2 # x each sample automatically assigned by snakemake
+    threads: 4 # x each sample automatically assigned by snakemake
     conda:
         "envs/racoon_main_v0.2.yml"
     resources:
-        mem_mb = 20000
+        mem_mb = 40000
     shell:
         """
         chmod +x {input.reads} && \
