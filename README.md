@@ -1,4 +1,4 @@
-# racoon_clip v 1.1.0
+# racoon_clip v 1.1.4
 
 <img src="Racoon_Logo_Schrift.png" width="400">
 
