@@ -28,14 +28,12 @@ jobs:
     name: Spellcheck reStructuredText
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Spellcheck reStructuredText
-        uses: rojopolis/spellcheck-github-actions@0.46.0
-        with:
-          source_files: docs/examples.rst docs/index.rst docs/installation.rst docs/methods_description.rst docs/tutorial.rst docs/tutorial_customise.rst docs/tutorial_mir.rst
-          task_name: reStructuredText
-          output_file: rst_spellcheck-output.txt
+      - name: Install Dependencies
+        run: pip install pyspelling
+
+      - name: Run PySpelling
+        run: pyspelling --source "docs/*.rst"
+
       - name: Upload reStructuredText Spellcheck Output
         uses: actions/upload-artifact@v4
         if: '!cancelled()' # Do not upload artifact if job was cancelled
