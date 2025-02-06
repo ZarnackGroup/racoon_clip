@@ -1,0 +1,4 @@
+dictionary: en_GB
+
+source:
+  - docs/*.rst
