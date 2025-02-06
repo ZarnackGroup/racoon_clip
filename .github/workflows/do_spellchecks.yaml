@@ -32,7 +32,7 @@ jobs:
         run: pip install pyspelling
 
       - name: Run PySpelling
-        run: pyspelling --config .pyspelling.yml
+        run: pyspelling --config .spellcheck.yml
 
       - name: Upload reStructuredText Spellcheck Output
         uses: actions/upload-artifact@v4
