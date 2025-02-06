@@ -30,6 +30,12 @@ jobs:
     steps:
       - name: Install Dependencies
         run: pip install pyspelling
+        
+      - name: Create PySpelling Config
+        run: |
+          echo "dictionary: en_GB" > temp_spellcheck.yml
+          echo "source:" >> temp_spellcheck.yml
+          echo "  - docs/*.rst" >> temp_spellcheck.yml
 
       - name: Run PySpelling
         run: pyspelling --source "docs/*.rst"
