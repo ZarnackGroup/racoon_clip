@@ -91,7 +91,7 @@ racoon_clip produces a variety of files during the different steps of the workfl
 - The group-wise single nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
 # Please cite:
-https://doi.org/10.1093/bioadv/vbae084
+[Klostermann&Zarnack 2024:  racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data] (https://doi.org/10.1093/bioadv/vbae084)
 
 
 
