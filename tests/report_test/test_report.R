@@ -67,10 +67,10 @@ config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/rac
 
 test_report(config, output_dir, snake_dir)
 
-params <- list(config = config,  
-               snake_dir = "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip")
-
-# !Check that there is a test set with adapter content
-
-params$snake_dir
+# params <- list(config = config,  
+#                snake_dir = "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip")
+# 
+# # !Check that there is a test set with adapter content
+# 
+# params$snake_dir
 
