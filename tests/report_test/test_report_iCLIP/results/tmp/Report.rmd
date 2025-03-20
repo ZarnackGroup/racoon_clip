@@ -8,11 +8,15 @@ output:
     toc: TRUE
     number_sections: yes
     fig_caption: yes
+    cache: no
 params:
   config: "config"
   output_dir: "output_dir" 
   snake_dir: "snake_dir"
+
 ---
+
+
 
 ```{r setup, include=FALSE}
 require("knitr")
@@ -185,7 +189,7 @@ Initial quality control of the raw sequencing file is performed with FastQC. Her
 name_raw_fasta <- strsplit(as.character(config["infiles",]), "/") %>% unlist(.)
 l <- length(name_raw_fasta)
 name_raw_fasta <- name_raw_fasta[[l]] %>% unlist(.)
-name_raw_fasta <- strsplit(as.character(name_raw_fasta), ".", fixed = T)  %>% unlist(.) %>% .[1]
+name_raw_fasta <- gsub(".fastq.gz","", as.character(name_raw_fasta), fixed = T)  %>% unlist(.) %>% .[1]
 
 # overview 
 fastqc_report_raw <- read_delim(paste0(dir,"/results/fastqc/raw/", name_raw_fasta, "_fastqc/fastqc_data.txt"), delim="\t", skip = 2, n_max = 10)
@@ -276,7 +280,7 @@ bc_filter_multi_file <- ((!demult) && qual_bc)
 
 ```{r barcode_filter1, eval=demult}
 
-fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/raw/filtered_fastqc/fastqc_data.txt"), delim="\t", skip = 2, n_max = 10)
+fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/filtered/filtered_fastqc/fastqc_data.txt"), delim="\t", skip = 2, n_max = 10)
 read_numbers <- data.frame( steps = c("raw", "after_barcode_quality_filter"),
                             `number of reads` = c(fastqc_report_raw$Value[4], fastqc_report_filtered$Value[4]))
 
@@ -302,10 +306,22 @@ kable(read_numbers)
 cat("## Sequencing quality and contend per base after the quality filtering step \n")
 ```
 
-```{r barcode_filter2, eval=bc_filter_one_file}
-include_graphics(paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/per_base_quality.png"))
-include_graphics(paste0(dir,"/results/fastqc/raw/filtered_fastqc/Images/per_base_sequence_content.png"))
+```{r barcode_filter2, eval=bc_filter_one_file, results = 'asis'}
+cat("### Quality scores across all bases \n")
+include_graphics(paste0(dir,"/results/fastqc/filtered/filtered_fastqc/Images/per_base_quality.png"))
+```
 
+\newline
+```{r barcode_filter2.2, eval=bc_filter_one_file, results = 'asis'}
+cat(" \n")
+cat("\n ### Sequence content over all bases \n")
+include_graphics(paste0(dir,"/results/fastqc/filtered/filtered_fastqc/Images/per_base_sequence_content.png"))
+cat(" \n")
+
+```
+
+```{r eval=qual_bc_no_demult , results = 'asis'}
+cat("### Quality scores across all bases {.tabset} \n")
 ```
 
 
@@ -351,9 +367,8 @@ pbsc <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\p
 
 ```
 
-```{r eval=qual_bc, results = 'asis'}
-cat("### Quality scores across all bases {.tabset} \n")
-```
+
+
 
 
 ```{r test, out.width="100%", dpi = 100, results = 'asis', eval=qual_bc_no_demult }
@@ -366,7 +381,7 @@ cat("### {-} \n")
 
 ```
 
-```{r eval=qual_bc, results = 'asis'}
+```{r eval=qual_bc_no_demult , results = 'asis'}
 cat("### Sequence content over all bases {.tabset}")
 ```
 
@@ -379,7 +394,7 @@ for(i in 1:length(pbsc)){
 
 ```
 
-```{r eval=qual_bc, results = 'asis'}
+```{r eval=qual_bc_no_demult , results = 'asis'}
 cat("### {-}")
 ```
 
@@ -392,7 +407,7 @@ cat("### {-}")
 
 
 ```{r eval=demult, results = 'asis'}
-print(" # Demultiplexing and quality control of individual samples \n
+cat("# Demultiplexing and quality control of individual samples \n
 Samples are demultiplexed with Flexbar and adapters are trimmed in the same step.")
 
 ```
@@ -443,7 +458,7 @@ kable(fastqc_report_filtered_t)
   
 ```
 
-```{r eval=demult, results = 'asis'}
+```{r eval=F, results = 'asis'}
 # asis_output("# Adapter trimming \\n")
 print("## Mutations in barcodes /n Mutations can occur during PCR amplification or read sequencing. Mutations within the gene sequence are dealt with during the star alignment step. However, mutations in the barcode sequence can cause the read to be assigned to the wrong sample. As a result, a read with a single or multiple mutated barcode will not be assigned to any sample. Here is an overview of the distance between the detected barcodes and the specified sample barcodes.")
 ```
@@ -512,7 +527,7 @@ cat(paste("\n  The adapters are trimmed with Flexbar which would be used for dem
 
 Position of adapters found in the reads. If adapters are found early in the reads, this indicates over digestion of the samples.
 
-```{r }
+```{r, results='asis'}
 
 if (qual_bc & !demult){
  f = paste0(dir,"/results/fastqc/filtered/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png")
@@ -533,9 +548,11 @@ if(file.exists(f)){
 
 ```
 
-## Adapter content after trimming
+
 
 ```{r eval=only_trim, results = 'asis'}
+cat("## Adapter content after trimming \n")
+
 if(file.exists(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))){
   include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
 }else{
@@ -614,7 +631,7 @@ cat("# Deduplication \n
 Reads are deduplicated with umi_tools dedup --extract-umi-method read_id --method unique.")
 ```
 
-## Obtaining crosslinks
+# Obtaining crosslinks
 
 The (deduplicated) bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1 because the UV crosslink should be positioned 1nt earlier. 
 \n
@@ -629,7 +646,6 @@ umitools_out <- list.files(path = paste0(dir,"/results/aligned"), pattern = "*ou
 
 umitools_out <- map(umitools_out, ~mutate(.x, measure = substr(invalue, 29, nchar(invalue)) %>% strsplit(., split = ":")) )
 
-head(umitools_out)
 
 umitools_out = map(umitools_out, ~mutate(.x,
  measure=modify_if(measure,

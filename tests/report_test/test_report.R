@@ -62,14 +62,15 @@ test_report(config, output_dir, snake_dir)
 
 # test iCLIP multiplexed
 #----------------------
-output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_iCLIP"
-config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/iCLIP/config_test_iCLIP.yaml") %>% unlist()
+output_dir <- "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_iCLIP_multiplexed"
+config <- read_yaml("/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/inputs_for_report_test/iCLIP_multiplexed/config_test_iCLIP_multiplexed.yaml") %>% unlist()
 
 test_report(config, output_dir, snake_dir)
 
-
-
-# !Check that there is a test set with adapter content
-
-
+# params <- list(config = config,  
+#                snake_dir = "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip")
+# 
+# # !Check that there is a test set with adapter content
+# 
+# params$snake_dir
 
