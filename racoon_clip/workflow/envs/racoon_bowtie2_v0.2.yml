@@ -1,0 +1,34 @@
+name: racoon_bowtie2
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_gnu
+  - bowtie2=2.5.4=he96a11b_5
+  - bzip2=1.0.8=h4bc722e_7
+  - ca-certificates=2025.1.31=hbcca054_0
+  - ld_impl_linux-64=2.43=h712a8e2_4
+  - libexpat=2.6.4=h5888daf_0
+  - libffi=3.4.6=h2dba641_0
+  - libgcc=14.2.0=h767d61c_2
+  - libgcc-ng=14.2.0=h69a702a_2
+  - libgomp=14.2.0=h767d61c_2
+  - liblzma=5.6.4=hb9d3cd8_0
+  - libmpdec=4.0.0=h4bc722e_0
+  - libsqlite=3.49.1=hee588c1_2
+  - libstdcxx=14.2.0=h8f9b012_2
+  - libuuid=2.38.1=h0b41bf4_0
+  - libxcrypt=4.4.36=hd590300_1
+  - libzlib=1.3.1=hb9d3cd8_2
+  - ncurses=6.5=h2d0b736_3
+  - openssl=3.4.1=h7b32b05_0
+  - perl=5.32.1=7_hd590300_perl5
+  - pip=25.0.1=pyh145f28c_0
+  - python=3.13.2=hf636f53_101_cp313
+  - python_abi=3.13=5_cp313
+  - readline=8.2=h8c095d6_2
+  - tk=8.6.13=noxft_h4845f30_101
+  - tzdata=2025a=h78e105d_0
+  - zstd=1.5.7=hb8e6e7a_2
+prefix: /home/mklostermann/applications/anaconda3/envs/racoon_bowtie2
