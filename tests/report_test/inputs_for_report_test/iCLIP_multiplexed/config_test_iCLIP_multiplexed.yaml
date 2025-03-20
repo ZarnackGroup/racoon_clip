@@ -1,5 +1,5 @@
 # where to put results
-wdir: "/home/mklostermann/projects/04_minimal_examples_racoon/test_iCLIP"
+wdir: "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/tests/report_test/test_report_iCLIP_multiplexed"
 
 # input
 infiles: "/home/mklostermann/projects/04_minimal_examples_racoon/test_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz" # for multiple files after demultiplexing
