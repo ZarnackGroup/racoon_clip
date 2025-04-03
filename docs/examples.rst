@@ -30,23 +30,16 @@ Set up one of the minimal examples
 -----------------------------------
 Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
 
+Go to the folder with the examples
 .. code:: bash
 
-  cd minimal_examples
-  unzip minimal_example_iCLIP.zip
+  cd example_data
+  ls example_iCLIP
 
-
-Go into the folder of the example and unzip all files.
-
-.. code:: bash
-
-  cd minimal_examples/minimal_example_iCLIP
-  gunzip *
-  ls
 
 You should now see the following files in the folder:
 
-- **min_example_iCLIP_s1.fastq, min_example_iCLIP_s2.fastq**: Two samples with raw reads of an iCLIP experiment.
+- **test_iCLIP_s1.chr21.fastq, test_iCLIP_s2.chr21.fastq**: Two samples with raw reads of an iCLIP experiment.
 
 - **adapter.fa**: A fasta file containing the adapters used in the experiment. These will be trimmed off.
 
@@ -72,7 +65,7 @@ You should now see the following files in the folder:
 
 You can see that both samples belong to the group min_example_iCLIP. This example has only one group, the group.txt is not necessary. It is still shown here as an example. 
 
-- **config_min_example_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your machine.
+- **config_test_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your machine.
 
 .. Note::
 
@@ -86,27 +79,28 @@ This is how the config file config_min_example_iCLIP.yaml looks like:
     wdir: "<path/to/output/dir>"
     
     # input
-    infiles: "<path/to/minimal_example/minimal_example_iCLIP/min_example_iCLIP_s1.fastq>, "<path/to/minimal_example/minimal_example_iCLIP/min_example_iCLIP_s2.fastq>" # for multiple files after demultiplexing
-    samples: "min_example_iCLIP_s1 min_example_iCLIP_s2"
+    infiles: "<path/to/example_iCLIP/test_iCLIP_s1.chr21.fastq>", "<path/to/example_iCLIP/min_example_iCLIP_s2.fastq>" # for multiple files after demultiplexing
+    samples: "test_iCLIP_s1.chr21 test_iCLIP_s2.chr21"
     
-    # barcodes
-    experiment_type: "iCLIP"
-    
-    barcodes_fasta: ""<path/to/minimal_example/minimal_example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
-    # make sure the barcodes have the same names as the samples
-    
+    experiment_type: "iCLIP2" 
+
     # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    demultiplex: "FALSE" # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+
+    # barcodes
+    barcodes_fasta: "<path/to/example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
+    # make sure the barcodes have the same names as the samples
+
     
     #adapter adapter_trimming
-    adapter_file: "<path/to/minimal_example/minimal_example_iCLIP/adapter.fa>"
+    adapter_file: "<path/to/example_iCLIP/adapter.fa>"
     
     # star alignment
     gtf: "<path/to/annotation.gtf>" # has to be unzipped at the moment
     genome_fasta: "<path/to/genome.fa>" # has to be unzipped or bgzip
     read_length: 75 # readlength 
 
-You should change the following lines:
+As long as you are in the racoon_clip/example_data directory you can use the config file as it is. If you want to run the example from another directory or you analyse your own CLIP2 data, you need to adjust the paths in the config file:
 
 .. code:: python
 
@@ -119,7 +113,7 @@ You should change the following lines:
 
 .. Note::
 
-  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired-end usually), but racoon only uses the read 2, which contains the crosslink site. For the adapters, the default adapters from racoon can be used for this example.
+  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired-end usually), but racoon_clip only uses the read 2, which contains the crosslink site. For the adapters, the default adapters from racoon_clip can be used for this example.
 
 Selecting optional steps
 ------------------------
@@ -127,7 +121,7 @@ Selecting optional steps
 The following steps can be turned on and off as needed in the config file. (For the tutorial you can use the default options.)
 
 + **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. The filter is applied on the combined region of UMI and barcode in iCLIP data or only UMI in eCLIP data and automatically turned off for experiment_type:"eCLIP_ENCODE".
-+ **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
++ **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done. (See also example_data/example_iCLIP_multiplexed)
 + **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
 + **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
 
@@ -155,7 +149,7 @@ You can now run the minimal example:
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> --configfile <path/to/config_min_example_iCLIP.yaml>
+  racoon_clip run --cores <n_cores> --configfile <path/to/config_test_iCLIP.yaml>
 
 All resulting files will be written into a folder "results" inside your wdir.
 

@@ -41,7 +41,7 @@ Download the zip file of your preferred release from Git Hub and unzip it. Then 
 
 ```
 wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.5.zip
-unzip 1.1.5.zip
+unzip v1.1.5.zip
 cd racoon_clip-1.1.5
 ```
 
