@@ -72,12 +72,14 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
+            --build-arg DEBIAN_FRONTEND=noninteractive \
             --tag melinak/racoon_clip:latest \
             --tag melinak/racoon_clip:v.${RELEASE_VERSION} \
             -f docker/Dockerfile \
             .
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
+            --build-arg DEBIAN_FRONTEND=noninteractive \
             --push \
             --tag melinak/racoon_clip:latest \
             --tag melinak/racoon_clip:v.${RELEASE_VERSION} \
