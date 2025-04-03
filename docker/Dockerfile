@@ -10,6 +10,7 @@ RUN apt clean \
     gcc \ 
     g++ \
     libtiff5 \
+    python3.9 && \
     python3-pip && \
     apt-get purge && \
     apt-get clean && \
