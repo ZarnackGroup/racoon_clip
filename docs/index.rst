@@ -48,7 +48,7 @@ Once installed you can run racoon with:
 Requirements
 ================
 
-- python >=3.9
+- python =3.9.0
 - mamba >= 1.3.1
 
 
@@ -58,6 +58,8 @@ Requirements
 
 Citations
 =================
+
+- Klostermann & Zarnack 2024 -- `racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data <https://doi.org/10.1093/bioadv/vbae084>`_
 
 - Busch *et al.* 2020 -- `iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
 

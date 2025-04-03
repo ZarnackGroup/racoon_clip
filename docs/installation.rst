@@ -9,9 +9,10 @@ Download the zip file of your preferred release from GitHub and unzip it. Then g
 
 .. code:: bash
 
-   wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.3.zip
-   unzip racoon_clip-1.1.3.zip
-   cd racoon_clip-1.1.3
+   wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.5.zip
+   unzip v1.1.5.zip
+   cd racoon_clip-1.1.5
+
 
 
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
@@ -57,5 +58,6 @@ You can also use the racoon_clip Docker Image:
 .. code:: bash
 
    docker pull melinak/racoon_clip:latest
+
 
 

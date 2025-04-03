@@ -1,0 +1,24 @@
+# where to put results
+wdir: "/home/mklostermann/projects/04_minimal_examples_racoon/test_eCLIP"
+
+# input
+infiles: "/home/mklostermann/projects/04_minimal_examples_racoon/test_eCLIP/test_eCLIP_s1.chr21.fastq /home/mklostermann/projects/04_minimal_examples_racoon/test_eCLIP/test_eCLIP_s2.chr21.fastq" # for multiple files after demultiplexing
+
+
+#SAMPLES
+samples: "test_eCLIP_s1.chr21 test_eCLIP_s2.chr21" # sample name needs to be identical for read 1 and 2 of same sample
+
+
+experiment_type: "eCLIP_10ntUMI"
+quality_filter_barcodes: True
+# if no demultiplexing is done, is there still a barcode
+
+
+#adapter adapter_trimming
+adapter_cycles: 2
+adapter_trimming: True
+
+
+genome_fasta: "/home/mklostermann/projects/04_minimal_examples_racoon/test_annotation_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
+gtf: "/home/mklostermann/projects/04_minimal_examples_racoon/test_annotation_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
+read_length: 45
