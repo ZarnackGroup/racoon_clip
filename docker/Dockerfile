@@ -21,7 +21,7 @@ RUN apt clean \
 RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/vVERSION_PLACEHOLDER.zip
 RUN unzip vVERSION_PLACEHOLDER.zip
 
-WORKDIR /racoon_clip-VERSION_PLACEHOLDER/ 
+WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/ 
 
 # RUN conda install --quiet --yes -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' && \
 #     conda create --yes -n racoon_clip python=3.9.2 pip botocore  && \
@@ -29,13 +29,13 @@ WORKDIR /racoon_clip-VERSION_PLACEHOLDER/
 # SHELL ["/bin/bash", "--login", "-c"]
 # ENV PATH /opt/conda/envs/racoon_clip/bin:$PATH
 
-WORKDIR /racoon_clip-VERSION_PLACEHOLDER/racoon_clip.egg-info
+WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/racoon_clip.egg-info
 RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
 #RUN sed -i '1s/^/pulp==2.7.0 /' requires.txt
 RUN pip install pulp==2.7.0
 #RUN pip install botocore
 
-WORKDIR /racoon_clip-VERSION_PLACEHOLDER/
+WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/
 RUN pip install -e .
 RUN racoon_clip -h
 
