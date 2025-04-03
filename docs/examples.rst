@@ -31,6 +31,7 @@ Set up one of the minimal examples
 Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
 
 Go to the folder with the examples
+
 .. code:: bash
 
   cd example_data
