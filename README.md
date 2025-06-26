@@ -1,4 +1,4 @@
-# racoon_clip v 1.1.5
+# racoon_clip 
 
 
 <img src="Racoon_Logo_Schrift.png" width="400">
@@ -40,9 +40,9 @@ mamba activate racoon_clip
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
-wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.5.zip
-unzip v1.1.5.zip
-cd racoon_clip-1.1.5
+wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/[version].zip
+unzip [version].zip
+cd racoon_clip-[version]
 ```
 
 Then install racoon with pip.
@@ -91,11 +91,5 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 - The group-wise single nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
-# Please cite:
+## Please cite:
 [Klostermann&Zarnack 2024:  racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data] (https://doi.org/10.1093/bioadv/vbae084)
-
-
-## Citing racoon_clip
-
-
-Klostermann & Zarnack 2024: [racoon_clip – a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data](https://doi.org/10.1101/2024.02.27.582237) 
