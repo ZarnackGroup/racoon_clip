@@ -5,6 +5,7 @@ racoon_clip/__main__.py
 racoon_clip/racoon_clip.CITATION
 racoon_clip/racoon_clip.LICENSE
 racoon_clip/racoon_clip.VERSION
+racoon_clip/racoon_clip.log
 racoon_clip/util.py
 racoon_clip.egg-info/PKG-INFO
 racoon_clip.egg-info/SOURCES.txt
@@ -17,18 +18,26 @@ racoon_clip/__pycache__/util.cpython-311.pyc
 racoon_clip/config/config.yaml
 racoon_clip/config/config_old.yaml
 racoon_clip/workflow/Snakefile
-racoon_clip/workflow/Snakefile_old
+racoon_clip/workflow/envs/racoon_R_miRmodule_v0.1.yml
 racoon_clip/workflow/envs/racoon_R_v0.1.yml
+racoon_clip/workflow/envs/racoon_R_v0.2.yml
+racoon_clip/workflow/envs/racoon_bowtie2.yml
+racoon_clip/workflow/envs/racoon_bowtie2_v0.2.yml
 racoon_clip/workflow/envs/racoon_main_v0.2.yml
+racoon_clip/workflow/envs/racoon_main_v0.3.yml
 racoon_clip/workflow/envs/racoon_seqkit_v0.1.yml
+racoon_clip/workflow/envs/racoon_seqkit_v0.2.yml
 racoon_clip/workflow/envs/racoon_ucsc_v0.2.yml
+racoon_clip/workflow/envs/racoon_ucsc_v0.3.yml
 racoon_clip/workflow/envs/racoon_umi_tools_v0.2.yml
+racoon_clip/workflow/envs/racoon_umi_tools_v0.3.yml
 racoon_clip/workflow/params.dir/adapter.fa
 racoon_clip/workflow/params.dir/adapter_R2.fa
-racoon_clip/workflow/rules/Report (10.08.23, 14.59).rmd
-racoon_clip/workflow/rules/Report (31.08.23, 11.50).rmd
 racoon_clip/workflow/rules/Report.rmd
+racoon_clip/workflow/rules/Report_miR.rmd
 racoon_clip/workflow/rules/Workflow.png
 racoon_clip/workflow/rules/make_report.R
+racoon_clip/workflow/rules/make_report_mir.R
+racoon_clip/workflow/rules/miRpipe-Figure_v2.png
 racoon_clip/workflow/rules/theme_html.R
 racoon_clip/workflow/scripts/rep_char.sh
