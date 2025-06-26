@@ -9,9 +9,9 @@ Download the zip file of your preferred release from GitHub and unzip it. Then g
 
 .. code:: bash
 
-   wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v1.1.5.zip
-   unzip v1.1.5.zip
-   cd racoon_clip-1.1.5
+   wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/[version].zip
+   unzip [version].zip
+   cd racoon_clip-[version]
 
 
 
