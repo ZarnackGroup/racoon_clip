@@ -1,10 +1,10 @@
 MANIFEST.in
 README.md
 setup.py
+racoon_clip/__init__.py
 racoon_clip/__main__.py
 racoon_clip/racoon_clip.CITATION
 racoon_clip/racoon_clip.LICENSE
-racoon_clip/racoon_clip.VERSION
 racoon_clip/racoon_clip.log
 racoon_clip/util.py
 racoon_clip.egg-info/PKG-INFO
@@ -13,8 +13,11 @@ racoon_clip.egg-info/dependency_links.txt
 racoon_clip.egg-info/entry_points.txt
 racoon_clip.egg-info/requires.txt
 racoon_clip.egg-info/top_level.txt
+racoon_clip/__pycache__/__init__.cpython-39.pyc
 racoon_clip/__pycache__/__main__.cpython-311.pyc
+racoon_clip/__pycache__/__main__.cpython-39.pyc
 racoon_clip/__pycache__/util.cpython-311.pyc
+racoon_clip/__pycache__/util.cpython-39.pyc
 racoon_clip/config/config.yaml
 racoon_clip/config/config_old.yaml
 racoon_clip/workflow/Snakefile

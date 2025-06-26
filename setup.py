@@ -1,16 +1,21 @@
 import os
+import re
 from setuptools import setup, find_packages
 
 
 def get_version():
-    with open(
-        os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "racoon_clip",
-            "racoon_clip.VERSION",
-        )
-    ) as f:
-        return f.readline().strip()
+    # Read version from racoon_clip/racoon_clip/__init__.py
+    version_file = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "racoon_clip",
+        "__init__.py",
+    )
+    with open(version_file, "r") as f:
+        content = f.read()
+    version_match = re.search(r'__version__\s*=\s*[\'"]([^\'"]+)[\'"]', content)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string in __init__.py")
     
 
 def get_description():
