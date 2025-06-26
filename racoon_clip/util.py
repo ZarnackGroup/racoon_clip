@@ -34,9 +34,8 @@ def snake_base(rel_path):
 
 
 def get_version():
-    with open(snake_base("racoon_clip.VERSION"), "r") as f:
-        version = f.readline()
-    return version
+    from . import __version__
+    return __version__
 
 
 def echo_click(msg, log=None):
