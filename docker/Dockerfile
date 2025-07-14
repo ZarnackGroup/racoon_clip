@@ -1,5 +1,9 @@
 FROM continuumio/miniconda3:23.10.0-1
-FROM condaforge/mambaforge:23.11.0-0
+#FROM condaforge/mambaforge:23.11.0-0
+
+# Set timezone to avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
 
 RUN apt clean \
 && apt-get update \
@@ -9,20 +13,24 @@ RUN apt clean \
     git \
     gcc \ 
     g++ \
-    libtiff5 \
-    python3.9 && \
-    python3-pip && \
+    libtiff5 && \
     apt-get purge && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install exact Python 3.9.0 using conda
+RUN conda install -c conda-forge python=3.9.0 pip -y && conda clean -afy
+
+# Check installed Python version
+RUN echo "Python version:" && python --version && python -c "import sys; print(f'Exact version: {sys.version}')"
+
 # RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
 # RUN bash Miniforge3-Linux-x86_64.sh
 
-RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/vVERSION_PLACEHOLDER.zip
-RUN unzip vVERSION_PLACEHOLDER.zip
+RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.VERSION_PLACEHOLDER.zip
+RUN unzip v.VERSION_PLACEHOLDER.zip
 
-WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/ 
+WORKDIR /racoon_clip-v.VERSION_PLACEHOLDER/ 
 
 # RUN conda install --quiet --yes -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' && \
 #     conda create --yes -n racoon_clip python=3.9.2 pip botocore  && \
@@ -30,13 +38,13 @@ WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/
 # SHELL ["/bin/bash", "--login", "-c"]
 # ENV PATH /opt/conda/envs/racoon_clip/bin:$PATH
 
-WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/racoon_clip.egg-info
-RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
+WORKDIR /racoon_clip-v.VERSION_PLACEHOLDER/racoon_clip.egg-info
+#RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
 #RUN sed -i '1s/^/pulp==2.7.0 /' requires.txt
-RUN pip install pulp==2.7.0
+#RUN pip install pulp==2.7.0
 #RUN pip install botocore
 
-WORKDIR /racoon_clip-vVERSION_PLACEHOLDER/
+WORKDIR /racoon_clip-v.VERSION_PLACEHOLDER/
 RUN pip install -e .
 RUN racoon_clip -h
 
