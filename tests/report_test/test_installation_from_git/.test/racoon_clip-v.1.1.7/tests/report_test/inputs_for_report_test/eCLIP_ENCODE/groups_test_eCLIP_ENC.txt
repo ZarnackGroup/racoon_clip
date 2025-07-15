@@ -1,2 +1,0 @@
-test_eCLIP_ENC test_eCLIP_ENC_s1.chr21
-test_eCLIP_ENC test_eCLIP_ENC_s2.chr21

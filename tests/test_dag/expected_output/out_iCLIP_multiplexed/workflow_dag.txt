@@ -1,0 +1,99 @@
+digraph snakemake_dag {
+    graph[bgcolor=white, margin=0];
+    node[shape=box, style=rounded, fontname=sans,                 fontsize=10, penwidth=2];
+    edge[penwidth=2, color=grey];
+	0[label = "all", color = "0.20 0.6 0.85", style="rounded"];
+	1[label = "fastqc\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.11 0.6 0.85", style="rounded"];
+	2[label = "extract_barcodes", color = "0.45 0.6 0.85", style="rounded"];
+	3[label = "filter_barcode_quality", color = "0.66 0.6 0.85", style="rounded"];
+	4[label = "high_quality_barcodes\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.01 0.6 0.85", style="rounded"];
+	5[label = "demultiplex_flexbar", color = "0.64 0.6 0.85", style="rounded"];
+	6[label = "multiqc", color = "0.32 0.6 0.85", style="rounded"];
+	7[label = "fastqc_samples\nsample: test_iCLIP_s1.chr21\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.16 0.6 0.85", style="rounded"];
+	8[label = "fastqc_samples\nsample: test_iCLIP_s2.chr21\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.16 0.6 0.85", style="rounded"];
+	9[label = "deduplication\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.48 0.6 0.85", style="rounded"];
+	10[label = "align\nsample: test_iCLIP_s1.chr21", color = "0.36 0.6 0.85", style="rounded"];
+	11[label = "create_STAR_index", color = "0.60 0.6 0.85", style="rounded,dashed"];
+	12[label = "bam_index", color = "0.31 0.6 0.85", style="rounded"];
+	13[label = "deduplication\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.48 0.6 0.85", style="rounded"];
+	14[label = "align\nsample: test_iCLIP_s2.chr21", color = "0.36 0.6 0.85", style="rounded"];
+	15[label = "bam_index", color = "0.31 0.6 0.85", style="rounded"];
+	16[label = "merge_bam", color = "0.18 0.6 0.85", style="rounded"];
+	17[label = "write_group_file\ngroups: all_samples", color = "0.61 0.6 0.85", style="rounded"];
+	18[label = "sort_bams", color = "0.24 0.6 0.85", style="rounded"];
+	19[label = "sort_bams", color = "0.24 0.6 0.85", style="rounded"];
+	20[label = "merge_bw", color = "0.14 0.6 0.85", style="rounded"];
+	21[label = "turn_crosslinks_to_bw", color = "0.23 0.6 0.85", style="rounded"];
+	22[label = "get_crosslinks\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.07 0.6 0.85", style="rounded"];
+	23[label = "make_genome_index", color = "0.21 0.6 0.85", style="rounded,dashed"];
+	24[label = "turn_crosslinks_to_bw", color = "0.23 0.6 0.85", style="rounded"];
+	25[label = "get_crosslinks\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.07 0.6 0.85", style="rounded"];
+	26[label = "make_report", color = "0.55 0.6 0.85", style="rounded"];
+	27[label = "fastqc_stats", color = "0.38 0.6 0.85", style="rounded"];
+	28[label = "fastqc_one_filtered", color = "0.25 0.6 0.85", style="rounded"];
+	29[label = "multiqc_bam_duprm", color = "0.54 0.6 0.85", style="rounded"];
+	30[label = "fastqc_samples_bam_duprm", color = "0.13 0.6 0.85", style="rounded"];
+	31[label = "fastqc_samples_bam_duprm", color = "0.13 0.6 0.85", style="rounded"];
+	32[label = "multiqc_bam", color = "0.41 0.6 0.85", style="rounded"];
+	33[label = "fastqc_samples_bam\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.17 0.6 0.85", style="rounded"];
+	34[label = "fastqc_samples_bam\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_iCLIP_multiplexed", color = "0.17 0.6 0.85", style="rounded"];
+	1 -> 0
+	2 -> 0
+	3 -> 0
+	5 -> 0
+	6 -> 0
+	9 -> 0
+	13 -> 0
+	16 -> 0
+	20 -> 0
+	21 -> 0
+	24 -> 0
+	26 -> 0
+	3 -> 2
+	4 -> 3
+	3 -> 5
+	7 -> 6
+	8 -> 6
+	5 -> 7
+	5 -> 8
+	10 -> 9
+	12 -> 9
+	5 -> 10
+	11 -> 10
+	10 -> 12
+	14 -> 13
+	15 -> 13
+	5 -> 14
+	11 -> 14
+	14 -> 15
+	17 -> 16
+	18 -> 16
+	19 -> 16
+	9 -> 18
+	13 -> 19
+	17 -> 20
+	21 -> 20
+	24 -> 20
+	22 -> 21
+	23 -> 22
+	18 -> 22
+	12 -> 22
+	25 -> 24
+	23 -> 25
+	19 -> 25
+	15 -> 25
+	27 -> 26
+	1 -> 27
+	28 -> 27
+	29 -> 27
+	32 -> 27
+	3 -> 28
+	30 -> 29
+	31 -> 29
+	18 -> 30
+	19 -> 31
+	33 -> 32
+	34 -> 32
+	10 -> 33
+	14 -> 34
+}

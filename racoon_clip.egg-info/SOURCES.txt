@@ -44,3 +44,4 @@ racoon_clip/workflow/rules/make_report_mir.R
 racoon_clip/workflow/rules/miRpipe-Figure_v2.png
 racoon_clip/workflow/rules/theme_html.R
 racoon_clip/workflow/scripts/rep_char.sh
+tests/test_suite.py
