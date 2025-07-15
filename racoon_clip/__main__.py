@@ -6,6 +6,7 @@ https://github.com/beardymcjohnface/Snaketool/wiki/Customising-your-Snaketool
 """
 
 import os
+import sys
 import click
 
 from .util import (
@@ -458,9 +459,40 @@ def citation(**kwargs):
     print_citation()
 
 
+# Test command functions
+@click.command(name='test')
+@click.option('--light', is_flag=True, help='Run light test suite (DAG tests and report comparison only)')
+@click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
+def test(light, devel):
+    """Run racoon_clip test suite
+    
+    By default runs full test suite (DAG tests and report comparison).
+    Use --light for minimal testing or --devel for comprehensive testing including installation.
+    """
+    # Import here to avoid circular imports
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tests'))
+    from test_suite import RacoonTestSuite
+    
+    suite = RacoonTestSuite()
+    
+    if light and devel:
+        click.echo("Error: Cannot specify both --light and --devel flags")
+        sys.exit(1)
+    elif light:
+        success = suite.test_light()
+    elif devel:
+        success = suite.devel_test()
+    else:
+        # Default: run full test suite
+        success = suite.test()
+    
+    sys.exit(0 if success else 1)
+
+
 cli.add_command(run)
 #cli.add_command(example_config)
 cli.add_command(citation)
+cli.add_command(test)
 
 
 def main():
