@@ -1,5 +1,4 @@
-FROM continuumio/miniconda3:23.10.0-1
-#FROM condaforge/mambaforge:23.11.0-0
+FROM condaforge/mambaforge:23.11.0-0
 
 # Set timezone to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive

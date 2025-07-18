@@ -9,9 +9,22 @@ import sys
 import subprocess
 import argparse
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 import shutil
 import difflib
+
+# Import config testing functionality
+sys.path.append(str(Path(__file__).parent / "test_config"))
+from test_config import test_config
+
+# Import DAG testing functionality
+sys.path.append(str(Path(__file__).parent / "test_dag"))
+from test_dag import test_dag
+
+# Import RUN testing functionality
+sys.path.append(str(Path(__file__).parent / "test_run"))
+from test_run import test_run_execution
+
 
 # Color definitions for output
 class Colors:
@@ -21,21 +34,26 @@ class Colors:
     YELLOW = '\033[1;33m'
     NC = '\033[0m'  # No Color
 
+
 def print_colored(message: str, color: str = Colors.CYAN) -> None:
     """Print colored message"""
     print(f"{color}{message}{Colors.NC}")
+
 
 def print_success(message: str) -> None:
     """Print success message in green"""
     print(f"{Colors.GREEN}✓ {message}{Colors.NC}")
 
+
 def print_error(message: str) -> None:
     """Print error message in red"""
     print(f"{Colors.RED}❌ {message}{Colors.NC}")
 
+
 def print_warning(message: str) -> None:
     """Print warning message in yellow"""
     print(f"{Colors.YELLOW}⚠ {message}{Colors.NC}")
+
 
 class RacoonTestSuite:
     def __init__(self):
@@ -44,26 +62,22 @@ class RacoonTestSuite:
             "example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC.yaml",
             "example_data/example_eCLIP/config_test_eCLIP.yaml",
             "example_data/example_iCLIP/config_test_iCLIP.yaml",
-            "example_data/example_iCLIP_multiplexed/config_test_iCLIP_multiplexed.yaml"
+            ("example_data/example_iCLIP_multiplexed/"
+             "config_test_iCLIP_multiplexed.yaml")
         ]
-        self.reference_files = [
-            "test_dag/expected_output/out_eCLIP_ENCODE/workflow_dag.txt",
-            "test_dag/expected_output/out_eCLIP/workflow_dag.txt", 
-            "test_dag/expected_output/out_iCLIP/workflow_dag.txt",
-            "test_dag/expected_output/out_iCLIP_multiplexed/workflow_dag.txt"
-        ]
-        
-    def run_command(self, cmd: List[str], cwd: Path = None) -> Tuple[bool, str]:
+
+    def run_command(self, cmd: List[str],
+                    cwd: Path = None) -> Tuple[bool, str]:
         """Run command and return success status and output"""
         cwd_path = cwd or self.base_dir
         print_colored(f"Running command: {' '.join(cmd)}")
         print_colored(f"Working directory: {cwd_path}")
-        
+
         try:
             result = subprocess.run(
-                cmd, 
-                capture_output=True, 
-                text=True, 
+                cmd,
+                capture_output=True,
+                text=True,
                 cwd=cwd_path,
                 check=True
             )
@@ -87,7 +101,7 @@ class RacoonTestSuite:
             error_msg += f"Working directory: {cwd_path}"
             return False, error_msg
 
-    def test_dag_generation(self, config_file: str, reference_file: str) -> bool:
+    def test_dag(self, config_file: str) -> bool:
         """Test DAG generation for a single config file"""
         print_colored(f"Testing DAG for: {Path(config_file).name}")
         
@@ -97,93 +111,96 @@ class RacoonTestSuite:
         if not config_path.exists():
             print_error(f"Config file not found: {config_file}")
             return False
-            
-        # Check if dag_test_runner.sh exists and make it executable
-        dag_runner_path = self.base_dir / "test_dag" / "dag_test_runner.sh"
-        print_colored(f"Looking for script at: {dag_runner_path}")
+
+        # Use the imported test_dag function
+        return test_dag(str(config_path))
+
+    def test_run_execution(self, config_file: str) -> bool:
+        """Test run execution for a single config file"""
+        print_colored(f"Testing run for: {Path(config_file).name}")
         
-        if not dag_runner_path.exists():
-            print_error(f"DAG runner script not found: {dag_runner_path}")
+        # Check if config file exists
+        config_path = self.base_dir.parent / config_file
+        print_colored(f"Looking for config file at: {config_path}")
+        if not config_path.exists():
+            print_error(f"Config file not found: {config_file}")
             return False
-        
-        print_success(f"Found DAG runner script: {dag_runner_path}")
-        
-        # Make script executable
-        try:
-            import stat
-            os.chmod(dag_runner_path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
-            print_success("Made script executable")
-        except Exception as e:
-            print_error(f"Failed to make script executable: {e}")
-            
-        # Test if we can execute the script (check if it's valid)
-        print_colored("Testing script execution...")
-        test_success, test_output = self.run_command([str(dag_runner_path)], cwd=self.base_dir)
-        if not test_success and "No arguments provided" not in test_output:
-            print_error(f"Script execution test failed: {test_output}")
-            return False
-        print_success("Script can be executed")
-            
-      # Generate current DAG
-        print_colored(f"Running DAG test command...")
-        # Run from the racoon_clip root directory (parent of tests) where Snakefile expects to be
-        success, output = self.run_command([
-            str(dag_runner_path), "test", 
-            "-c", str(config_path),
-            "-r", reference_file
-        ], cwd=self.base_dir)
-        
-        if success:
-            print_success(f"DAG test passed for {Path(config_file).name}")
-            return True
-        else:
-            print_error(f"DAG test failed for {Path(config_file).name}")
-            print_error(f"Error output: {output}")
-            return False
+
+        # Use the imported test_run_execution function
+        return test_run_execution(str(config_path))
 
     def test_all_dags(self) -> bool:
         """Test DAG generation for all config files"""
         print_colored("=== Testing DAG Generation ===")
-        
+
         passed = 0
         failed = 0
         failed_tests = []
-        
-        for config_file, reference_file in zip(self.config_files, self.reference_files):
-            if self.test_dag_generation(config_file, reference_file):
+
+        for config_file in self.config_files:
+            if self.test_dag(config_file):
                 passed += 1
             else:
                 failed += 1
                 failed_tests.append(Path(config_file).name)
-        
-        print_colored(f"\nDAG Test Summary:")
+
+        print_colored("\nDAG Test Summary:")
         print_colored(f"Passed: {passed}")
         print_colored(f"Failed: {failed}")
         print_colored(f"Total:  {passed + failed}")
-        
+
         if failed > 0:
             print_error("Failed DAG tests:")
             for test in failed_tests:
                 print_colored(f"  - {test}")
-            
+
+        return failed == 0
+
+    def test_all_runs(self) -> bool:
+        """Test run execution for all config files"""
+        print_colored("=== Testing Run Execution ===")
+
+        passed = 0
+        failed = 0
+        failed_tests = []
+
+        for config_file in self.config_files:
+            if self.test_run_execution(config_file):
+                passed += 1
+            else:
+                failed += 1
+                failed_tests.append(Path(config_file).name)
+
+        print_colored("\nRun Test Summary:")
+        print_colored(f"Passed: {passed}")
+        print_colored(f"Failed: {failed}")
+        print_colored(f"Total:  {passed + failed}")
+
+        if failed > 0:
+            print_error("Failed run tests:")
+            for test in failed_tests:
+                print_colored(f"  - {test}")
+
         return failed == 0
 
     def test_installation(self) -> bool:
         """Run installation test"""
         print_colored("=== Testing Installation ===")
-        
+
         # Check if test script exists
-        test_script = self.base_dir / "tests/report_test/test_installation_from_git/test_installation.sh"
+        test_script = (self.base_dir / "test_installation_from_git" /
+                       "test_installation.sh")
         if not test_script.exists():
             print_error(f"Installation test script not found: {test_script}")
             return False
-            
+
         # Make script executable
         os.chmod(test_script, 0o755)
-        
+
         # Run installation test
-        success, output = self.run_command([str(test_script)], cwd=test_script.parent)
-        
+        success, output = self.run_command(
+            [str(test_script)], cwd=test_script.parent)
+
         if success:
             print_success("Installation test passed")
             return True
@@ -196,23 +213,23 @@ class RacoonTestSuite:
         if not old_report.exists():
             print_warning(f"Reference report not found: {old_report}")
             return False
-            
+
         if not new_report.exists():
             print_error(f"New report not found: {new_report}")
             return False
-            
+
         with open(old_report, 'r') as f:
             old_content = f.readlines()
         with open(new_report, 'r') as f:
             new_content = f.readlines()
-            
+
         diff = list(difflib.unified_diff(
             old_content, new_content,
             fromfile=f"reference/{old_report.name}",
             tofile=f"current/{new_report.name}",
             lineterm=''
         ))
-        
+
         if diff:
             print_warning(f"Report differences found in {old_report.name}")
             # Print first few lines of diff
@@ -225,16 +242,90 @@ class RacoonTestSuite:
             print_success(f"Report comparison passed: {old_report.name}")
             return True
 
+    def test_config_files(self) -> bool:
+        """Test configuration files against expected outputs"""
+        print_colored("=== Testing Configuration Files ===")        
+        # Define the config file mappings
+        config_mappings = [
+            ("example_data/example_eCLIP_ENCODE/"
+             "config_test_eCLIP_ENC_updated.yaml",
+             "tests/expected_output/out_eCLIP_ENCODE/"
+             "config_test_eCLIP_ENC_expected.yaml"),
+            ("example_data/example_eCLIP/config_test_eCLIP_updated.yaml",
+             "tests/expected_output/out_eCLIP/"
+             "config_test_eCLIP_expected.yaml"),
+            ("example_data/example_iCLIP/config_test_iCLIP_updated.yaml",
+             "tests/expected_output/out_iCLIP/"
+             "config_test_iCLIP_expected.yaml"),
+            ("example_data/example_iCLIP_multiplexed/"
+             "config_test_iCLIP_multiplexed_updated.yaml",
+             "tests/expected_output/out_iCLIP_multiplexed/"
+             "config_test_iCLIP_multiplexed_expected.yaml")
+        ]
+        
+        passed = 0
+        failed = 0
+        failed_tests = []
+        
+        for actual_config, expected_config in config_mappings:
+            actual_path = self.base_dir.parent / actual_config
+            expected_path = self.base_dir.parent / expected_config
+            
+            config_name = Path(actual_config).name
+            print_colored(f"Testing config: {config_name}")
+            
+            if not actual_path.exists():
+                print_error(f"Actual config file not found: {actual_path}")
+                failed += 1
+                failed_tests.append(config_name)
+                continue
+                
+            if not expected_path.exists():
+                print_error(f"Expected config file not found: {expected_path}")
+                failed += 1
+                failed_tests.append(config_name)
+                continue
+            
+            try:
+                # Use the test_config function from test_config module
+                result = test_config(str(actual_path), str(expected_path),
+                                     show_diff=True)
+                
+                if result:
+                    passed += 1
+                    print_success(f"Config test passed: {config_name}")
+                else:
+                    failed += 1
+                    failed_tests.append(config_name)
+                    print_error(f"Config test failed: {config_name}")
+                    
+            except Exception as e:
+                print_error(f"Error testing config {config_name}: {e}")
+                failed += 1
+                failed_tests.append(config_name)
+        
+        print_colored("\nConfig Test Summary:")
+        print_colored(f"Passed: {passed}")
+        print_colored(f"Failed: {failed}")
+        print_colored(f"Total:  {passed + failed}")
+        
+        if failed > 0:
+            print_error("Failed config tests:")
+            for test in failed_tests:
+                print_colored(f"  - {test}")
+        
+        return failed == 0
+
     def test_reports(self) -> bool:
         """Test report generation and compare with existing reports"""
         print_colored("=== Testing Report Generation ===")
-        
+
         # Directory containing test reports
-        report_test_dir = self.base_dir / "tests/report_test"
+        report_test_dir = self.base_dir / "report_test"
         if not report_test_dir.exists():
             print_error(f"Report test directory not found: {report_test_dir}")
             return False
-            
+
         # Look for existing reports to compare
         reference_reports = list(report_test_dir.glob("*.html"))
         if not reference_reports:
@@ -261,7 +352,7 @@ class RacoonTestSuite:
             else:
                 failed += 1
                 
-        print_colored(f"\nReport Test Summary:")
+        print_colored("\nReport Test Summary:")
         print_colored(f"Passed: {passed}")
         print_colored(f"Failed: {failed}")
         print_colored(f"Total:  {passed + failed}")
@@ -269,17 +360,17 @@ class RacoonTestSuite:
         return failed == 0
 
     def test_light(self) -> bool:
-        """Light test: DAG tests and report comparison only"""
+        """Light test: DAG tests and config tests only"""
         print_colored("🧪 Running Light Test Suite")
         print_colored("="*50)
         
         results = []
-        
+
         # Test DAGs
         results.append(self.test_all_dags())
         
-        # Test reports
-        results.append(self.test_reports())
+        # Test config files
+        results.append(self.test_config_files())
         
         success = all(results)
         
@@ -292,19 +383,23 @@ class RacoonTestSuite:
         return success
 
     def test(self) -> bool:
-        """Full test: DAG tests, report comparison, but no installation test"""
+        """Full test: DAG tests, config tests, then run tests (conditional)"""
         print_colored("🧪 Running Full Test Suite")
         print_colored("="*50)
         
-        results = []
+        # Test DAGs first
+        dag_success = self.test_all_dags()
         
-        # Test DAGs
-        results.append(self.test_all_dags())
+        # Test config files second
+        config_success = self.test_config_files()
         
-        # Test reports
-        results.append(self.test_reports())
-        
-        success = all(results)
+        # Only run the execution tests if DAG and config tests pass
+        if dag_success and config_success:
+            run_success = self.test_all_runs()
+            success = run_success
+        else:
+            print_colored("\n⚠️ Skipping run tests due to DAG or config test failures")
+            success = False
         
         print_colored("\n" + "="*50)
         if success:
@@ -314,29 +409,35 @@ class RacoonTestSuite:
             
         return success
 
-    def devel_test(self) -> bool:
-        """Development test: All tests including installation"""
-        print_colored("🧪 Running Development Test Suite")
+    def dev_report(self) -> bool:
+        """Development report test: Only report generation and comparison"""
+        print_colored("🧪 Running Development Report Test")
         print_colored("="*50)
         
-        results = []
-        
-        # Test DAGs
-        results.append(self.test_all_dags())
-        
-        # Test installation
-        results.append(self.test_installation())
-        
-        # Test reports
-        results.append(self.test_reports())
-        
-        success = all(results)
+        # Test reports only
+        success = self.test_reports()
         
         print_colored("\n" + "="*50)
         if success:
-            print_success("🎉 All development tests passed!")
+            print_success("🎉 Report test passed!")
         else:
-            print_error("❌ Some development tests failed!")
+            print_error("❌ Report test failed!")
+            
+        return success
+
+    def devel_test(self) -> bool:
+        """Development test: Only installation test"""
+        print_colored("🧪 Running Development Test Suite")
+        print_colored("="*50)
+        
+        # Test installation only
+        success = self.test_installation()
+        
+        print_colored("\n" + "="*50)
+        if success:
+            print_success("🎉 Development test passed!")
+        else:
+            print_error("❌ Development test failed!")
             
         return success
 
@@ -344,7 +445,7 @@ def main():
     parser = argparse.ArgumentParser(description="Racoon CLIP test suite")
     parser.add_argument(
         "test_type", 
-        choices=["test_light", "test", "devel_test"],
+        choices=["test_light", "test", "devel_test", "dev_report"],
         help="Type of test to run"
     )
     
@@ -358,6 +459,8 @@ def main():
         success = suite.test()
     elif args.test_type == "devel_test":
         success = suite.devel_test()
+    elif args.test_type == "dev_report":
+        success = suite.dev_report()
     else:
         print_error(f"Unknown test type: {args.test_type}")
         return 1

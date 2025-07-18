@@ -13,5 +13,8 @@ example_data/example_annotation_human_chr21/test_annotation_chr21*sjdbOverhang*
 tests/report_test/test_report_eCLIP/*
 .Rproj.user
 racoon_clip.log
-tests/.test/
-tests/__pycache__/
+tests/test_config/.test/
+tests/__pycache__/*
+tests/test_installation_from_git/.test/*
+*/*/__pycache__/
+tests/test_dag/old/*
