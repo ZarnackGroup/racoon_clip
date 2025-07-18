@@ -1,8 +1,8 @@
 # where to put results
-wdir: "/home/mek24iv/racoon_devel/racoon_clip/tests/test_dag/expected_output/out_eCLIP"
+wdir: "tests/expected_output/out_eCLIP"
 
 # input
-infiles: "/../example_data/example_eCLIP/test_eCLIP_s1.chr21.fastq /../example_data/example_eCLIP/test_eCLIP_s2.chr21.fastq" # for multiple files after demultiplexing
+infiles: "example_data/example_eCLIP/test_eCLIP_s1.chr21.fastq example_data/example_eCLIP/test_eCLIP_s2.chr21.fastq" # for multiple files after demultiplexing
 
 
 #SAMPLES
@@ -19,6 +19,6 @@ adapter_cycles: 2
 adapter_trimming: True
 
 
-genome_fasta: "/home/mek24iv/racoon_devel/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
-gtf: "/home/mek24iv/racoon_devel/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
+genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
+gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
 read_length: 45

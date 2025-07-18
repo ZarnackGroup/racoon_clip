@@ -1,6 +1,8 @@
 # eiCLIP_pipeline v6
 # author Melina Klostermann
 
+
+
 from pickle import TRUE
 import pickle
 import string
@@ -31,6 +33,8 @@ print(re.__package__)
 #################################################
 #################################################
 
+# Show current working directory
+print(f"Snakefile working directory: {os.getcwd()}")
 
 ARGS = sys.argv
 #print(ARGS)

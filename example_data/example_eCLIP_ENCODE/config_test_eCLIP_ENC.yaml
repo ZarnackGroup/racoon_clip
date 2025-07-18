@@ -1,13 +1,13 @@
 # where to put results
-wdir: "/test_workflow/expected_output/out_eCLIP_ENCODE"
+wdir: "tests/expected_output/out_eCLIP_ENCODE"
 
 # input
-infiles: "../example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s1.chr21.fastq ../example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s2.chr21.fastq" # for multiple files after demultiplexing
+infiles: "example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s1.chr21.fastq example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s2.chr21.fastq" # for multiple files after demultiplexing
 
 
 #SAMPLES
 samples: "test_eCLIP_ENC_s1.chr21 test_eCLIP_ENC_s2.chr21" # sample name needs to be identical for read 1 and 2 of same sample
-experiment_group_file: "/home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt"
+experiment_group_file: "/example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt"
 experiment_groups: "test_eCLIP_ENC"
 
 experiment_type: "eCLIP_ENCODE_5ntUMI"
@@ -20,6 +20,6 @@ adapter_cycles: 2
 adapter_trimming: True
 
 
-genome_fasta: "/home/mek24iv/racoon_devel/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
-gtf: "/home/mek24iv/racoon_devel/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
+genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
+gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
 read_length: 45
