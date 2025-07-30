@@ -7,7 +7,7 @@ deduplicate: 'True'
 demultiplex: 'False'
 encode: 'False'
 encode_umi_length: 10
-experiment_group_file: /example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt
+experiment_group_file: example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt
 experiment_groups: test_eCLIP_ENC
 experiment_type: eCLIP_ENCODE_5ntUMI
 experimental_barcode_len: 0

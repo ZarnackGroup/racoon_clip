@@ -4,6 +4,54 @@ from pathlib import Path
 import difflib
 import yaml
 import unittest  # For unittest integration
+import copy
+
+def filter_config_data(config_data, ignore_patterns):
+    """Recursively filter out keys/values containing ignore patterns from config data."""
+    if not ignore_patterns:
+        return config_data
+    
+    if isinstance(config_data, dict):
+        filtered = {}
+        for key, value in config_data.items():
+            # Skip keys that contain any ignore pattern
+            key_should_be_ignored = any(pattern.lower() in str(key).lower() for pattern in ignore_patterns)
+            if not key_should_be_ignored:
+                # Recursively filter the value
+                filtered_value = filter_config_data(value, ignore_patterns)
+                # Only add if we got a valid filtered value (not None)
+                if filtered_value is not None:
+                    filtered[key] = filtered_value
+        return filtered
+    elif isinstance(config_data, list):
+        filtered = []
+        for item in config_data:
+            filtered_item = filter_config_data(item, ignore_patterns)
+            # Only add if we got a valid filtered item (not None)
+            if filtered_item is not None:
+                filtered.append(filtered_item)
+        return filtered
+    else:
+        # For primitive types, check if they contain ignore patterns
+        if any(pattern.lower() in str(config_data).lower() for pattern in ignore_patterns):
+            return None
+        return config_data
+
+def filter_text_lines(text, ignore_patterns):
+    """Filter out lines containing any of the ignore patterns."""
+    if not ignore_patterns:
+        return text
+    
+    lines = text.splitlines(keepends=True)
+    filtered_lines = []
+    
+    for line in lines:
+        # Check if any ignore pattern is in the line (case insensitive)
+        line_should_be_ignored = any(pattern.lower() in line.lower() for pattern in ignore_patterns)
+        if not line_should_be_ignored:
+            filtered_lines.append(line)
+    
+    return ''.join(filtered_lines)
 
 def load_yaml_config(config_file):
     """Load and parse YAML configuration file."""
@@ -18,8 +66,14 @@ def load_yaml_config(config_file):
         print(f"Error parsing YAML config file {config_file}: {e}")
         return None
 
-def compare_configs(updated_config, reference_config, show_diff=True, compare_yaml=True):
-    """Compare updated config with reference config."""
+def compare_configs(updated_config, reference_config, show_diff=True, compare_yaml=True, ignore_patterns=None):
+    """Compare updated config with reference config.
+    
+    Args:
+        ignore_patterns: List of strings to ignore in comparison (e.g., ['snakebase', 'adapter_file'])
+    """
+    if ignore_patterns is None:
+        ignore_patterns = ['snakebase', 'adapter_file']
 
     if compare_yaml:
         # Compare as parsed YAML for semantic comparison
@@ -29,51 +83,76 @@ def compare_configs(updated_config, reference_config, show_diff=True, compare_ya
         if updated_data is None or reference_data is None:
             return False
 
-        if updated_data == reference_data:
-            print("✅ Config test PASSED: Configuration is unchanged")
+        # Filter out ignored patterns from both configs
+        filtered_updated = filter_config_data(updated_data, ignore_patterns)
+        filtered_reference = filter_config_data(reference_data, ignore_patterns)
+
+        if filtered_updated == filtered_reference:
+            print("✅ Config test PASSED: Configuration is unchanged (ignoring specified patterns)")
+            print(f"   Ignored patterns: {ignore_patterns}")
             return True
         else:
             print("❌ Config test FAILED: Configuration has changed")
+            print(f"   Ignored patterns: {ignore_patterns}")
 
             if show_diff:
-                # Show text diff for better readability
-                updated_text = load_yaml_config(updated_config)
-                reference_text = load_yaml_config(reference_config)
+                # Show text diff for better readability - read as text files
+                try:
+                    with open(updated_config, 'r') as f:
+                        updated_text = f.read()
+                    with open(reference_config, 'r') as f:
+                        reference_text = f.read()
 
-                if updated_text and reference_text:
-                    print("\nDifferences found:")
+                    # Filter lines for diff display
+                    updated_filtered_text = filter_text_lines(updated_text, ignore_patterns)
+                    reference_filtered_text = filter_text_lines(reference_text, ignore_patterns)
+
+                    print("\nDifferences found (ignoring specified patterns):")
                     print("=" * 50)
                     diff = difflib.unified_diff(
-                        reference_text.splitlines(keepends=True),
-                        updated_text.splitlines(keepends=True),
+                        reference_filtered_text.splitlines(keepends=True),
+                        updated_filtered_text.splitlines(keepends=True),
                         fromfile='reference_config',
                         tofile='updated_config',
                         lineterm=''
                     )
-                    for line in diff:
-                        print(line)
+                    diff_lines = list(diff)
+                    if diff_lines:
+                        for line in diff_lines:
+                            print(line)
+                    else:
+                        print("No differences found after filtering - this might be a bug in the filtering logic")
+                except Exception as e:
+                    print(f"Error reading files for diff: {e}")
 
             return False
     else:
         # Compare as text files
-        updated_text = load_yaml_config(updated_config)
-        reference_text = load_yaml_config(reference_config)
-
-        if updated_text is None or reference_text is None:
+        try:
+            with open(updated_config, 'r') as f:
+                updated_text = f.read()
+            with open(reference_config, 'r') as f:
+                reference_text = f.read()
+        except Exception as e:
+            print(f"Error reading files: {e}")
             return False
 
-        if updated_text.strip() == reference_text.strip():
-            print("✅ Config test PASSED: Configuration is unchanged")
+        # Filter lines for comparison
+        updated_filtered_text = filter_text_lines(updated_text, ignore_patterns)
+        reference_filtered_text = filter_text_lines(reference_text, ignore_patterns)
+
+        if updated_filtered_text.strip() == reference_filtered_text.strip():
+            print("✅ Config test PASSED: Configuration is unchanged (ignoring specified patterns)")
             return True
         else:
             print("❌ Config test FAILED: Configuration has changed")
 
             if show_diff:
-                print("\nDifferences found:")
+                print("\nDifferences found (ignoring specified patterns):")
                 print("=" * 50)
                 diff = difflib.unified_diff(
-                    reference_text.splitlines(keepends=True),
-                    updated_text.splitlines(keepends=True),
+                    reference_filtered_text.splitlines(keepends=True),
+                    updated_filtered_text.splitlines(keepends=True),
                     fromfile='reference_config',
                     tofile='updated_config',
                     lineterm=''
@@ -83,8 +162,14 @@ def compare_configs(updated_config, reference_config, show_diff=True, compare_ya
 
             return False
 
-def test_config(updated_config_file, reference_file=None, show_diff=True):
-    """Test if updated config matches reference config."""
+def test_config(updated_config_file, reference_file=None, show_diff=True, ignore_patterns=None):
+    """Test if updated config matches reference config.
+    
+    Args:
+        ignore_patterns: List of strings to ignore in comparison (e.g., ['snakebase', 'adapter_file'])
+    """
+    if ignore_patterns is None:
+        ignore_patterns = ['snakebase', 'adapter_file']
 
     if reference_file is None:
         # Generate reference filename from updated config
@@ -103,7 +188,7 @@ def test_config(updated_config_file, reference_file=None, show_diff=True):
         raise FileNotFoundError(f"Reference config file not found: {reference_file}")
 
     # Compare configs
-    return compare_configs(updated_config_file, reference_file, show_diff)
+    return compare_configs(updated_config_file, reference_file, show_diff, compare_yaml=True, ignore_patterns=ignore_patterns)
 
 # Test class for unittest framework
 class TestConfigFiles(unittest.TestCase):

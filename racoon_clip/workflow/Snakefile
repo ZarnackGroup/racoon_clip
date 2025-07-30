@@ -1,8 +1,6 @@
 # eiCLIP_pipeline v6
 # author Melina Klostermann
 
-
-
 from pickle import TRUE
 import pickle
 import string
@@ -33,8 +31,6 @@ print(re.__package__)
 #################################################
 #################################################
 
-# Show current working directory
-print(f"Snakefile working directory: {os.getcwd()}")
 
 ARGS = sys.argv
 #print(ARGS)
@@ -384,7 +380,7 @@ rule high_quality_barcodes:
         seq_format=config["seq_format"]
     threads: 1 # gunzip breaks file with more then one thread
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n Extracting barcodes for quality filter \n ================================ \n" 
     shell:
@@ -455,7 +451,7 @@ rule demultiplex_flexbar:
 
     threads: workflow.cores  # allows
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n Demultiplexing \n ================================  \n adapters, barcodes and UMIs are trimmed off \n provided barcodes: {input.barcodes} \n provided adapters: {params.adapter}" 
     shell:
@@ -532,7 +528,7 @@ rule high_quality_umi:
     message: 
         "========================= \n Extracting barcodes for quality filter for {wildcards.sample} \n ================================ \n" 
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         zcat -f < {input.fasta} | fastx_trimmer {params.seq_format} -l {params.barcodeLength} | fastq_quality_filter {params.seq_format} -q {params.minBaseQuality} -p 100 | awk 'FNR%4==1 {{ print $1 }}' | sed 's/^@//' > {output}
@@ -630,7 +626,7 @@ rule adapter_trimming_flexbar_single_end:
         barcode = config["wdir"]+"/results/demultiplex/barcode.fa",
     threads: workflow.cores  # allows
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n Adapter trimming for {wildcards.sample} \n ================================ \n barcodes and UMIs are also trimmed off, if present \n provided barcodes: {params.barcode} \n provided adapters: {params.adapter}"  
     shell:
@@ -714,7 +710,7 @@ rule create_STAR_index:
         idx = directory(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/"),
         chkpnt = touch(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt")
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n Indexing your genome annotation \n ================================ \n provided fasta: {input.genome_fasta} \n provided annotation: {input.gtf} \n" 
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
@@ -760,7 +756,7 @@ rule align:
             "========================= \n Aligning {wildcards.sample} to genome \n ================================ \n" 
     threads: 4 # x each sample automatically assigned by snakemake
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     resources:
         mem_mb = 40000
     shell:
@@ -813,7 +809,7 @@ rule bam_index:
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
             "========================= \n Indexing .bam file of {wildcards.sample} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
@@ -858,7 +854,7 @@ rule sort_bams:
     output:
         config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     message: 
             "========================= \n Sorting deduplicated {wildcards.sample} \n ================================ \n" 
@@ -876,7 +872,7 @@ rule make_genome_index:
     output:
         config["genome_fasta"]+".fai"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: workflow.cores * 0.5 # so it can run parrallel to deduplication and bam sorting
     message: 
             "========================= \n Indexing genome fasta \n ================================ \n provided genome: {params.genome_fasta}" 
@@ -901,7 +897,7 @@ rule get_crosslinks:
         genome_fasta=config["genome_fasta"],
         wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
             "========================= \n Obtaining crosslinked nucleotide {wildcards.sample} \n ================================ \n" 
     shell:
@@ -926,7 +922,7 @@ rule turn_crosslinks_to_bw:
     params:
         genome_fasta=config["genome_fasta"],
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         #### conversion of bedgraph files to bw file format files using bedGraphToBigWig of the kentUtils suite
@@ -1035,7 +1031,7 @@ checkpoint merge_bam:
         dedup=DEDUP
     threads: 1
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n Merging .bam files of group {wildcards.groups} \n ================================ \n" 
     shell:
@@ -1066,7 +1062,7 @@ rule fastqc:
         touch("{wdir}/results/tmp/.fastqc.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of {input} \n ================================ \n" 
@@ -1083,7 +1079,7 @@ rule fastqc_one_filtered:
         touch("{wdir}/results/tmp/.fastqc.filtered.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of {input} \n ================================ \n" 
@@ -1102,7 +1098,7 @@ rule fastqc_raw_multi:
         touch("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of {input} \n ================================ \n" 
@@ -1132,7 +1128,7 @@ rule multiqc_raw_multi:
         config["wdir"]+"/results/fastqc/raw/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.3.yml"
+       "envs/racoon_main_v0.4.yml"
     threads: 1
     message: 
         "========================= \n MultiQC of raw read files \n ================================ \n" 
@@ -1149,7 +1145,7 @@ rule fastqc_filt_multi:
         touch(config["wdir"]+"/results/tmp/.fastqc.filtered.{sample}.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of quality filtered read file of {wildcards.sample} \n ================================ \n" 
@@ -1166,7 +1162,7 @@ rule multiqc_filt_multi:
         config["wdir"]+"/results/fastqc/filtered/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.3.yml"
+       "envs/racoon_main_v0.4.yml"
     threads: 1
     message: 
         "========================= \n MultiQC of quality filtered read files \n ================================ \n" 
@@ -1190,7 +1186,7 @@ rule fastqc_samples:
         # "results/fastqc/separate_samples/{sample}.html",
         # "results/fastqc/separate_samples/{sample}.zip"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n FastQC of on adapter trimmed read file of {wildcards.sample} \n ================================ \n" 
     threads: 1
@@ -1207,7 +1203,7 @@ rule multiqc:
         config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.3.yml"
+       "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n MultiQC of on adapter trimmed read files \n ================================ \n" 
     threads: 1
@@ -1230,7 +1226,7 @@ rule fastqc_samples_bam:
         wdir=config["wdir"],
         file=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n FastQC of aligned {wildcards.sample} \n ================================ \n" 
     threads: 1
@@ -1247,7 +1243,7 @@ rule multiqc_bam:
         config["wdir"]+"/results/fastqc/separate_samples_bam/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.3.yml"
+       "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n MultiQC of aligned \n ================================ \n" 
     threads: 1
@@ -1270,7 +1266,7 @@ rule fastqc_samples_bam_duprm:
         # "results/fastqc/separate_samples/{sample}.html",
         # "results/fastqc/separate_samples/{sample}.zip"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n FastQC after duplicate removal {wildcards.sample} \n ================================ \n" 
     threads: 1
@@ -1287,7 +1283,7 @@ rule multiqc_bam_duprm:
         config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.3.yml"
+       "envs/racoon_main_v0.4.yml"
     message: 
         "========================= \n MultiQC after duplicate removal \n ================================ \n" 
     threads: 1
@@ -1386,7 +1382,7 @@ rule make_report:
     message: 
         "========================= \n Making racoon Report \n ================================ \n" 
     conda:
-        "envs/racoon_R_v0.2.yml"
+        "envs/racoon_R_v0.3.yml"
     script:
        "{params.snake_path}/workflow/rules/make_report.R"
 
@@ -1456,7 +1452,7 @@ rule shorten_unaligned:
     output:
         config["wdir"]+"/results/mir_analysis/unaligned_reads_first24nt/{sample}.24nt.fastq"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1
     shell:
         "zcat {input} | fastx_trimmer -l 24  -o {output}"
@@ -1513,7 +1509,7 @@ rule split_by_miR_alignment:
         filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
         filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         # sam flags: 0 == aligned, 4 == not aligned
@@ -1532,7 +1528,7 @@ rule stats_miR_alignment:
         filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
         filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         for i in {input.chimeric}
@@ -1613,7 +1609,7 @@ rule split_by_mapping_start:
         # list=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
         # miR_names=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         mkdir -p {params.filename} && \
@@ -1671,7 +1667,7 @@ rule chimeric_trim:
     params:
         filename= config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/split_by_mir_start/{sample}/"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         if [ -s {input.split_reads} ]
@@ -1727,7 +1723,7 @@ rule align_chimeric:
     resources:
         mem_mb = 40000
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         chmod +x {input.reads} && \
@@ -1761,7 +1757,7 @@ rule bam_index_chimeric:
     output:
         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         """
@@ -1794,7 +1790,7 @@ rule sort_bams_chimeric:
     output:
         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         "samtools sort -n {input} -o {output}"
@@ -1826,7 +1822,7 @@ rule get_crosslinks_chimeric:
         file_prefix=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.",
         file_prefix_tmp=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted."
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         #### Convert all read locations to intervals in bed file format using BEDTools
@@ -1872,7 +1868,7 @@ rule turn_chimeric_crosslinks_to_bw:
     params:
         genome_fasta=config["genome_fasta"],
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     shell:
         """
         #### conversion of bedgraph files to bw file format files using bedGraphToBigWig of the kentUtils suite
@@ -1936,7 +1932,7 @@ rule fastqc_aligned_mir:
         config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/{sample}.alignMir_fastqc.html"
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # fastqc can use 1 thread per sample
     shell:
         """
@@ -1952,7 +1948,7 @@ rule multiqc_aligned_mir:
         config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.3.yml"
+       "envs/racoon_main_v0.4.yml"
     threads: 1
     shell:
         """
@@ -1971,7 +1967,7 @@ rule fastqc_st_chimeric:
         qc_dir=config["wdir"]+"/results/mir_analysis/fastqc/split_chimeric/{sample}",
         split_dir=config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/{sample}/"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1 # fastqc can use 1 thread per sample
     shell:
         """
@@ -1993,7 +1989,7 @@ rule fastqc_samples_non_chimeric:
         # "results/fastqc/separate_samples/{sample}.html",
         # "results/fastqc/separate_samples/{sample}.zip"
     conda:
-        "envs/racoon_main_v0.3.yml"
+        "envs/racoon_main_v0.4.yml"
     threads: 1
     shell:
         """
@@ -2014,7 +2010,7 @@ rule make_report_miR:
         config= config,
         snake_path= SNAKE_PATH
     conda:
-        "envs/racoon_R_v0.2.yml"
+        "envs/racoon_R_v0.3.yml"
     shell:
         """
         $CONDA_PREFIX/lib/R/bin/Rscript {params.snake_path}/workflow/rules/make_report_mir.R {params.wdir} {params.snake_path} "$CONDA_PREFIX" {params.config}
@@ -2039,11 +2035,3 @@ rule make_report_miR:
     #     shell("Rscript rules/make_report_mir.R $env_library_path".format(script=input.script[0], env_library_path=env_library_path))
 
 
-
-
-
-
-
-
-
-# TODO check mem requirements and cpu requirments

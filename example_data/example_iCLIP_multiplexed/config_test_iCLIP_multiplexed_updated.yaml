@@ -29,7 +29,7 @@ quality_filter_barcodes: 'True'
 read_length: 45
 samples: test_iCLIP_s1.chr21 test_iCLIP_s2.chr21
 seq_format: -Q33
-snakebase: /workspace/racoon_clip/racoon_clip/workflow
+snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
 umi1_len: 0
 umi2_len: 0
 wdir: tests/expected_output/out_iCLIP_multiplexed
