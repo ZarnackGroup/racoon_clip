@@ -18,3 +18,7 @@ tests/__pycache__/*
 tests/test_installation_from_git/.test/*
 */*/__pycache__/
 tests/test_dag/old/*
+tests/.test/*
+tests/expected_output/*/results/*
+example_data/*/*_absolute_paths.yaml
+example_data/*/*_absolute_paths*.yaml

@@ -32,4 +32,4 @@ seq_format: -Q33
 snakebase: /workspace/racoon_clip/racoon_clip/workflow
 umi1_len: 0
 umi2_len: 0
-wdir: tests/test_config/expected_output/out_iCLIP
+wdir: tests/expected_output/out_iCLIP
