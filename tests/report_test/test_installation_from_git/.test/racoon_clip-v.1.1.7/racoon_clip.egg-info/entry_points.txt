@@ -1,2 +1,0 @@
-[console_scripts]
-racoon_clip = racoon_clip.__main__:main

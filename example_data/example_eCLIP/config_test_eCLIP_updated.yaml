@@ -1,19 +1,19 @@
-adapter_cycles: 1
-adapter_file: example_data/example_iCLIP/adapter.fa
+adapter_cycles: 2
+adapter_file: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/params.dir/adapter.fa
 adapter_trimming: true
 barcodeLength: 0
-barcodes_fasta: example_data/example_iCLIP/barcodes.fa
+barcodes_fasta: ''
 deduplicate: 'True'
-demultiplex: 'FALSE'
+demultiplex: 'False'
 encode: 'False'
 encode_umi_length: 10
 experiment_group_file: ''
 experiment_groups: ''
-experiment_type: iCLIP2
+experiment_type: eCLIP_10ntUMI
 experimental_barcode_len: 0
 genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
 gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
-infiles: example_data/example_iCLIP/test_iCLIP_s1.chr21.fastq example_data/example_iCLIP/test_iCLIP_s2.chr21.fastq
+infiles: example_data/example_eCLIP/test_eCLIP_s1.chr21.fastq example_data/example_eCLIP/test_eCLIP_s2.chr21.fastq
 log: racoon_clip.log
 minBaseQuality: 10
 min_read_length: 15
@@ -25,11 +25,11 @@ outFilterMismatchNoverReadLmax: 0.04
 outFilterMultimapNmax: 1
 outReadsUnmapped: Fastx
 outSJfilterReads: Unique
-quality_filter_barcodes: 'True'
+quality_filter_barcodes: true
 read_length: 45
-samples: test_iCLIP_s1.chr21 test_iCLIP_s2.chr21
+samples: test_eCLIP_s1.chr21 test_eCLIP_s2.chr21
 seq_format: -Q33
 snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
 umi1_len: 0
 umi2_len: 0
-wdir: tests/expected_output/out_iCLIP
+wdir: tests/expected_output/out_eCLIP
