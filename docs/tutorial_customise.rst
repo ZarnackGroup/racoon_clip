@@ -116,7 +116,7 @@ If your data does not follow one of these standard setups, you can define the se
 
 - **exp_barcode_len** (int): length of the complete barcode (UMI1 +  barcode + UMI2) 
 
-if false exp_barcode_len should be 0, no barcode filtering will be done. 
+- **quality_filter_barcodes** if false or exp_barcode_len is 0, no barcode filtering will be done. 
 
 
 For example, manually defining an iCLIP or eCLIP setup manually would look like this:
