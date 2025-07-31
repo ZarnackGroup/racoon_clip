@@ -998,3 +998,13 @@ snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefi
 
 snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /home/mek24iv/racoon_devel/racoon_clip/example_data/example_iCLIP_multiplexed/config_test_iCLIP_multiplexed_updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 1 --dag
 [2025:07:30 13:09:08] Snakemake finished successfully
+[2025:07:31 09:15:05] commandline values
+[2025:07:31 09:15:05] default values
+[2025:07:31 09:15:05] Updating config file with commandline values
+[2025:07:31 09:15:05] Writing config file to /storage/zar/projects/melina/iCLIP3/03_first_run_to_generate_test_set/config_test_iCLIP3_not_adjusted_racoon_updated.yaml
+[2025:07:31 09:15:05] ---------------------
+[2025:07:31 09:15:06] | Snakemake command |
+[2025:07:31 09:15:06] ---------------------
+
+snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /storage/zar/projects/melina/iCLIP3/03_first_run_to_generate_test_set/config_test_iCLIP3_not_adjusted_racoon_updated.yaml --use-conda --conda-frontend mamba --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 10 --profile /home/mek24iv/cluster_profile --rerun-incomplete
+[2025:07:31 09:26:18] ERROR: Snakemake failed

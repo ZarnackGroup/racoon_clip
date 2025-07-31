@@ -22,3 +22,5 @@ tests/.test/*
 tests/expected_output/*/results/*
 example_data/*/*_absolute_paths.yaml
 example_data/*/*_absolute_paths*.yaml
+tests/report_test/*/results/*
+tests/report_test/inputs_for_report_test/*/*_absolute_paths.yaml

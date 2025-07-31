@@ -12,6 +12,15 @@ from pathlib import Path
 from typing import List, Tuple
 import shutil
 import difflib
+import datetime
+import tempfile
+
+# Try to import yaml, fall back to text processing if not available
+try:
+    import yaml
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
 
 # Import config testing functionality
 sys.path.append(str(Path(__file__).parent / "test_config"))
@@ -409,6 +418,147 @@ class RacoonTestSuite:
             
         return success
 
+    def test_report(self) -> bool:
+        """Report generation test: Run the test_report.R script"""
+        print_colored("🧪 Running Report Generation Test")
+        print_colored("="*50)
+        
+        # Path to the test_report.R script
+        report_script = self.base_dir / "report_test" / "test_report.R"
+        
+        if not report_script.exists():
+            print_error(f"Report test script not found: {report_script}")
+            return False
+        
+        # Create absolute paths config files first (same as run test)
+        print_colored("Creating config files with absolute paths...")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        racoon_clip_dir = os.path.dirname(script_dir)  # Go up from tests to racoon_clip
+        
+        # List of config files used in report tests (using inputs_for_report_test)
+        report_config_files = [
+            "tests/report_test/inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml",
+            "tests/report_test/inputs_for_report_test/eCLIP_ENCODE/config_test_eCLIP_ENC.yaml", 
+            "tests/report_test/inputs_for_report_test/iCLIP/config_test_iCLIP.yaml",
+            "tests/report_test/inputs_for_report_test/iCLIP_multiplexed/config_test_iCLIP_multiplexed.yaml"
+        ]
+        
+        for config_file_rel in report_config_files:
+            config_file = os.path.join(racoon_clip_dir, config_file_rel)
+            
+            if not os.path.exists(config_file):
+                print_warning(f"Config file not found: {config_file}")
+                continue
+                
+            # Create absolute paths version using same logic as test_run
+            config_basename = os.path.splitext(os.path.basename(config_file))[0]
+            abs_config_name = f"{config_basename}_absolute_paths.yaml"
+            abs_config_file = os.path.join(os.path.dirname(config_file), abs_config_name)
+            
+            # Skip if absolute paths config already exists
+            if os.path.exists(abs_config_file):
+                print_colored(f"Absolute paths config already exists: {abs_config_name}")
+                continue
+            
+            print_colored(f"Creating absolute paths config for: {os.path.basename(config_file)}")
+            
+            try:
+                # Read original config
+                with open(config_file, 'r') as f:
+                    if YAML_AVAILABLE:
+                        import yaml
+                        config_data = yaml.safe_load(f)
+                        
+                        # Convert paths (same logic as in test_run.py)
+                        path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta']
+                        for key in path_keys:
+                            if key in config_data and config_data[key]:
+                                value = config_data[key]
+                                if isinstance(value, str) and value.strip() and not os.path.isabs(value):
+                                    if ' ' in value:  # Space-separated files
+                                        files = [os.path.join(racoon_clip_dir, f.lstrip('/')) if not os.path.isabs(f) else f for f in value.split()]
+                                        config_data[key] = ' '.join(files)
+                                        print_colored(f"  Converted {key}: {value} -> {config_data[key]}")
+                                    else:  # Single file
+                                        abs_path = os.path.join(racoon_clip_dir, value.lstrip('/'))
+                                        config_data[key] = abs_path
+                                        print_colored(f"  Converted {key}: {value} -> {abs_path}")
+                        
+                        # Write converted config
+                        with open(abs_config_file, 'w') as abs_f:
+                            yaml.dump(config_data, abs_f, default_flow_style=False, sort_keys=False)
+                    else:
+                        # Fallback: copy original if yaml not available
+                        content = f.read()
+                        with open(abs_config_file, 'w') as abs_f:
+                            abs_f.write(content)
+                
+                print_success(f"Created: {abs_config_name}")
+                
+            except Exception as e:
+                print_error(f"Failed to create absolute paths config for {config_file}: {e}")
+                continue
+        
+        # Path to the conda environment file
+        env_file = self.base_dir.parent / "racoon_clip" / "workflow" / "envs" / "racoon_R_v0.3.yml"
+        if not env_file.exists():
+            print_error(f"Conda environment file not found: {env_file}")
+            return False
+        
+        print_colored(f"Using conda environment file: {env_file}")
+        
+        # Check if conda/mamba is available
+        conda_cmd = None
+        for cmd in ["mamba", "conda"]:
+            check_cmd = [cmd, "--version"]
+            success, output = self.run_command(check_cmd)
+            if success:
+                conda_cmd = cmd
+                print_success(f"{cmd} is available")
+                break
+        
+        if not conda_cmd:
+            print_error("Neither conda nor mamba is available. Please install conda/mamba to run report tests.")
+            return False
+        
+        # Check if the environment exists, create if it doesn't
+        env_name = "racoon_R_v0.3"
+        env_list_cmd = [conda_cmd, "env", "list"]
+        success, output = self.run_command(env_list_cmd)
+        
+        if success and env_name not in output:
+            print_colored(f"Creating conda environment: {env_name}")
+            create_env_cmd = [conda_cmd, "env", "create", "-f", str(env_file)]
+            success, output = self.run_command(create_env_cmd)
+            if not success:
+                print_error(f"Failed to create conda environment: {output}")
+                return False
+            print_success(f"Created conda environment: {env_name}")
+        else:
+            print_colored(f"Conda environment {env_name} already exists")
+        
+        # Run the R script within the conda environment
+        if conda_cmd == "mamba":
+            # Use mamba run for better performance
+            r_cmd = ["mamba", "run", "-n", env_name, "Rscript", str(report_script)]
+        else:
+            # Use conda run
+            r_cmd = ["conda", "run", "-n", env_name, "Rscript", str(report_script)]
+        
+        print_colored(f"Running R script in conda environment: {report_script}")
+        
+        success, output = self.run_command(r_cmd, cwd=report_script.parent)
+        
+        print_colored("\n" + "="*50)
+        if success:
+            print_success("🎉 Report generation test passed!")
+            print_colored("Generated reports should be available in the report_test directories")
+        else:
+            print_error("❌ Report generation test failed!")
+            print_error(f"R script output: {output}")
+            
+        return success
+
     def dev_report(self) -> bool:
         """Development report test: Only report generation and comparison"""
         print_colored("🧪 Running Development Report Test")
@@ -445,7 +595,7 @@ def main():
     parser = argparse.ArgumentParser(description="Racoon CLIP test suite")
     parser.add_argument(
         "test_type", 
-        choices=["test_light", "test", "devel_test", "dev_report"],
+        choices=["test_light", "test", "devel_test", "dev_report", "test_report"],
         help="Type of test to run"
     )
     
@@ -461,6 +611,8 @@ def main():
         success = suite.devel_test()
     elif args.test_type == "dev_report":
         success = suite.dev_report()
+    elif args.test_type == "test_report":
+        success = suite.test_report()
     else:
         print_error(f"Unknown test type: {args.test_type}")
         return 1
