@@ -108,13 +108,15 @@ Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If your data does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them and also allow other experimental setups racoon uses a barcode consisting of **umi1 + experimental_barcode + umi2** is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode&UMI architecture:
 
-- **barcodeLength** (int): length of the complete barcode (UMI 1 + experimental barcode + UMI 2) 
+- **barcodeLength** (int): length of barcode 
 
 - **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode set to 0. 
 
 -  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
 
-- **exp_barcode_len** (int): 0 if false exp_barcode_len should be 0, no barcode filtering will be done. 
+- **exp_barcode_len** (int): length of the complete barcode (UMI1 +  barcode + UMI2) 
+
+if false exp_barcode_len should be 0, no barcode filtering will be done. 
 
 
 For example, manually defining an iCLIP or eCLIP setup manually would look like this:
@@ -122,16 +124,16 @@ For example, manually defining an iCLIP or eCLIP setup manually would look like 
 .. code-block:: python
 
    # iCLIP
-   barcodeLength: 9
-   umi1_len: 3
-   umi2_len: 2
-   exp_barcode_len: 4
+    barcodeLength: 4,
+    umi1_len: 3, # antisense of used barcodes --> this is the 3' umi of the original barcode
+    umi2_len: 2,
+    exp_barcode_len: 9, # 3 + 4 + 2
 
    # eCLIP
-   barcodeLength: 10 (5)
-   umi1_len: 10 (5)
-   umi2_len: 0
-   exp_barcode_len: 0
+    barcodeLength: 0
+    umi1_len: 10 (5)
+    umi2_len: 0
+    exp_barcode_len: 10 (5) # 10 + 0 + 0
 
 
 How to customise genome alignment
