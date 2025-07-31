@@ -1,4 +1,0 @@
-include racoon_clip/racoon_clip.LICENSE
-include racoon_clip/racoon_clip.CITATION
-include racoon_clip/racoon_clip.VERSION
-recursive-include racoon_clip *

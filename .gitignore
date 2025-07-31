@@ -13,3 +13,14 @@ example_data/example_annotation_human_chr21/test_annotation_chr21*sjdbOverhang*
 tests/report_test/test_report_eCLIP/*
 .Rproj.user
 racoon_clip.log
+tests/test_config/.test/
+tests/__pycache__/*
+tests/test_installation_from_git/.test/*
+*/*/__pycache__/
+tests/test_dag/old/*
+tests/.test/*
+tests/expected_output/*/results/*
+example_data/*/*_absolute_paths.yaml
+example_data/*/*_absolute_paths*.yaml
+tests/report_test/*/results/*
+tests/report_test/inputs_for_report_test/*/*_absolute_paths.yaml

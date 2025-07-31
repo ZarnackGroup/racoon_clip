@@ -50,6 +50,32 @@ You can now check the installation by running the help option and then :ref:`qui
 
    racoon_clip -h
 
+Check Installation with Tests
+-----------------------------
+
+racoon_clip provides built-in test commands to verify your installation:
+
+**Light Test (Quick verification):**
+
+.. code:: bash
+
+   racoon_clip test light
+
+This runs a quick test doing basic functionality checks
+
+**Full Test (Comprehensive verification):**
+
+.. code:: bash
+
+   racoon_clip test full
+
+This runs the complete test suite including:
+- All tests from the light test
+- Full workflow execution tests with example data
+
+
+
+
 Install from Docker Image
 ---------------------
 

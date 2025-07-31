@@ -1,0 +1,35 @@
+adapter_cycles: 2
+adapter_file: /workspace/racoon_clip/racoon_clip/workflow/params.dir/adapter.fa
+adapter_trimming: true
+barcodeLength: 0
+barcodes_fasta: ''
+deduplicate: 'True'
+demultiplex: 'False'
+encode: 'False'
+encode_umi_length: 10
+experiment_group_file: example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt
+experiment_groups: test_eCLIP_ENC
+experiment_type: eCLIP_ENCODE_5ntUMI
+experimental_barcode_len: 0
+genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
+gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
+infiles: example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s1.chr21.fastq example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s2.chr21.fastq
+log: racoon_clip.log
+minBaseQuality: 10
+min_read_length: 15
+mir_genome_fasta: ''
+mir_starts_allowed: 1 2 3 4
+moreSTARParameters: ''
+outFilterMismatchNmax: 999
+outFilterMismatchNoverReadLmax: 0.04
+outFilterMultimapNmax: 1
+outReadsUnmapped: Fastx
+outSJfilterReads: Unique
+quality_filter_barcodes: false
+read_length: 45
+samples: test_eCLIP_ENC_s1.chr21 test_eCLIP_ENC_s2.chr21
+seq_format: -Q33
+snakebase: /workspace/racoon_clip/racoon_clip/workflow
+umi1_len: 0
+umi2_len: 0
+wdir: tests/expected_output/out_eCLIP_ENCODE

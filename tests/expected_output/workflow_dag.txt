@@ -1,0 +1,105 @@
+digraph snakemake_dag {
+    graph[bgcolor=white, margin=0];
+    node[shape=box, style=rounded, fontname=sans,                 fontsize=10, penwidth=2];
+    edge[penwidth=2, color=grey];
+	0[label = "all", color = "0.66 0.6 0.85", style="rounded"];
+	1[label = "multiqc_raw_multi", color = "0.14 0.6 0.85", style="rounded"];
+	2[label = "fastqc_raw_multi\nsample: test_eCLIP_ENC_s1.chr21\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.48 0.6 0.85", style="rounded"];
+	3[label = "fastqc_raw_multi\nsample: test_eCLIP_ENC_s2.chr21\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.48 0.6 0.85", style="rounded"];
+	4[label = "adapter_trimming_flexbar_single_end", color = "0.64 0.6 0.85", style="rounded"];
+	5[label = "encode_umi\nsample: test_eCLIP_ENC_s1.chr21", color = "0.36 0.6 0.85", style="rounded"];
+	6[label = "write_barcode_file", color = "0.26 0.6 0.85", style="rounded"];
+	7[label = "adapter_trimming_flexbar_single_end", color = "0.64 0.6 0.85", style="rounded"];
+	8[label = "encode_umi\nsample: test_eCLIP_ENC_s2.chr21", color = "0.36 0.6 0.85", style="rounded"];
+	9[label = "multiqc", color = "0.18 0.6 0.85", style="rounded"];
+	10[label = "fastqc_samples\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.15 0.6 0.85", style="rounded"];
+	11[label = "fastqc_samples\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.15 0.6 0.85", style="rounded"];
+	12[label = "deduplication\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.24 0.6 0.85", style="rounded"];
+	13[label = "align", color = "0.39 0.6 0.85", style="rounded"];
+	14[label = "create_STAR_index", color = "0.43 0.6 0.85", style="rounded,dashed"];
+	15[label = "bam_index", color = "0.09 0.6 0.85", style="rounded"];
+	16[label = "deduplication\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.24 0.6 0.85", style="rounded"];
+	17[label = "align", color = "0.39 0.6 0.85", style="rounded"];
+	18[label = "bam_index", color = "0.09 0.6 0.85", style="rounded"];
+	19[label = "merge_bam", color = "0.21 0.6 0.85", style="rounded"];
+	20[label = "write_group_file\ngroups: test_eCLIP_ENC", color = "0.03 0.6 0.85", style="rounded"];
+	21[label = "sort_bams", color = "0.30 0.6 0.85", style="rounded"];
+	22[label = "sort_bams", color = "0.30 0.6 0.85", style="rounded"];
+	23[label = "merge_bw", color = "0.13 0.6 0.85", style="rounded"];
+	24[label = "turn_crosslinks_to_bw", color = "0.08 0.6 0.85", style="rounded"];
+	25[label = "get_crosslinks\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.60 0.6 0.85", style="rounded"];
+	26[label = "make_genome_index", color = "0.22 0.6 0.85", style="rounded,dashed"];
+	27[label = "turn_crosslinks_to_bw", color = "0.08 0.6 0.85", style="rounded"];
+	28[label = "get_crosslinks\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.60 0.6 0.85", style="rounded"];
+	29[label = "make_report", color = "0.59 0.6 0.85", style="rounded"];
+	30[label = "fastqc_stats", color = "0.23 0.6 0.85", style="rounded"];
+	31[label = "multiqc_bam_duprm", color = "0.57 0.6 0.85", style="rounded"];
+	32[label = "fastqc_samples_bam_duprm", color = "0.45 0.6 0.85", style="rounded"];
+	33[label = "fastqc_samples_bam_duprm", color = "0.45 0.6 0.85", style="rounded"];
+	34[label = "multiqc_bam", color = "0.07 0.6 0.85", style="rounded"];
+	35[label = "fastqc_samples_bam\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.33 0.6 0.85", style="rounded"];
+	36[label = "fastqc_samples_bam\nwdir: /home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE", color = "0.33 0.6 0.85", style="rounded"];
+	1 -> 0
+	4 -> 0
+	7 -> 0
+	9 -> 0
+	12 -> 0
+	16 -> 0
+	19 -> 0
+	23 -> 0
+	24 -> 0
+	27 -> 0
+	29 -> 0
+	2 -> 1
+	3 -> 1
+	5 -> 4
+	6 -> 4
+	8 -> 7
+	6 -> 7
+	10 -> 9
+	11 -> 9
+	4 -> 10
+	7 -> 11
+	13 -> 12
+	15 -> 12
+	4 -> 13
+	14 -> 13
+	13 -> 15
+	17 -> 16
+	18 -> 16
+	7 -> 17
+	14 -> 17
+	17 -> 18
+	20 -> 19
+	21 -> 19
+	22 -> 19
+	12 -> 21
+	16 -> 22
+	20 -> 23
+	24 -> 23
+	27 -> 23
+	25 -> 24
+	26 -> 25
+	21 -> 25
+	15 -> 25
+	28 -> 27
+	26 -> 28
+	22 -> 28
+	18 -> 28
+	30 -> 29
+	1 -> 30
+	9 -> 30
+	31 -> 30
+	34 -> 30
+	32 -> 31
+	33 -> 31
+	21 -> 32
+	22 -> 33
+	35 -> 34
+	36 -> 34
+	13 -> 35
+	17 -> 36
+}            
+{'log': 'racoon_clip.log', 'snakebase': '/home/mek24iv/racoon_clip-v.1.1.7/racoon_clip-v.1.1.7/racoon_clip/workflow', 'samples': '', 'barcodeLength': 0, 'umi1_len': 0, 'umi2_len': 0, 'experimental_barcode_len': 0, 'barcodes_fasta': None, 'quality_filter_barcodes': 'True', 'demultiplex': 'False', 'adapter_file': None, 'adapter_trimming': 'True', 'gtf': None, 'genome_fasta': None, 'deduplicate': 'True'}
+{'wdir': './racoon_clip_out', 'infiles': '', 'experiment_groups': '', 'experiment_group_file': '', 'seq_format': '-Q33', 'barcodeLength': '', 'minBaseQuality': 10, 'umi1_len': '', 'umi2_len': '', 'experimental_barcode_len': '', 'encode': 'False', 'encode_umi_length': 10, 'experiment_type': 'other', 'barcodes_fasta': '', 'quality_filter_barcodes': True, 'demultiplex': False, 'adapter_file': '/home/mek24iv/racoon_clip-v.1.1.7/racoon_clip-v.1.1.7/racoon_clip/workflow/params.dir/adapter.fa', 'min_read_length': 15, 'adapter_cycles': 1, 'adapter_trimming': True, 'gtf': '', 'genome_fasta': '', 'read_length': 150, 'outFilterMismatchNoverReadLmax': 0.04, 'outFilterMismatchNmax': 999, 'outFilterMultimapNmax': 1, 'outReadsUnmapped': 'Fastx', 'outSJfilterReads': 'Unique', 'moreSTARParameters': '', 'deduplicate': True, 'mir_genome_fasta': '', 'mir_starts_allowed': '1 2 3 4'}
+{'wdir': '/home/mek24iv/racoon_devel/racoon_clip/tests/test_workflow/expected_output/out_eCLIP_ENCODE', 'infiles': '/home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s1.chr21.fastq /home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s2.chr21.fastq', 'samples': 'test_eCLIP_ENC_s1.chr21 test_eCLIP_ENC_s2.chr21', 'experiment_group_file': '/home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt', 'experiment_groups': 'test_eCLIP_ENC', 'experiment_type': 'eCLIP_ENCODE_5ntUMI', 'quality_filter_barcodes': False, 'adapter_cycles': 2, 'adapter_trimming': True, 'genome_fasta': '/home/mek24iv/racoon_devel/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.fa', 'gtf': '/home/mek24iv/racoon_devel/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.gtf', 'read_length': 45, 'log': 'racoon_clip.log', 'snakebase': '/home/mek24iv/racoon_clip-v.1.1.7/racoon_clip-v.1.1.7/racoon_clip/workflow', 'barcodeLength': 0, 'umi1_len': 0, 'umi2_len': 0, 'experimental_barcode_len': 0, 'barcodes_fasta': '', 'demultiplex': 'False', 'adapter_file': '/home/mek24iv/racoon_clip-v.1.1.7/racoon_clip-v.1.1.7/racoon_clip/workflow/params.dir/adapter.fa', 'deduplicate': 'True', 'seq_format': '-Q33', 'minBaseQuality': 10, 'encode': 'False', 'encode_umi_length': 10, 'min_read_length': 15, 'outFilterMismatchNoverReadLmax': 0.04, 'outFilterMismatchNmax': 999, 'outFilterMultimapNmax': 1, 'outReadsUnmapped': 'Fastx', 'outSJfilterReads': 'Unique', 'moreSTARParameters': '', 'mir_genome_fasta': '', 'mir_starts_allowed': '1 2 3 4'}

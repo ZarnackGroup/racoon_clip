@@ -1,7 +1,0 @@
-name: racoon_seqkit
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - seqkit=2.10.0=h9ee0642_0
-prefix: /home/mklostermann/applications/anaconda3/envs/racoon_seqkit

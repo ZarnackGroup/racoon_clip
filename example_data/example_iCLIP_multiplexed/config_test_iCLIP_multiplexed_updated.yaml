@@ -1,8 +1,8 @@
 adapter_cycles: 1
-adapter_file: /home/mklostermann/racoon_clip/example_data/example_iCLIP_multiplexed/adapter.fa
+adapter_file: example_data/example_iCLIP_multiplexed/adapter.fa
 adapter_trimming: true
 barcodeLength: 0
-barcodes_fasta: /home/mklostermann/racoon_clip/example_data/example_iCLIP_multiplexed/barcodes.fa
+barcodes_fasta: example_data/example_iCLIP_multiplexed/barcodes.fa
 deduplicate: 'True'
 demultiplex: true
 encode: 'False'
@@ -11,9 +11,9 @@ experiment_group_file: ''
 experiment_groups: ''
 experiment_type: iCLIP2
 experimental_barcode_len: 0
-genome_fasta: /home/mklostermann/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.fa
-gtf: /home/mklostermann/racoon_clip/example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
-infiles: /home/mklostermann/racoon_clip/example_data/example_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz
+genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
+gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
+infiles: example_data/example_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz
 log: racoon_clip.log
 minBaseQuality: 10
 min_read_length: 15
@@ -29,7 +29,7 @@ quality_filter_barcodes: 'True'
 read_length: 45
 samples: test_iCLIP_s1.chr21 test_iCLIP_s2.chr21
 seq_format: -Q33
-snakebase: /media/storage/home/mklostermann/racoon_clip/racoon_clip/workflow
+snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
 umi1_len: 0
 umi2_len: 0
-wdir: /home/mklostermann/projects/04_minimal_examples_racoon/test_iCLIP_multiplexed
+wdir: tests/expected_output/out_iCLIP_multiplexed
