@@ -463,11 +463,13 @@ def citation(**kwargs):
 @click.command(name='test')
 @click.option('--light', is_flag=True, help='Run light test suite (DAG tests and report comparison only)')
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
-def test(light, devel):
+@click.option('--report', is_flag=True, help='Run report generation test suite')
+def test(light, devel, report):
     """Run racoon_clip test suite
     
     By default runs full test suite (DAG tests and report comparison).
-    Use --light for minimal testing or --devel for comprehensive testing including installation.
+    Use --light for minimal testing, --devel for comprehensive testing including installation,
+    or --report for report generation testing.
     """
     # Import here to avoid circular imports
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tests'))
@@ -475,13 +477,17 @@ def test(light, devel):
     
     suite = RacoonTestSuite()
     
-    if light and devel:
-        click.echo("Error: Cannot specify both --light and --devel flags")
+    # Check for conflicting flags
+    flags_set = sum([light, devel, report])
+    if flags_set > 1:
+        click.echo("Error: Cannot specify multiple test type flags simultaneously")
         sys.exit(1)
     elif light:
         success = suite.test_light()
     elif devel:
         success = suite.devel_test()
+    elif report:
+        success = suite.test_report()
     else:
         # Default: run full test suite
         success = suite.test()

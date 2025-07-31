@@ -9,13 +9,14 @@ output:
     number_sections: yes
     fig_caption: yes
     cache: no
-
----
-
 params:
   config: "config"
   output_dir: "output_dir" 
   snake_dir: "snake_dir"
+
+---
+
+
 
 ```{r setup, include=FALSE}
 require("knitr")
