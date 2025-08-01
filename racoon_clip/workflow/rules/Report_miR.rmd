@@ -108,9 +108,9 @@ kable(k)
 
 ## Barcode settings {-}
 ```{r}
-k = config[c("barcodeLength", "minBaseQuality", "umi1_len", "exp_barcode_len", "samples"), ] %>%
+k = config[c("barcodeLength", "minBaseQuality", "umi1_len", "total_barcode_len", "samples"), ] %>%
   as.data.frame()
-rownames(k) = c("barcodeLength", "minBaseQuality", "umi1_len", "exp_barcode_len", "samples")
+rownames(k) = c("barcodeLength", "minBaseQuality", "umi1_len", "total_barcode_len", "samples")
 kable(k)  
 ```
 

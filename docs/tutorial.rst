@@ -25,7 +25,7 @@ The config file is a .yaml file that contains all the information about your dat
 - samples
 - genome_fasta
 - gtf
-- either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, exp_barcode_len, barcodeLength)
+- either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, total_barcode_len, barcodeLength)
 - read_length
 - in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP or iCLIP2 barcode included)
 
