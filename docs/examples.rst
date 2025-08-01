@@ -86,7 +86,7 @@ This is how the config file config_min_example_iCLIP.yaml looks like:
     experiment_type: "iCLIP2" 
 
     # demultiplexing
-    demultiplex: "FALSE" # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    demultiplex: "FALSE" # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no bacode filtering will be done
 
     # barcodes
     barcodes_fasta: "<path/to/example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed
