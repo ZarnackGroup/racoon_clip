@@ -375,7 +375,7 @@ rule high_quality_barcodes:
     output:
         "{wdir}/results/tmp/data_qualFilteredIDs.list"
     params:
-        barcodeLength=get_barcode_experiment_info()["barcodeLength"], 
+        barcodeLength=get_barcode_experiment_info()["exp_barcode_len"], 
         minBaseQuality=config["minBaseQuality"], 
         seq_format=config["seq_format"]
     threads: 1 # gunzip breaks file with more then one thread
