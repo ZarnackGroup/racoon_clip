@@ -1,4 +1,5 @@
-FROM condaforge/mambaforge:23.11.0-0
+FROM continuumio/miniconda3:23.10.0-1
+#FROM condaforge/mambaforge:23.11.0-0
 
 # Set timezone to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -46,6 +47,7 @@ WORKDIR /racoon_clip-v.VERSION_PLACEHOLDER/racoon_clip.egg-info
 WORKDIR /racoon_clip-v.VERSION_PLACEHOLDER/
 RUN pip install -e .
 RUN racoon_clip -h
+RUN racoon_clip test --light
 
 
 
