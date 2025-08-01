@@ -130,8 +130,8 @@ kable(t)
 
 ## Barcode settings
 ```{r}
-t <- data.frame(config[c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","exp_barcode_len", "samples", "encode", "encode_umi_length"),])
-rownames(t) <- c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","exp_barcode_len", "samples", "encode", "encode_umi_length")
+t <- data.frame(config[c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","total_barcode_len", "samples", "encode", "encode_umi_length"),])
+rownames(t) <- c("barcodeLength", "minBaseQuality", "umi1_len", "umi2_len","total_barcode_len", "samples", "encode", "encode_umi_length")
 colnames(t) <- "Setting"
 kable(t) 
 ```
@@ -473,7 +473,7 @@ barcodes_fasta <- data.frame(sample = barcodes_fasta[c(1:nrow(barcodes_fasta) %%
 colnames(barcodes_fasta) <- c("sample", "barcode")
 
 
-barcodes_fasta <- barcodes_fasta %>% mutate(., exp_barcode = substr(barcode, as.numeric(config["umi1_len",])+1, as.numeric(config["umi1_len",])+as.numeric(config["exp_barcode_len",]) ) )
+barcodes_fasta <- barcodes_fasta %>% mutate(., exp_barcode = substr(barcode, as.numeric(config["umi1_len",])+1, as.numeric(config["umi1_len",])+as.numeric(config["total_barcode_len",]) ) )
 kable(barcodes_fasta, caption = "sample barcodes") 
 
 barcodes_found <- barcodes_found %>%

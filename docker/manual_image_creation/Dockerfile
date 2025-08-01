@@ -27,10 +27,10 @@ RUN echo "Python version:" && python --version && python -c "import sys; print(f
 # RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
 # RUN bash Miniforge3-Linux-x86_64.sh
 
-RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.1.1.7.zip
-RUN unzip v.1.1.7.zip
+RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.1.1.8.zip
+RUN unzip v.1.1.8.zip
 
-WORKDIR /racoon_clip-v.1.1.7/ 
+WORKDIR /racoon_clip-v.1.1.8/ 
 
 # RUN conda install --quiet --yes -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' && \
 #     conda create --yes -n racoon_clip python=3.9.2 pip botocore  && \
@@ -38,15 +38,16 @@ WORKDIR /racoon_clip-v.1.1.7/
 # SHELL ["/bin/bash", "--login", "-c"]
 # ENV PATH /opt/conda/envs/racoon_clip/bin:$PATH
 
-WORKDIR /racoon_clip-v.1.1.7/racoon_clip.egg-info
+WORKDIR /racoon_clip-v.1.1.8/racoon_clip.egg-info
 #RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
 #RUN sed -i '1s/^/pulp==2.7.0 /' requires.txt
 #RUN pip install pulp==2.7.0
 #RUN pip install botocore
 
-WORKDIR /racoon_clip-v.1.1.7/
+WORKDIR /racoon_clip-v.1.1.8/
 RUN pip install -e .
 RUN racoon_clip -h
+RUN racoon_clip test --light
 
 
 

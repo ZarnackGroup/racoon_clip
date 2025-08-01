@@ -11,24 +11,28 @@ seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by fastX
 # barcodes
 barcodeLength: "" # if already demux = umi1_len
 minBaseQuality: 10
-umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
+umi1_len: 0
 umi2_len: 0
-exp_barcode_len: 0
+total_barcode_len: 0
 encode: False
-
-experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
+encode_umi_length: 10
+experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
 
 barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
 quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
 
 # demultiplexing
-demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no bacode filtering will be done
 min_read_length: 15
 
 #adapter adapter_trimming
 adapter_file: ""
 adapter_cycles: 1
 adapter_trimming: True
+
+# additional trimming
+trim3: false
+trim3_len: 3
 
 # star alignment
 gtf: "" # has to be unzipped at the moment

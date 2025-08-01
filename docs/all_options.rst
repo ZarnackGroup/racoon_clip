@@ -35,16 +35,16 @@ To make your own config file you can start with an empty yaml file or copy one o
     minBaseQuality: 10
     umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
     umi2_len: 0
-    exp_barcode_len: 0
+    total_barcode_len: 0
     encode: False
     
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
     
     barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
     quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
     
     # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no bacode filtering will be done
     min_read_length: 15
     
     #adapter adapter_trimming
@@ -87,7 +87,7 @@ The following input parameters are required from the user:
 - samples
 - genome_fasta
 - gtf
-- either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, exp_barcode_len, barcodeLength)
+- either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, total_barcode_len, barcodeLength)
 - read_length
 
 See below for descriptions.
@@ -171,7 +171,7 @@ If your experiment does not follow one of these standard setups, you can define 
 
 -  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
 
-- **exp_barcode_len** (int): 0 if false exp_barcode_len should be 0, no barcode filtering will be done. 
+- **total_barcode_len** (int): total length of the experimental barcode region that is read including UMIs and random barcodes. Set to 0 if no barcode filtering should be done. 
 
 
 For example, manually defining an iCLIP or eCLIP setup manually would look like this:
@@ -182,13 +182,13 @@ For example, manually defining an iCLIP or eCLIP setup manually would look like 
    barcodeLength: 9
    umi1_len: 3
    umi2_len: 2
-   exp_barcode_len: 4
+   total_barcode_len: 4
 
    # eCLIP
    barcodeLength: 10 (5)
    umi1_len: 10 (5)
    umi2_len: 0
-   exp_barcode_len: 0
+   total_barcode_len: 0
 
 
 Using manual barcode setup for ENCODE (or ENCODE-like) data
@@ -203,7 +203,7 @@ Using manual barcode setup for ENCODE (or ENCODE-like) data
    barcodeLength: 0 
    umi1_len: 5
    umi2_len: 0
-   exp_barcode_len: 10
+   total_barcode_len: 10
    encode: True   
 
 Quality filtering during barcode trimming:
