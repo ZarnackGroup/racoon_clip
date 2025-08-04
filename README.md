@@ -13,7 +13,7 @@ The performed steps are an optional quality filter, optional demultiplexing, ada
 ## Installation
 
 
-###  RECOMMENDED: from Docker Image
+###  RECOMMENDED: use Docker Image
 
 If your system has Docker, Singularity or Apptainer installed, it is recommended to use the racoon_clip Docker Image:
 
