@@ -10,13 +10,28 @@ The performed steps are an optional quality filter, optional demultiplexing, ada
 ![](Workflow.png)
 
 
-## Requirements
+## Installation
 
-The following are required before installing racoon_clip
+
+###  RECOMMENDED: from Docker Image
+
+If your system has Docker, Singularity or Apptainer installed, it is recommended to use the racoon_clip Docker Image:
+
+```
+docker pull melinak/racoon_clip:latest
+or
+apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
+or
+singularity pull racoon_clip.sif docker://melinak/racoon_clip:latest
+```
+
+
+### from GitHub
+
+To install the tool directly from GitHub the following are required:
 
 + mamba >= 1.3.1
 + python = 3.9.0
-+ *or* docker
 
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
 
@@ -33,10 +48,7 @@ mamba create -n racoon_clip python=3.9.0 pip
 mamba activate racoon_clip
 ``` 
 
-## Installation
-
-### from GitHub
-
+Then, to install racoon_clip in the environment:
 Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
 
 ```
@@ -58,16 +70,8 @@ You can now check the installation by running the help option or a minimal examp
 
 ```
 racoon_clip -h
+racoon_clip test --light
 ```
-
-## from Docker Image
-
-You can also use the racoon_clip Docker Image:
-
-```
-docker pull melinak/racoon_clip:latest
-```
-
 
 
 ## Documentation and Tutorial
