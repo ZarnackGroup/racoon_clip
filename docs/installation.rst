@@ -3,7 +3,7 @@ Installation
 
 
 
-RECOMMENDED: Install from Docker Image
+RECOMMENDED: use Docker Image
 ---------------------
 
 If your system has Docker, Singularity or Apptainer installed, it is recommended to use the racoon_clip Docker Image:
