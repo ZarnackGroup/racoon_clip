@@ -31,7 +31,7 @@ Here is a config file listing all default options. This tutorial will walk you t
     total_barcode_len: 0
     encode: False
     
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
     
     barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
     quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
@@ -78,11 +78,13 @@ These parameters should be passed in the command line.
 Preset and custom options Barcodes and UMIs 
 ---------------------------------
 
-Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode setups. 
+Different experimental approaches (iCLIP, iCLIP2, iCLIP3, eCLIP, seCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode setups. 
 
 - **iCLIP**: two UMI parts (3nt and 2nt) interspaced by the experimental barcode (4nt)
 
 - **iCLIP2**: two UMI parts (5nt and 4nt) interspaced by the experimental barcode (6nt)
+
+- **iCLIP3**: UMI of 9nt in the beginning (5' end).
 
 - **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
 
@@ -98,7 +100,7 @@ If your experiment used one of these setups, you can use the expereriment_type p
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your barcode setup. 
+- **experiment_type** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your barcode setup. 
 
 .. Note::
 
