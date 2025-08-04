@@ -28,7 +28,7 @@ First, download a human genome assembly (as fasta) and genome annotation (as gtf
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example, that you want to test. There are 4 examples, one for iCLIP, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
+Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example, that you want to test. There are 5 examples, one for iCLIP, one for iCLIP3, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
 
 Go to the folder with the examples
 
@@ -86,7 +86,7 @@ This is how the config file config_min_example_iCLIP.yaml looks like:
     experiment_type: "iCLIP2" 
 
     # demultiplexing
-    demultiplex: "FALSE" # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no bacode filtering will be done
+    demultiplex: "FALSE" # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no bacode filtering will be done
 
     # barcodes
     barcodes_fasta: "<path/to/example_iCLIP/barcodes.fasta>" # ! antisense of used barcodes, not needed if already demultiplexed

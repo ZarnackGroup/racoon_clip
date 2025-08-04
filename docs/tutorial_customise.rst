@@ -28,16 +28,16 @@ Here is a config file listing all default options. This tutorial will walk you t
     minBaseQuality: 10
     umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
     umi2_len: 0
-    exp_barcode_len: 0
+    total_barcode_len: 0
     encode: False
     
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "exp_barcode_len", "encode_umi")
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
     
     barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
     quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
     
     # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE exp_barcode_len should be 0, no barcode filtering will be done
+    demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no barcode filtering will be done
     min_read_length: 15
     
     #adapter adapter_trimming
@@ -78,11 +78,13 @@ These parameters should be passed in the command line.
 Preset and custom options Barcodes and UMIs 
 ---------------------------------
 
-Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode setups. 
+Different experimental approaches (iCLIP, iCLIP2, iCLIP3, eCLIP, seCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode setups. 
 
 - **iCLIP**: two UMI parts (3nt and 2nt) interspaced by the experimental barcode (4nt)
 
 - **iCLIP2**: two UMI parts (5nt and 4nt) interspaced by the experimental barcode (6nt)
+
+- **iCLIP3**: UMI of 9nt in the beginning (5' end).
 
 - **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
 
@@ -98,7 +100,7 @@ If your experiment used one of these setups, you can use the expereriment_type p
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **experiment_type** ("iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your barcode setup. 
+- **experiment_type** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your barcode setup. 
 
 .. Note::
 
@@ -114,9 +116,11 @@ If your data does not follow one of these standard setups, you can define the se
 
 -  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
 
-- **exp_barcode_len** (int): length of the complete barcode (UMI1 +  barcode + UMI2) 
+
+- **total_barcode_len** (int): total length of the experimental barcode region that is read including UMIs and random barcodes. Set to 0 if no barcode filtering should be done. 
 
 - **quality_filter_barcodes** if false or exp_barcode_len is 0, no barcode filtering will be done. 
+
 
 
 For example, manually defining an iCLIP or eCLIP setup manually would look like this:
@@ -124,16 +128,18 @@ For example, manually defining an iCLIP or eCLIP setup manually would look like 
 .. code-block:: python
 
    # iCLIP
-    barcodeLength: 4,
-    umi1_len: 3, # antisense of used barcodes --> this is the 3' umi of the original barcode
-    umi2_len: 2,
-    exp_barcode_len: 9, # 3 + 4 + 2
+
+   barcodeLength: 4
+   umi1_len: 3
+   umi2_len: 2
+   total_barcode_len: 9
 
    # eCLIP
-    barcodeLength: 0
-    umi1_len: 10 (5)
-    umi2_len: 0
-    exp_barcode_len: 10 (5) # 10 + 0 + 0
+   barcodeLength: 0 
+   umi1_len: 10 (5)
+   umi2_len: 0
+   total_barcode_len: 10 (5)
+
 
 
 How to customise genome alignment

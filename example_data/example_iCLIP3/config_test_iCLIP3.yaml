@@ -1,0 +1,31 @@
+# where to put results
+wdir: "tests/expected_output/out_iCLIP3"
+
+# input
+infiles: "example_data/example_iCLIP3/test_iCLIP3_s1.chr21.fastq example_data/example_iCLIP3/test_iCLIP3_s2.chr21.fastq" # for multiple files after demultiplexing
+
+
+#SAMPLES
+samples: "test_iCLIP3_s1.chr21 test_iCLIP3_s2.chr21" # sample name needs to be identical for read 1 and 2 of same sample
+
+
+# umi1_len: 9
+# exp_barcode_len: 0
+# barcodeLength: 9
+# encode: False
+# experiment_type: "other"
+experiment_type: "iCLIP3"
+
+quality_filter_barcodes: True
+# if no demultiplexing is done, is there still a barcode
+
+
+#adapter adapter_trimming
+adapter_file: "example_data/example_iCLIP3/adapter.fa"
+adapter_cycles: 1
+adapter_trimming: True
+
+
+genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
+gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
+read_length: 150
