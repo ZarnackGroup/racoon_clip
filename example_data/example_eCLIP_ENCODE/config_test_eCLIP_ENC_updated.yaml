@@ -10,7 +10,6 @@ encode_umi_length: 10
 experiment_group_file: example_data/example_eCLIP_ENCODE/groups_test_eCLIP_ENC.txt
 experiment_groups: test_eCLIP_ENC
 experiment_type: eCLIP_ENCODE_5ntUMI
-experimental_barcode_len: 0
 genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
 gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
 infiles: example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s1.chr21.fastq example_data/example_eCLIP_ENCODE/test_eCLIP_ENC_s2.chr21.fastq
@@ -30,6 +29,9 @@ read_length: 45
 samples: test_eCLIP_ENC_s1.chr21 test_eCLIP_ENC_s2.chr21
 seq_format: -Q33
 snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
+total_barcode_len: 0
+trim3: 'False'
+trim3_len: 3
 umi1_len: 0
 umi2_len: 0
 wdir: tests/expected_output/out_eCLIP_ENCODE
