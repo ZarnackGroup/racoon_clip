@@ -51,6 +51,7 @@ Once installed, you can run racoon with:
 
    racoon_clip run --cores <number_of_cores> --configfile </path/to/config/file.yaml>
 
+Check the tutorial to find out what needs to be in your config.yaml file.
                                                                                                                                                             
 
 Requirements
