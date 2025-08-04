@@ -79,10 +79,10 @@ Which steps will racoon_clip run by default?
 ---------------------------
 This depends on the experiment_type. If not specified otherwise, racoon_clip will run the following:
 
-| **iCLIP, iCLIP2, iCLIP3 and other:** 
+| **iCLIP, iCLIP2, and other:** 
 | Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
-| **eCLIP_5ntUMI and eCLIP_10ntUMI:** 
+| **eCLIP_5ntUMI, eCLIP_10ntUMI and iCLIP3:** 
 | Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
 | **eCLIP_ENCODE_5ntUMI and eCLIP_ENCODE_10ntUMI:** 
@@ -105,7 +105,7 @@ You can use the following parameters to turn steps on or off:
 
 Demultiplexing 
 ^^^^^^^^^^^^^^^^^
-Demultiplexing is at the moment only possible for single-end read data. Both the UMI and the barcode need to be positioned at the beginning of the read.
+Demultiplexing is currently only possible for single-end read data. Both the UMI and the barcode need to be positioned at the beginning of the read.
 
 - **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
 - **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of the used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
