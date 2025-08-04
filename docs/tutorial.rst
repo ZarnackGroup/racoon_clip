@@ -62,7 +62,7 @@ The experiment_type specifies the barcode and adapter setup in your data. You ca
 
 - **iCLIP2**: two UMI parts (5nt and 4nt) interspaced by the experimental barcode (6nt)
 
-- **iCLIP3**: UMI of 9nt in the beginning (5' end) of read2
+- **iCLIP3**: UMI of 9nt (at the 5' end)
 
 - **eCLIP** UMI of 10nt or 5nt in the beginning (5' end) of read2. Specify "eCLIP_10ntUMI" or "eCLIP_10ntUMI". 
 
@@ -75,9 +75,9 @@ The experiment_type specifies the barcode and adapter setup in your data. You ca
     Most common barcode setups.
 
 
-Which steps will racoon_clip run by default
+Which steps will racoon_clip run by default?
 ---------------------------
-This depends on the experiment_type. If not specified otherwise racoon_clip will run the following:
+This depends on the experiment_type. If not specified otherwise, racoon_clip will run the following:
 
 | **iCLIP, iCLIP2, iCLIP3 and other:** 
 | Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
@@ -105,10 +105,10 @@ You can use the following parameters to turn steps on or off:
 
 Demultiplexing 
 ^^^^^^^^^^^^^^^^^
-Demultiplexing is at the moment only possible for single-end read data. Both the UMI and the barcode need to be positioned in the beginning of the read.
+Demultiplexing is at the moment only possible for single-end read data. Both the UMI and the barcode need to be positioned at the beginning of the read.
 
 - **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
-- **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
+- **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of the used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
 This is an example of a barcode fasta for an iCLIP experiment. It is important that the barcode names (after >) are exactly the same as the specified sample names and the names of the input read files. The UMIs are added as Ns.
 
@@ -126,7 +126,7 @@ Quality filtering during barcode trimming
 
 - **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. 
 
-- **minBaseQuality** (int): *default 10*; The minimum per base quality of the barcode region of each read. Reads below this threshold are filtered out. This only applies if quality_filter_barcodes is set to True. 
+- **minBaseQuality** (int): *default 10*; The minimum per-base quality of the barcode region of each read. Reads below this threshold are filtered out. This only applies if quality_filter_barcodes is set to True. 
 
 Adapters
 ^^^^^^^^^^
@@ -139,7 +139,7 @@ Adapters
 
 Deduplication
 ^^^^^^^^^^^^^^
-- **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
+- **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended always to use deduplication unless no UMIs are present in the data.
 
 
 
