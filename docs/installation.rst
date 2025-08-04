@@ -2,6 +2,22 @@ Installation
 =========================
 
 
+
+RECOMMENDED: Install from Docker Image
+---------------------
+
+If your system has Docker, Singularity or Apptainer installed, it is recommended to use the racoon_clip Docker Image:
+
+.. code:: bash
+
+   docker pull melinak/racoon_clip:latest
+   or
+   apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
+   or
+   singularity pull racoon_clip.sif docker://melinak/racoon_clip:latest
+
+
+
 Install from GitHub
 ---------------------
 
@@ -74,16 +90,6 @@ This runs the complete test suite including:
 - Full workflow execution tests with example data
 
 
-
-
-Install from Docker Image
----------------------
-
-You can also use the racoon_clip Docker Image:
-
-.. code:: bash
-
-   docker pull melinak/racoon_clip:latest
 
 
 
