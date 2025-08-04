@@ -33,11 +33,19 @@ The performed steps are a quality filter (optional), demultiplexing (optional), 
 
    Steps performed by racoon_clip.
 
+Supported CLIP experiments
+==============================
+
+- iCLIP, iCLIP2, iCLIP3
+- eCLIP, seCLIP
+- miR-eCLIP
+- custom set-ups for other CLIP experiments based on read-stops
+
 
 Usage
 =========================
                                                                                                                                                                                                                                                                             
-Once installed you can run racoon with:
+Once installed, you can run racoon with:
 
 .. code:: bash
 
