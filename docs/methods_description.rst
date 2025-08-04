@@ -18,6 +18,8 @@ If demultiplexing is turned on, this is done with the FLEXBAR via the provided b
 
 At the same time, UMIs (and barcodes, if present) are trimmed from the 5’ end of the reads and stored in the read names using FLEXBAR options ``--umi-tags --barcode-trim-end LTAIL``. 
 
+For iCLIP3, or when the parameter --trim3 True is used, a number of nucleotides is trimmed of the 3'end of the reads (default 3). This is necessary for iCLIP3, which uses a second 3nt long UMI at the 3' end.
+
 Reads that are shorter than 15 nt after trimming are discarded using the FLEXBAR option ``--min-read-length 15``. The cutoff can be changed by specifying another value by the racoon_clip *flexbar_minReadLength* option.
 
 See also: `FLEXBAR—Flexible Barcode and Adapter Processing for Next-Generation Sequencing Platforms <https://www.mdpi.com/2079-7737/1/3/895>`_. 
