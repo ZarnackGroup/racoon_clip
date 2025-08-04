@@ -27,7 +27,7 @@ The config file is a .yaml file that contains all the information about your dat
 - gtf
 - either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, total_barcode_len, barcodeLength)
 - read_length
-- in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP or iCLIP2 barcode included)
+- in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP, iCLIP2, or iCLIP3 barcode included)
 
 .. Note::
 
@@ -48,9 +48,9 @@ A minimal config file would therefore look like this:
     read_length: N 
 
     # experiemnt type
-    experiment_type: "iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other" 
+    experiment_type: "iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other" 
 
-    # for the demultiplexing functionality or for data with experiment_type "iCLIP" or "iCLIP2"
+    # for the demultiplexing functionality or for data with experiment_type "iCLIP", "iCLIP2", or "iCLIP3"
     barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
 
 
@@ -61,6 +61,8 @@ The experiment_type specifies the barcode and adapter setup in your data. You ca
 - **iCLIP**: two UMI parts (3nt and 2nt) interspaced by the experimental barcode (4nt)
 
 - **iCLIP2**: two UMI parts (5nt and 4nt) interspaced by the experimental barcode (6nt)
+
+- **iCLIP3**: UMI of 9nt in the beginning (5' end) of read2
 
 - **eCLIP** UMI of 10nt or 5nt in the beginning (5' end) of read2. Specify "eCLIP_10ntUMI" or "eCLIP_10ntUMI". 
 
@@ -77,7 +79,7 @@ Which steps will racoon_clip run by default
 ---------------------------
 This depends on the experiment_type. If not specified otherwise racoon_clip will run the following:
 
-| **iCLIP, iCLIP2 and other:** 
+| **iCLIP, iCLIP2, iCLIP3 and other:** 
 | Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
 | **eCLIP_5ntUMI and eCLIP_10ntUMI:** 
