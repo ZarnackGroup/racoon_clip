@@ -233,9 +233,10 @@ def get_demult_trim_reads(wcs):
             elif DEMUX != True and TRIM == True:  # without demultiplexing
                 return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
             elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
+                return get_start_fastqs(wcs)
         elif TRIM3 == True:
             return config["wdir"]+"/results/trim3/trim3_{sample}.fastq.gz"
-                return get_start_fastqs(wcs)
+                
         
 # get reads for 3' trimming
 def get_demult_trim_reads_for_3trim(wcs):
@@ -397,7 +398,7 @@ rule high_quality_barcodes:
     output:
         "{wdir}/results/tmp/data_qualFilteredIDs.list"
     params:
-        barcodeLength=get_barcode_experiment_info()["exp_barcode_len"], 
+        barcodeLength=get_barcode_experiment_info()["total_barcode_len"], 
         minBaseQuality=config["minBaseQuality"], 
         seq_format=config["seq_format"]
     threads: 1 # gunzip breaks file with more then one thread
@@ -698,11 +699,11 @@ rule trim3_flexbar:
     input:
         fasta=get_demult_trim_reads_for_3trim, 
     output:
-         expand("{wdir}/results/trim3/trim3_{sample}.fastq.gz", sample = SAMPLES, wdir=WDIR )
+         config["wdir"]+"/results/trim3/trim3_{sample}.fastq.gz"
     params:
         minReadLength=config["min_read_length"], 
         dir=expand("{wdir}/results/trim3/", wdir=WDIR),
-        trim3_length=config["trim3_length"],
+        trim3_length=config["trim3_len"],
         filename=config["wdir"]+"/results/trim3/trim3_{sample}"
 
     threads: workflow.cores  # allows
@@ -1079,6 +1080,7 @@ checkpoint merge_bam:
         bam = expand(get_bam_dedup(), sample = SAMPLES)
     output:
         bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam"
+        bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
     params: 
         wdir = config['wdir'],
         dedup=DEDUP
@@ -1092,11 +1094,45 @@ checkpoint merge_bam:
         if [[ "{params.dedup}" == "True" ]]; then
             s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
             samtools merge -f {output.bam_merge} $s
+            wait 
+            samtools index {output.bam_merge}
         else
             s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.bam"}}' {input.groups} )" 
             samtools merge -f {output.bam_merge} $s
+            wait 
+            samtools index {output.bam_merge}
         fi
 
+        """
+
+###-----------------------------------------
+###-----------------------------------------
+### Peak calling
+###-----------------------------------------
+###-----------------------------------------
+
+rule pc_peak_calling:
+    input:
+        bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam"
+        bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
+    output:
+        peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed"
+
+    params: 
+        wdir = config['wdir'],
+    threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
+    resources:
+        mem_mb = 180000
+    conda:
+        "envs/racoon_main_v0.4.yml"
+    message: 
+        "========================= \n Pureclip peak calling on group {wildcards.groups} \n this may take several days ================================ \n" 
+    shell:
+        """
+        pureclip \
+            --bam {input.bam_merge} \
+            --genome {params.wdir}/results/demultiplex/genome.fa \
+            --gtf {params.wdir}/results/demultiplex/annotation.gtf \
         """
 
 
