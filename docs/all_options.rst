@@ -203,9 +203,9 @@ Using manual barcode setup for ENCODE (or ENCODE-like) data
 .. code-block:: python
 
    barcodeLength: 0 
-   umi1_len: 5
+   umi1_len: 10 (5)
    umi2_len: 0
-   total_barcode_len: 10
+   total_barcode_len: 10 (5)
    encode: True   
 
 Quality filtering during barcode trimming:
