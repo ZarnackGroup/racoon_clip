@@ -344,8 +344,9 @@ if DEDUP == True:  # without demultiplexing
 
 # merge multiple samples
 if len(SAMPLES) > 1:
-    myoutput.append(expand("{wdir}/results/bam_merged/{groups}.bam",  groups=GROUPS, wdir=WDIR))
+    myoutput.append(expand("{wdir}/results/bam_merged/{groups}.sort.bam",  groups=GROUPS, wdir=WDIR))
     myoutput.append(expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR))
+    myoutput.append(expand("{wdir}/results/tmp/.merged.{groups}.bai.chkpnt", groups=GROUPS, wdir=WDIR))
 
 # add miR steps
 if MIR == True:
@@ -365,6 +366,7 @@ rule all:
         myoutput,
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
+        # merged, indexed bam files
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
@@ -1079,8 +1081,7 @@ checkpoint merge_bam:
         groups = config["wdir"]+"/results/tmp/groups/{groups}.txt",
         bam = expand(get_bam_dedup(), sample = SAMPLES)
     output:
-        bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam"
-        bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
+        bam_merge = config['wdir']+"/results/tmp/{groups}.bam"
     params: 
         wdir = config['wdir'],
         dedup=DEDUP
@@ -1094,15 +1095,41 @@ checkpoint merge_bam:
         if [[ "{params.dedup}" == "True" ]]; then
             s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
             samtools merge -f {output.bam_merge} $s
-            wait 
-            samtools index {output.bam_merge}
         else
             s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.bam"}}' {input.groups} )" 
             samtools merge -f {output.bam_merge} $s
-            wait 
-            samtools index {output.bam_merge}
         fi
 
+        """
+        
+rule sort_merged_bams:
+    input:
+        config['wdir']+"/results/tmp/{groups}.bam"
+    output:
+        config['wdir']+"/results/bam_merged/{groups}.sort.bam"
+    conda:
+        "envs/racoon_main_v0.4.yml"
+    threads: 1 # x each sample automatically assigned by snakemake
+    message: 
+            "========================= \n Sorting merged bam files of group {wildcards.groups} \n ================================ \n" 
+    shell:
+        "samtools sort {input} -o {output}"
+        
+rule merged_bam_index:
+    input:
+        config['wdir']+"/results/bam_merged/{groups}.sort.bam"
+    output:
+        chpnt = touch(config["wdir"]+"/results/tmp/.merged.{groups}.bai.chkpnt")
+    # params:
+    #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
+    conda:
+        "envs/racoon_main_v0.4.yml"
+    message: 
+            "========================= \n Indexing .bam file of {wildcards.groups} \n ================================ \n" 
+    threads: 1 # x each sample automatically assigned by snakemake
+    shell:
+        """
+        samtools index {input}
         """
 
 ###-----------------------------------------
@@ -1113,13 +1140,12 @@ checkpoint merge_bam:
 
 rule pc_peak_calling:
     input:
-        bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam"
+        bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam",
         bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
     output:
         peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed"
-
     params: 
-        wdir = config['wdir'],
+        gtf=config["gtf"],
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
         mem_mb = 180000
@@ -1129,10 +1155,11 @@ rule pc_peak_calling:
         "========================= \n Pureclip peak calling on group {wildcards.groups} \n this may take several days ================================ \n" 
     shell:
         """
-        pureclip \
-            --bam {input.bam_merge} \
-            --genome {params.wdir}/results/demultiplex/genome.fa \
-            --gtf {params.wdir}/results/demultiplex/annotation.gtf \
+        pureclip -i {input.bam_merge} \
+        --bai {input.bam_index} \
+        -g {params.gtf} \
+        -o {output.peaks} \
+        -nt {threads} \
         """
 
 
