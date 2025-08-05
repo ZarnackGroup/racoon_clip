@@ -88,7 +88,7 @@ def create_absolute_paths_config(config_file, log_file=None):
                 config_data = yaml.safe_load(f)
             
             # Convert relative paths to absolute paths
-            path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta']
+            path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'star_index']
             for key in path_keys:
                 if key in config_data and config_data[key]:
                     value = config_data[key]
@@ -116,7 +116,7 @@ def create_absolute_paths_config(config_file, log_file=None):
             for line in lines:
                 modified_line = line
                 # Look for common path keys
-                for key in ['wdir:', 'infiles:', 'experiment_group_file:', 'barcodes_fasta:', 'adapter_file:', 'gtf:', 'genome_fasta:']:
+                for key in ['wdir:', 'infiles:', 'experiment_group_file:', 'barcodes_fasta:', 'adapter_file:', 'gtf:', 'genome_fasta:', 'star_index:']:
                     if line.strip().startswith(key):
                         parts = line.split(':', 1)
                         if len(parts) == 2:
