@@ -57,7 +57,7 @@ def show_config_differences(original_config, temp_config, log_file=None):
                 log_f.write(error_msg)
 
 
-def test_run_execution(config_file, log_file=None):
+def test_run_execution(config_file, log_file=None, extra_args=None):
     """Test if racoon_clip crosslinks executes without errors."""
     
     # Change to racoon_clip directory (2 levels up from where script is located)
@@ -153,6 +153,14 @@ def test_run_execution(config_file, log_file=None):
     cmd = ["racoon_clip", "crosslinks", "--cores", "4",
            "--configfile", config_file, 
            "--log", racoon_log_path]
+    
+    # Add extra arguments if provided
+    if extra_args:
+        if isinstance(extra_args, str):
+            # Split string into list of arguments
+            extra_args = extra_args.split()
+        cmd.extend(extra_args)
+        print(f"DEBUG: Added extra arguments: {extra_args}")
     
     print(f"DEBUG: Using config file for racoon_clip: {config_file}")
     
