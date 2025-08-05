@@ -628,12 +628,15 @@ def citation(**kwargs):
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
 @click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE config only)')
-def test(light, devel, report, peaks):
+@click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
+def test(light, devel, report, peaks, extra_args):
     """Run racoon_clip test suite
     
     By default runs full test suite (DAG tests, config tests, crosslinks tests, and peaks tests).
     Use --light for minimal testing, --devel for comprehensive testing including installation,
     --report for report generation testing, or --peaks for peaks testing only.
+    
+    Use --extra-args to pass additional arguments to the underlying snakemake commands.
     """
     # Import here to avoid circular imports
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tests'))
@@ -647,16 +650,16 @@ def test(light, devel, report, peaks):
         click.echo("Error: Cannot specify multiple test type flags simultaneously")
         sys.exit(1)
     elif light:
-        success = suite.test_light()
+        success = suite.test_light(extra_args=extra_args)
     elif devel:
-        success = suite.devel_test()
+        success = suite.devel_test(extra_args=extra_args)
     elif report:
-        success = suite.test_report()
+        success = suite.test_report(extra_args=extra_args)
     elif peaks:
-        success = suite.test_peaks()
+        success = suite.test_peaks(extra_args=extra_args)
     else:
         # Default: run full test suite
-        success = suite.test()
+        success = suite.test(extra_args=extra_args)
     
     sys.exit(0 if success else 1)
 

@@ -145,7 +145,7 @@ def create_absolute_paths_config(config_file, log_file=None):
         return None
 
 
-def test_peaks_execution(config_file, log_file=None):
+def test_peaks_execution(config_file, log_file=None, extra_args=None):
     """Test if racoon_clip peaks executes without errors."""
     
     # First, create absolute paths version of config file
@@ -171,6 +171,14 @@ def test_peaks_execution(config_file, log_file=None):
     cmd = ["racoon_clip", "peaks", "--cores", "4",
            "--configfile", abs_config_file, 
            "--log", racoon_log_path]
+    
+    # Add extra arguments if provided
+    if extra_args:
+        if isinstance(extra_args, str):
+            # Split string into list of arguments
+            extra_args = extra_args.split()
+        cmd.extend(extra_args)
+        print(f"DEBUG: Added extra arguments: {extra_args}")
     
     print(f"DEBUG: Using config file for racoon_clip: {abs_config_file}")
     
