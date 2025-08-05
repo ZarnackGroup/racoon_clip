@@ -30,9 +30,13 @@ from test_config import test_config
 sys.path.append(str(Path(__file__).parent / "test_dag"))
 from test_dag import test_dag
 
-# Import RUN testing functionality
-sys.path.append(str(Path(__file__).parent / "test_run"))
-from test_run import test_run_execution
+# Import CROSSLINKS testing functionality
+sys.path.append(str(Path(__file__).parent / "test_crosslinks"))
+from test_crosslinks import test_run_execution
+
+# Import PEAKS testing functionality
+sys.path.append(str(Path(__file__).parent / "test_peaks"))
+from test_peaks import test_peaks_execution
 
 
 # Color definitions for output
@@ -136,7 +140,7 @@ class RacoonTestSuite:
             print_error(f"Config file not found: {config_file}")
             return False
 
-        # Use the imported test_run_execution function
+        # Use the imported test_run_execution function for crosslinks
         return test_run_execution(str(config_path))
 
     def test_all_dags(self) -> bool:
@@ -204,8 +208,8 @@ class RacoonTestSuite:
             print_error(f"Config file not found: {config_file}")
             return False
 
-        # Use the imported test_run_execution function for peaks (full pipeline)
-        return test_run_execution(str(config_path))
+        # Use the imported test_peaks_execution function for peaks (full pipeline)
+        return test_peaks_execution(str(config_path))
 
     def test_all_peaks(self) -> bool:
         """Test peaks execution for eCLIP ENCODE config file only"""
@@ -450,7 +454,7 @@ class RacoonTestSuite:
         # Test config files second
         config_success = self.test_config_files()
         
-        # Only run the execution tests if DAG and config tests pass
+        # Only run the execution tests (crosslinks and peaks) if DAG and config tests pass
         if dag_success and config_success:
             crosslinks_success = self.test_all_crosslinks()
             peaks_success = self.test_all_peaks()
@@ -495,7 +499,7 @@ class RacoonTestSuite:
             print_error(f"Report test script not found: {report_script}")
             return False
         
-        # Create absolute paths config files first (same as run test)
+        # Create absolute paths config files first (same as crosslinks test)
         print_colored("Creating config files with absolute paths...")
         script_dir = os.path.dirname(os.path.abspath(__file__))
         racoon_clip_dir = os.path.dirname(script_dir)  # Go up from tests to racoon_clip
@@ -515,7 +519,7 @@ class RacoonTestSuite:
                 print_warning(f"Config file not found: {config_file}")
                 continue
                 
-            # Create absolute paths version using same logic as test_run
+            # Create absolute paths version using same logic as test_crosslinks
             config_basename = os.path.splitext(os.path.basename(config_file))[0]
             abs_config_name = f"{config_basename}_absolute_paths.yaml"
             abs_config_file = os.path.join(os.path.dirname(config_file), abs_config_name)
@@ -534,7 +538,7 @@ class RacoonTestSuite:
                         import yaml
                         config_data = yaml.safe_load(f)
                         
-                        # Convert paths (same logic as in test_run.py)
+                        # Convert paths (same logic as in test_crosslinks.py)
                         path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta']
                         for key in path_keys:
                             if key in config_data and config_data[key]:
