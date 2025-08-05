@@ -74,6 +74,9 @@ if config["experiment_group_file"] is not None and os.path.exists(config["experi
                 GROUPS.add(first_column)
 else:
     GROUPS.add("all_samples")
+    
+print("groups:") 
+print(GROUPS)
 
 # get experiment info
 # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other"
@@ -362,6 +365,18 @@ if MIR == True:
     myoutput.append(config["wdir"]+"/results/Report_miR.html")
    
 
+rule all:
+    input:
+        myoutput,
+        # # # # crosslink_sites
+        expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
+        expand("{wdir}/results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
+        # # # # Report
+        config["wdir"]+"/results/Report.html",
+        # config["wdir"]+"/results/.finished"  
+    message:  "========================= \n ================================ \n RACOON-CLIP FINISHED! \n ================================ \n ================================ " 
+   
+
 rule all_crosslinks:
     input:
         myoutput,
@@ -374,17 +389,7 @@ rule all_crosslinks:
     message:  "========================= \n ================================ \n RACOON-CLIP crosslinks FINISHED! \n ================================ \n ================================ " 
         
 
-rule all:
-    input:
-        myoutput,
-        # # # # crosslink_sites
-        expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
-        peaks=expand("{wdir}results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
-        # # # # Report
-        config["wdir"]+"/results/Report.html",
-        # config["wdir"]+"/results/.finished"  
-    message:  "========================= \n ================================ \n RACOON-CLIP FINISHED! \n ================================ \n ================================ " 
-        
+     
 
 #################################################
 #################################################
@@ -1152,24 +1157,24 @@ rule merged_bam_index:
 
 rule pc_peak_calling:
     input:
-        bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam",
-        bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
+        bam_merge = config['wdir']+"/results/bam_merged/{groups}.sort.bam",
+        bam_index = config['wdir']+"/results/bam_merged/{groups}.sort.bam.bai"
     output:
         peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed",
     params: 
-        gtf=config["gtf"],
+        fasta=config["genome_fasta"],
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
         mem_mb = 180000
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_pureclip.yml"
     message: 
         "========================= \n Pureclip peak calling on group {wildcards.groups} \n this may take several days ================================ \n" 
     shell:
         """
         pureclip -i {input.bam_merge} \
         --bai {input.bam_index} \
-        -g {params.gtf} \
+        -g {params.fasta} \
         -o {output.peaks} \
         -nt {threads} \
         """
