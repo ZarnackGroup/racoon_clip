@@ -48,6 +48,7 @@ Here is a config file listing all default options. This tutorial will walk you t
     # star alignment
     gtf: "" # has to be unzipped at the moment
     genome_fasta: "" # has to be unzipped or bgzip
+    star_index: "" # optional prebuilt STAR index directory
     read_length: 150 
     outFilterMismatchNoverReadLmax: 0.04
     outFilterMismatchNmax: 999
@@ -63,7 +64,8 @@ All these options can also be specified in the command line instead of the confi
 
 .. code:: bash
 
-   racoon_clip run -h
+   racoon_clip crosslinks -h
+   racoon_clip peaks -h
 
 
 Execution parameters
@@ -151,6 +153,8 @@ Required input
 
 - **genome_fasta** : .fasta file of used genome annotation. Unzipped or bgzip files are supported. 
 
+- **star_index** (path): *optional*; Path to a prebuilt STAR index directory. If provided, STAR will use this existing index instead of building a new one from genome_fasta and gtf. This can significantly speed up the alignment process for large genomes. If not specified or empty, STAR will build the index on-the-fly.
+
 - **read_length** (int): *default 150*; The length of the new sequencing reads.
 
 You can, for example, get the gtf and the genome_fasta from `GENCODE <https://www.gencodegenes.org/human/>`_ or from `ENSEMBL <http://www.ensembl.org/index.html>`_.
@@ -193,7 +197,19 @@ For example, racoon_clip can be executed with slurm clusters like this:
 
 .. code:: bash
 
-  racoon_clip run \
+  racoon_clip crosslinks \
+  --configfile <your_configfile.yaml> \
+  -p \
+  --cores 10 \
+  --profile <path/to/your/slurm/profile> \
+  --wait-for-files \
+  --latency-wait 60
+
+Or for peaks calling:
+
+.. code:: bash
+
+  racoon_clip peaks \
   --configfile <your_configfile.yaml> \
   -p \
   --cores 10 \

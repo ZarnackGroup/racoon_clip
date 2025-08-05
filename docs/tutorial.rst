@@ -8,11 +8,14 @@ Tutorial: Quickstart
 How to run racoon_clip
 ---------------------------
 
-You can run racoon_clip with the following command:
+You can run racoon_clip with the following commands:
 
 .. code:: commandline
 
-   racoon_clip run --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
+   racoon_clip crosslinks --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
+   racoon_clip peaks --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
+
+The `crosslinks` command performs the crosslink identification pipeline, while the `peaks` command performs both crosslink identification and peak calling.
 
 
 
@@ -45,6 +48,7 @@ A minimal config file would therefore look like this:
     # annotation
     gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
     genome_fasta: "path/to/genome_assembly.fa" # has to be unzipped or bgzip
+    star_index: "" # optional prebuilt STAR index directory
     read_length: N 
 
     # experiemnt type
@@ -75,15 +79,17 @@ The experiment_type specifies the barcode and adapter setup in your data. You ca
     Most common barcode setups.
 
 
-Which steps will racoon_clip run by default?
+Which steps will racoon_clip crosslinks run by default?
 ---------------------------
-This depends on the experiment_type. If not specified otherwise, racoon_clip will run the following:
+This depends on the experiment_type. If not specified otherwise, racoon_clip crosslinks will run the following:
 
 | **iCLIP, iCLIP2, and other:** 
 | Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
 | **eCLIP_5ntUMI, eCLIP_10ntUMI and iCLIP3:** 
 | Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
+
+The `racoon_clip peaks` command performs crosslink identification and subsequent peak calling. 
 |
 | **eCLIP_ENCODE_5ntUMI and eCLIP_ENCODE_10ntUMI:** 
 | Adapter trimming > Alignment > Deduplication > Crosslink detection
