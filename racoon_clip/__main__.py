@@ -624,14 +624,14 @@ def citation(**kwargs):
 
 # Test command functions
 @click.command(name='test')
-@click.option('--light', is_flag=True, help='Run light test suite (DAG tests and report comparison only)')
+@click.option('--light', is_flag=True, help='Run light test suite (DAG and config tests only)')
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
 @click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE config only)')
 def test(light, devel, report, peaks):
     """Run racoon_clip test suite
     
-    By default runs full test suite (DAG tests and report comparison).
+    By default runs full test suite (DAG tests, config tests, crosslinks tests, and peaks tests).
     Use --light for minimal testing, --devel for comprehensive testing including installation,
     --report for report generation testing, or --peaks for peaks testing only.
     """
