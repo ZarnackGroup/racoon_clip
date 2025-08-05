@@ -38,6 +38,7 @@ trim3_len: 3
 gtf: "" # has to be unzipped at the moment
 genome_fasta: "" # has to be unzipped or bgzip
 read_length: 150 # remove???  readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
+star_index: "" # path to star index, if not specified will be created from genome_fasta and gtf
 outFilterMismatchNoverReadLmax: 0.04
 outFilterMismatchNmax: 999
 outFilterMultimapNmax: 1
