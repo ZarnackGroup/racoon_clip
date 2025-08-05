@@ -195,6 +195,7 @@ def run_snakemake(
     log=None,
     default_config=None,
     working_directory=None,  # Add the output parameter
+    targets=None,  # Add targets parameter
 ):
     """Run a Snakefile"""
     # Make merged config from defaults, userconfig + commandline arguments
@@ -205,6 +206,10 @@ def run_snakemake(
     update_config(u_config=user_configfile, merge=merge_config, default_config= default_config, log=log, output_config=output_config)
 
     snake_command = ["snakemake", "-s", snakefile_path, "--configfile", output_config, "--use-conda --conda-frontend mamba"]
+
+    # add targets if specified
+    if targets:
+        snake_command.extend(targets)
 
 
    
