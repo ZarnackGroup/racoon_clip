@@ -379,7 +379,7 @@ rule all:
         myoutput,
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
-        peaks=expand("{wdir}results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
+        expand("{wdir}/results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  

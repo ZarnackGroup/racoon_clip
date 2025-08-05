@@ -627,7 +627,7 @@ def citation(**kwargs):
 @click.option('--light', is_flag=True, help='Run light test suite (DAG and config tests only)')
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
-@click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE config only)')
+@click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE and iCLIP configs)')
 @click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
 def test(light, devel, report, peaks, extra_args):
     """Run racoon_clip test suite
@@ -636,6 +636,7 @@ def test(light, devel, report, peaks, extra_args):
     Use --light for minimal testing, --devel for comprehensive testing including installation,
     --report for report generation testing, or --peaks for peaks testing only.
     
+    Peaks testing includes both eCLIP ENCODE and iCLIP config files.
     Use --extra-args to pass additional arguments to the underlying snakemake commands.
     """
     # Import here to avoid circular imports

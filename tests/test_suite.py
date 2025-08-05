@@ -212,21 +212,26 @@ class RacoonTestSuite:
         return test_peaks_execution(str(config_path), extra_args=extra_args)
 
     def test_all_peaks(self, extra_args=None) -> bool:
-        """Test peaks execution for eCLIP ENCODE config file only"""
+        """Test peaks execution for eCLIP ENCODE and iCLIP config files"""
         print_colored("=== Testing Peaks Execution ===")
 
-        # Only test the eCLIP ENCODE config file
-        peaks_config = "example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC.yaml"
+        # Test both eCLIP ENCODE and iCLIP config files for peaks
+        peaks_configs = [
+            "example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC.yaml",
+            "example_data/example_iCLIP/config_test_iCLIP.yaml"
+        ]
         
         passed = 0
         failed = 0
         failed_tests = []
 
-        if self.test_peaks_execution(peaks_config, extra_args=extra_args):
-            passed += 1
-        else:
-            failed += 1
-            failed_tests.append(Path(peaks_config).name)
+        for peaks_config in peaks_configs:
+            print_colored(f"\nTesting peaks for: {Path(peaks_config).name}")
+            if self.test_peaks_execution(peaks_config, extra_args=extra_args):
+                passed += 1
+            else:
+                failed += 1
+                failed_tests.append(Path(peaks_config).name)
 
         print_colored("\nPeaks Test Summary:")
         print_colored(f"Passed: {passed}")
