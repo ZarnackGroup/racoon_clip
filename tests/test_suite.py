@@ -125,9 +125,9 @@ class RacoonTestSuite:
         # Use the imported test_dag function
         return test_dag(str(config_path))
 
-    def test_run_execution(self, config_file: str) -> bool:
-        """Test run execution for a single config file"""
-        print_colored(f"Testing run for: {Path(config_file).name}")
+    def test_crosslinks_execution(self, config_file: str) -> bool:
+        """Test crosslinks execution for a single config file"""
+        print_colored(f"Testing crosslinks for: {Path(config_file).name}")
         
         # Check if config file exists
         config_path = self.base_dir.parent / config_file
@@ -166,28 +166,71 @@ class RacoonTestSuite:
 
         return failed == 0
 
-    def test_all_runs(self) -> bool:
-        """Test run execution for all config files"""
-        print_colored("=== Testing Run Execution ===")
+    def test_all_crosslinks(self) -> bool:
+        """Test crosslinks execution for all config files"""
+        print_colored("=== Testing Crosslinks Execution ===")
 
         passed = 0
         failed = 0
         failed_tests = []
 
         for config_file in self.config_files:
-            if self.test_run_execution(config_file):
+            if self.test_crosslinks_execution(config_file):
                 passed += 1
             else:
                 failed += 1
                 failed_tests.append(Path(config_file).name)
 
-        print_colored("\nRun Test Summary:")
+        print_colored("\nCrosslinks Test Summary:")
         print_colored(f"Passed: {passed}")
         print_colored(f"Failed: {failed}")
         print_colored(f"Total:  {passed + failed}")
 
         if failed > 0:
-            print_error("Failed run tests:")
+            print_error("Failed crosslinks tests:")
+            for test in failed_tests:
+                print_colored(f"  - {test}")
+
+        return failed == 0
+
+    def test_peaks_execution(self, config_file: str) -> bool:
+        """Test peaks execution for a single config file"""
+        print_colored(f"Testing peaks for: {Path(config_file).name}")
+        
+        # Check if config file exists
+        config_path = self.base_dir.parent / config_file
+        print_colored(f"Looking for config file at: {config_path}")
+        if not config_path.exists():
+            print_error(f"Config file not found: {config_file}")
+            return False
+
+        # Use the imported test_run_execution function for peaks (full pipeline)
+        return test_run_execution(str(config_path))
+
+    def test_all_peaks(self) -> bool:
+        """Test peaks execution for eCLIP ENCODE config file only"""
+        print_colored("=== Testing Peaks Execution ===")
+
+        # Only test the eCLIP ENCODE config file
+        peaks_config = "example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC.yaml"
+        
+        passed = 0
+        failed = 0
+        failed_tests = []
+
+        if self.test_peaks_execution(peaks_config):
+            passed += 1
+        else:
+            failed += 1
+            failed_tests.append(Path(peaks_config).name)
+
+        print_colored("\nPeaks Test Summary:")
+        print_colored(f"Passed: {passed}")
+        print_colored(f"Failed: {failed}")
+        print_colored(f"Total:  {passed + failed}")
+
+        if failed > 0:
+            print_error("Failed peaks tests:")
             for test in failed_tests:
                 print_colored(f"  - {test}")
 
@@ -397,7 +440,7 @@ class RacoonTestSuite:
         return success
 
     def test(self) -> bool:
-        """Full test: DAG tests, config tests, then run tests (conditional)"""
+        """Full test: DAG tests, config tests, crosslinks tests, and peaks tests (conditional)"""
         print_colored("🧪 Running Full Test Suite")
         print_colored("="*50)
         
@@ -409,10 +452,11 @@ class RacoonTestSuite:
         
         # Only run the execution tests if DAG and config tests pass
         if dag_success and config_success:
-            run_success = self.test_all_runs()
-            success = run_success
+            crosslinks_success = self.test_all_crosslinks()
+            peaks_success = self.test_all_peaks()
+            success = crosslinks_success and peaks_success
         else:
-            print_colored("\n⚠️ Skipping run tests due to DAG or config test failures")
+            print_colored("\n⚠️ Skipping execution tests due to DAG or config test failures")
             success = False
         
         print_colored("\n" + "="*50)
@@ -420,6 +464,22 @@ class RacoonTestSuite:
             print_success("🎉 All tests passed!")
         else:
             print_error("❌ Some tests failed!")
+            
+        return success
+
+    def test_peaks(self) -> bool:
+        """Peaks only test: Only run peaks execution tests"""
+        print_colored("🧪 Running Peaks Test Suite")
+        print_colored("="*50)
+        
+        # Test peaks only
+        success = self.test_all_peaks()
+        
+        print_colored("\n" + "="*50)
+        if success:
+            print_success("🎉 Peaks test passed!")
+        else:
+            print_error("❌ Peaks test failed!")
             
         return success
 
@@ -600,7 +660,7 @@ def main():
     parser = argparse.ArgumentParser(description="Racoon CLIP test suite")
     parser.add_argument(
         "test_type", 
-        choices=["test_light", "test", "devel_test", "dev_report", "test_report"],
+        choices=["test_light", "test", "test_peaks", "devel_test", "dev_report", "test_report"],
         help="Type of test to run"
     )
     
@@ -612,6 +672,8 @@ def main():
         success = suite.test_light()
     elif args.test_type == "test":
         success = suite.test()
+    elif args.test_type == "test_peaks":
+        success = suite.test_peaks()
     elif args.test_type == "devel_test":
         success = suite.devel_test()
     elif args.test_type == "dev_report":

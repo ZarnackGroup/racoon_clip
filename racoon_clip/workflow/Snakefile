@@ -301,7 +301,8 @@ def mqc_for_readlength():
 
 #################################################
 #################################################
-# rule all --> conditional output to define which steps should be done
+# rule crosslinks, peakcalling and all
+# --> conditional output to define which steps should be done
 #################################################
 #################################################
 
@@ -361,7 +362,7 @@ if MIR == True:
     myoutput.append(config["wdir"]+"/results/Report_miR.html")
    
 
-rule all:
+rule all_crosslinks:
     input:
         myoutput,
         # # # # crosslink_sites
@@ -370,9 +371,20 @@ rule all:
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
-    message:  "========================= \n ================================ \n RACOON FINISHED! \n ================================ \n ================================ " 
+    message:  "========================= \n ================================ \n RACOON-CLIP crosslinks FINISHED! \n ================================ \n ================================ " 
         
 
+rule all:
+    input:
+        myoutput,
+        # # # # crosslink_sites
+        expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
+        peaks=expand("{wdir}results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
+        # # # # Report
+        config["wdir"]+"/results/Report.html",
+        # config["wdir"]+"/results/.finished"  
+    message:  "========================= \n ================================ \n RACOON-CLIP FINISHED! \n ================================ \n ================================ " 
+        
 
 #################################################
 #################################################
@@ -1143,7 +1155,7 @@ rule pc_peak_calling:
         bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam",
         bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
     output:
-        peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed"
+        peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed",
     params: 
         gtf=config["gtf"],
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
