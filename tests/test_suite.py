@@ -129,7 +129,7 @@ class RacoonTestSuite:
         # Use the imported test_dag function
         return test_dag(str(config_path))
 
-    def test_crosslinks_execution(self, config_file: str) -> bool:
+    def test_crosslinks_execution(self, config_file: str, extra_args=None) -> bool:
         """Test crosslinks execution for a single config file"""
         print_colored(f"Testing crosslinks for: {Path(config_file).name}")
         
@@ -141,7 +141,7 @@ class RacoonTestSuite:
             return False
 
         # Use the imported test_run_execution function for crosslinks
-        return test_run_execution(str(config_path))
+        return test_run_execution(str(config_path), extra_args=extra_args)
 
     def test_all_dags(self) -> bool:
         """Test DAG generation for all config files"""
@@ -170,7 +170,7 @@ class RacoonTestSuite:
 
         return failed == 0
 
-    def test_all_crosslinks(self) -> bool:
+    def test_all_crosslinks(self, extra_args=None) -> bool:
         """Test crosslinks execution for all config files"""
         print_colored("=== Testing Crosslinks Execution ===")
 
@@ -179,7 +179,7 @@ class RacoonTestSuite:
         failed_tests = []
 
         for config_file in self.config_files:
-            if self.test_crosslinks_execution(config_file):
+            if self.test_crosslinks_execution(config_file, extra_args=extra_args):
                 passed += 1
             else:
                 failed += 1
@@ -197,7 +197,7 @@ class RacoonTestSuite:
 
         return failed == 0
 
-    def test_peaks_execution(self, config_file: str) -> bool:
+    def test_peaks_execution(self, config_file: str, extra_args=None) -> bool:
         """Test peaks execution for a single config file"""
         print_colored(f"Testing peaks for: {Path(config_file).name}")
         
@@ -209,9 +209,9 @@ class RacoonTestSuite:
             return False
 
         # Use the imported test_peaks_execution function for peaks (full pipeline)
-        return test_peaks_execution(str(config_path))
+        return test_peaks_execution(str(config_path), extra_args=extra_args)
 
-    def test_all_peaks(self) -> bool:
+    def test_all_peaks(self, extra_args=None) -> bool:
         """Test peaks execution for eCLIP ENCODE config file only"""
         print_colored("=== Testing Peaks Execution ===")
 
@@ -222,7 +222,7 @@ class RacoonTestSuite:
         failed = 0
         failed_tests = []
 
-        if self.test_peaks_execution(peaks_config):
+        if self.test_peaks_execution(peaks_config, extra_args=extra_args):
             passed += 1
         else:
             failed += 1
@@ -420,10 +420,14 @@ class RacoonTestSuite:
         
         return failed == 0
 
-    def test_light(self) -> bool:
+    def test_light(self, extra_args=None) -> bool:
         """Light test: DAG tests and config tests only"""
         print_colored("🧪 Running Light Test Suite")
         print_colored("="*50)
+        
+        # Print extra args info if provided
+        if extra_args:
+            print_colored(f"Extra arguments for snakemake: {extra_args}")
         
         results = []
 
@@ -443,10 +447,14 @@ class RacoonTestSuite:
             
         return success
 
-    def test(self) -> bool:
+    def test(self, extra_args=None) -> bool:
         """Full test: DAG tests, config tests, crosslinks tests, and peaks tests (conditional)"""
         print_colored("🧪 Running Full Test Suite")
         print_colored("="*50)
+        
+        # Print extra args info if provided
+        if extra_args:
+            print_colored(f"Extra arguments for snakemake: {extra_args}")
         
         # Test DAGs first
         dag_success = self.test_all_dags()
@@ -456,8 +464,8 @@ class RacoonTestSuite:
         
         # Only run the execution tests (crosslinks and peaks) if DAG and config tests pass
         if dag_success and config_success:
-            crosslinks_success = self.test_all_crosslinks()
-            peaks_success = self.test_all_peaks()
+            crosslinks_success = self.test_all_crosslinks(extra_args=extra_args)
+            peaks_success = self.test_all_peaks(extra_args=extra_args)
             success = crosslinks_success and peaks_success
         else:
             print_colored("\n⚠️ Skipping execution tests due to DAG or config test failures")
@@ -471,13 +479,17 @@ class RacoonTestSuite:
             
         return success
 
-    def test_peaks(self) -> bool:
+    def test_peaks(self, extra_args=None) -> bool:
         """Peaks only test: Only run peaks execution tests"""
         print_colored("🧪 Running Peaks Test Suite")
         print_colored("="*50)
         
+        # Print extra args info if provided
+        if extra_args:
+            print_colored(f"Extra arguments for snakemake: {extra_args}")
+        
         # Test peaks only
-        success = self.test_all_peaks()
+        success = self.test_all_peaks(extra_args=extra_args)
         
         print_colored("\n" + "="*50)
         if success:
@@ -487,10 +499,14 @@ class RacoonTestSuite:
             
         return success
 
-    def test_report(self) -> bool:
+    def test_report(self, extra_args=None) -> bool:
         """Report generation test: Run the test_report.R script"""
         print_colored("🧪 Running Report Generation Test")
         print_colored("="*50)
+        
+        # Print extra args info if provided (not used for R script)
+        if extra_args:
+            print_colored(f"Note: Extra arguments ignored for report test: {extra_args}")
         
         # Path to the test_report.R script
         report_script = self.base_dir / "report_test" / "test_report.R"
@@ -644,10 +660,14 @@ class RacoonTestSuite:
             
         return success
 
-    def devel_test(self) -> bool:
+    def devel_test(self, extra_args=None) -> bool:
         """Development test: Only installation test"""
         print_colored("🧪 Running Development Test Suite")
         print_colored("="*50)
+        
+        # Print extra args info if provided (not used for installation test)
+        if extra_args:
+            print_colored(f"Note: Extra arguments ignored for development test: {extra_args}")
         
         # Test installation only
         success = self.test_installation()
