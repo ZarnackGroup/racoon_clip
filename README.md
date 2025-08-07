@@ -7,7 +7,7 @@ racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleot
 
 The performed steps are an optional quality filter, optional demultiplexing, adapter trimming, genome alignment, optional deduplication and selection of single nucleotide crosslinks. For details on the performed steps please have a look at the [documentation](https://racoon-clip.readthedocs.io/en/latest/).
 
-![](racoon_clip_workflow_2.0.png)
+![](racoon_clip_workflow_2.0.png =250x)
 
 
 ## Installation
