@@ -48,3 +48,11 @@ See also:
 
 - `BEDTools: a flexible suite of utilities for comparing genomic features <https://academic.oup.com/bioinformatics/article/26/6/841/244688>`_
 - `UCSC tools <https://github.com/ucscGenomeBrowser/kent>`_
+
+
+Peakcalling
+^^^^^^^^^^^^^^
+Peaks are called with PureCLIP on the merged bam files from each group.
+
+See also: `PureCLIP: capturing target-specific protein–RNA interaction footprints from single-nucleotide CLIP-seq data <https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1364-2>`_
+
