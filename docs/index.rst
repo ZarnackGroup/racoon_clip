@@ -13,6 +13,7 @@ Welcome to racoon_clip's documentation!
    installation
    tutorial 
    tutorial_customise
+   tutorial_output
    tutorial_mir
    all_options
    examples
