@@ -199,7 +199,7 @@ STAR parameters to allow multimapping:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 To allow multimapping, you can add the following to the config file:
 
-..code:: bash
+.. code:: bash
 
     outFilterMultimapNmax: 1000
     moreSTARParameters: "--outSAMmultNmax 1 --winAnchorMultimapNmax 1000 --outMultimapperOrder Random"
