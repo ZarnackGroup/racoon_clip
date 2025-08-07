@@ -134,10 +134,10 @@ Sample names & experiment groups
 Demultiplexing 
 ---------------------------------
 
-Demultiplexing can optionally be performed. 
+Demultiplexing can be performed optionally. 
 
 - **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
-- **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
+- **barcodes_fasta** (path to fasta): Path to fasta file with antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
 .. code-block:: text
 
@@ -157,7 +157,7 @@ Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different leng
 
 - **iCLIP3**: UMI of 9nt in the beginning (5' end)
 
-- **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
+- **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2. This option can also be used for seCLIP data. 
 
 - **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
