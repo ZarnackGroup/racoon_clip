@@ -30,6 +30,7 @@ The performed steps are a quality filter (optional), demultiplexing (optional), 
 
 
 **Schema of workflow:**
+
 .. figure:: ../Workflow.png
    :width: 500
 
