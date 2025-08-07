@@ -42,10 +42,15 @@ Here is a config file listing all default options. This tutorial will walk you t
     demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no barcode filtering will be done
     min_read_length: 15
     
-    #adapter adapter_trimming
+    # adapter trimming
     adapter_file: ""
     adapter_cycles: 1
     adapter_trimming: True
+
+    # 3'end trimming
+    trim3: False
+    trim3_len: 3
+
     
     # star alignment
     gtf: "" # has to be unzipped at the moment
@@ -67,7 +72,6 @@ All these options can also be specified in the command line instead of the confi
 .. code:: bash
 
    racoon_clip crosslinks -h
-   racoon_clip peaks -h
 
 
 Execution parameters
