@@ -27,3 +27,4 @@ tests/report_test/inputs_for_report_test/*/*_absolute_paths.yaml
 example_data/
 logs/*
 *.log
+Dockerfile.old

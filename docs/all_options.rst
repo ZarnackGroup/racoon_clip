@@ -13,7 +13,8 @@ You can specify all parameters and options of racoon either directly in the comm
 
 .. code:: commandline
 
-   racoon_clip run .. --configfile <your_configfile> --cores <n_cores>
+   racoon_clip crosslinks .. --configfile <your_configfile> --cores <n_cores>
+   racoon_clip peaks .. --configfile <your_configfile> --cores <n_cores>
 
 To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters, that should be used in default, do not need to be specified in the config.yaml file. Here is an example of a config.yaml file containing all default options:
 
@@ -55,6 +56,7 @@ To make your own config file you can start with an empty yaml file or copy one o
     # star alignment
     gtf: "" # has to be unzipped at the moment
     genome_fasta: "" # has to be unzipped or bgzip
+    star_index: "" # optional prebuilt STAR index directory
     read_length: 150 
     outFilterMismatchNoverReadLmax: 0.04
     outFilterMismatchNmax: 999
@@ -70,7 +72,8 @@ In the command line every option can be specified by adding ``--`` in front and 
 
 .. code:: commandline
 
-   racoon_clip run ..  --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
+   racoon_clip crosslinks ..  --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
+   racoon_clip peaks ..  --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
 
 .. note::
 
@@ -231,6 +234,8 @@ Alignment to genome
 - **gft** (path): .gft file of used genome annotation. Note, that the file needs to be unzipped. (Can be obtained for example from https://www.gencodegenes.org/human/.) 
 
 - **genome_fasta** : .fasta file of used genome annotation. Unzipped or bgzip files are supported. 
+
+- **star_index** (path): *optional*; Path to a prebuilt STAR index directory. If provided, STAR will use this existing index instead of building a new one from genome_fasta and gtf. This can significantly speed up the alignment process for large genomes. If not specified or empty, STAR will build the index on-the-fly.
 
 parameters  passed to STAR:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

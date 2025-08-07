@@ -20,5 +20,6 @@ adapter_trimming: True
 
 
 genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
+#star_index: "example_data/example_annotation_human_chr21/test_annotation_chr21_idx_sjdbOverhang44" # Path to STAR genome index directory. If empty, index will be generated from genome_fasta
 gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
 read_length: 45

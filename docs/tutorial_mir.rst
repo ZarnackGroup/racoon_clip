@@ -43,6 +43,7 @@ Here is an example config file:
     # Annotation
     gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
     genome_fasta: "path/to/genome_assembly.fa" # has to be unzipped or bgzip
+    star_index: "" # optional prebuilt STAR index directory
     read_length: N 
 
     # Adapters
