@@ -225,6 +225,11 @@ def common_options(func):
             type=click.Path(dir_okay=True, writable=True, readable=True),
         ),
         click.option(
+            "-si", "--star-index",
+            help= "Path to STAR genome index directory. If not provided, index will be generated from genome-fasta.",   
+            type=click.Path(dir_okay=True, readable=True),
+        ),
+        click.option(
             "-rl", "--read-length",
             help= "Length of reads.",   
             default=150,
@@ -334,7 +339,7 @@ Available targets:
 )
 
 @common_options
-def run( _configfile, 
+def peaks( _configfile, 
         log, 
         working_directory, 
         infiles,
@@ -361,6 +366,7 @@ def run( _configfile,
         trim3_len,
         gtf,
         genome_fasta,
+        star_index,
         read_length,
         outFilterMismatchNoverReadLmax,
         outFilterMismatchNmax,
@@ -373,7 +379,7 @@ def run( _configfile,
         mir_starts_allowed,
         **kwargs): 
     
-    """Run racoon_clip"""
+    """Run racoon_clip peaks analysis (full pipeline including peak calling)"""
     # Config to add or update in configfile
     merge_config = {"wdir": working_directory, 
                     "log": log,
@@ -402,6 +408,7 @@ def run( _configfile,
                     "trim3_len": trim3_len,
                     "gtf": gtf,
                     "genome_fasta": genome_fasta,
+                    "star_index": star_index,
                     "read_length": read_length,
                     "outFilterMismatchNoverReadLmax": outFilterMismatchNoverReadLmax,
                     "outFilterMismatchNmax": outFilterMismatchNmax,
@@ -437,6 +444,7 @@ def run( _configfile,
                     "trim3_len": 3,
                     "gtf":"",
                     "genome_fasta": "",
+                    "star_index": "",
                     "read_length": 150,
                     "outFilterMismatchNoverReadLmax": 0.04,
                     "outFilterMismatchNmax": 999,
@@ -465,6 +473,153 @@ def run( _configfile,
     )
 
 
+# crosslinks command
+#################
+# runs snakemake with all_crosslinks rule
+
+@click.command(
+    epilog=help_msg_extra, # the epilog argument is used to provide additional text that will be displayed after the command's help message. The epilog argument allows you to include any extra information or examples that you want to provide to the user.
+    context_settings=dict(
+        help_option_names=["-h", "--help"], ignore_unknown_options=True
+    ), # The context_settings argument accepts a dictionary with specific keys to define the desired settings.
+)
+
+@common_options
+def crosslinks( _configfile, 
+        log, 
+        working_directory, 
+        infiles,
+        samples,
+        experiment_groups,
+        experiment_group_file,
+        seq_format,
+        barcodeLength,
+        minBaseQuality,
+        umi1_len,
+        umi2_len,
+        total_barcode_len,
+        encode,
+        encode_umi_length,
+        experiment_type,
+        barcodes_fasta,
+        quality_filter_barcodes,
+        demultiplex,
+        min_read_length,
+        adapter_file,
+        adapter_cycles,
+        adapter_trimming,
+        trim3,
+        trim3_len,
+        gtf,
+        genome_fasta,
+        star_index,
+        read_length,
+        outFilterMismatchNoverReadLmax,
+        outFilterMismatchNmax,
+        outFilterMultimapNmax,
+        outReadsUnmapped,
+        outSJfilterReads,
+        moreSTARParameters,
+        deduplicate,
+        mir_genome_fasta,
+        mir_starts_allowed,
+        **kwargs): 
+    
+    """Run racoon_clip crosslinks analysis (up to crosslink detection, no peak calling)"""
+    # Config to add or update in configfile
+    merge_config = {"wdir": working_directory, 
+                    "log": log,
+                    "snakebase": snake_base("workflow"),
+                    "infiles": infiles,
+                    "samples": samples,
+                    "experiment_groups": experiment_groups,
+                    "experiment_group_file": experiment_group_file,
+                    "seq_format": seq_format,
+                    "barcodeLength": barcodeLength,
+                    "minBaseQuality": minBaseQuality,
+                    "umi1_len": umi1_len,
+                    "umi2_len": umi2_len,
+                    "total_barcode_len": total_barcode_len,
+                    "encode": encode,
+                    "encode_umi_length": encode_umi_length,
+                    "experiment_type": experiment_type,
+                    "barcodes_fasta": barcodes_fasta,
+                    "quality_filter_barcodes": quality_filter_barcodes,
+                    "demultiplex": demultiplex,
+                    "min_read_length": min_read_length,
+                    "adapter_file": adapter_file,
+                    "adapter_cycles": adapter_cycles,
+                    "adapter_trimming": adapter_trimming,
+                    "trim3": trim3,  
+                    "trim3_len": trim3_len,
+                    "gtf": gtf,
+                    "genome_fasta": genome_fasta,
+                    "star_index": star_index,
+                    "read_length": read_length,
+                    "outFilterMismatchNoverReadLmax": outFilterMismatchNoverReadLmax,
+                    "outFilterMismatchNmax": outFilterMismatchNmax,
+                    "outFilterMultimapNmax": outFilterMultimapNmax,
+                    "outReadsUnmapped": outReadsUnmapped,
+                    "outSJfilterReads": outSJfilterReads,
+                    "moreSTARParameters": moreSTARParameters,
+                    "deduplicate": deduplicate,
+                    "mir_genome_fasta": mir_genome_fasta,
+                    "mir_starts_allowed": mir_starts_allowed,
+                    }
+    default_config = {"wdir": "./racoon_clip_out", 
+                    "infiles": "",
+                    "experiment_groups": "",
+                    "experiment_group_file":"",
+                    "seq_format": "-Q33",
+                    "barcodeLength": "",
+                    "minBaseQuality": 10,
+                    "umi1_len": "",
+                    "umi2_len": "",
+                    "total_barcode_len": "",
+                    "encode": "False",
+                    "encode_umi_length": 10,
+                    "experiment_type": "other",
+                    "barcodes_fasta": "",
+                    "quality_filter_barcodes": True,
+                    "demultiplex": False,
+                    "adapter_file": snake_base("workflow/params.dir/adapter.fa"),
+                    "min_read_length": 15,
+                    "adapter_cycles": 1,
+                    "adapter_trimming": True,
+                    "trim3": False,
+                    "trim3_len": 3,
+                    "gtf":"",
+                    "genome_fasta": "",
+                    "star_index": "",
+                    "read_length": 150,
+                    "outFilterMismatchNoverReadLmax": 0.04,
+                    "outFilterMismatchNmax": 999,
+                    "outFilterMultimapNmax": 1,
+                    "outReadsUnmapped": "Fastx",
+                    "outSJfilterReads": "Unique",
+                    "moreSTARParameters": "",
+                    "deduplicate": True,
+                    "mir_genome_fasta": "",
+                    "mir_starts_allowed": "1 2 3 4",
+                    }
+    # Create a new dictionary containing non-default values given by the user
+    non_default_config = {key: value for key, value in merge_config.items() if value != default_config.get(key)}
+
+
+    # run snakemake with all_crosslinks rule
+    run_snakemake(
+        # Full path to Snakefile
+        snakefile_path=snake_base(os.path.join("workflow", "Snakefile")),
+        user_configfile=_configfile,
+        log=log,
+        targets=["all_crosslinks"],  # Specify the all_crosslinks rule
+        **kwargs,
+        merge_config=non_default_config,
+        default_config=default_config,
+        working_directory=working_directory
+    )
+
+
 # @click.command()
 # @common_options
 # def example_config(configfile, **kwargs):
@@ -480,15 +635,20 @@ def citation(**kwargs):
 
 # Test command functions
 @click.command(name='test')
-@click.option('--light', is_flag=True, help='Run light test suite (DAG tests and report comparison only)')
+@click.option('--light', is_flag=True, help='Run light test suite (DAG and config tests only)')
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
-def test(light, devel, report):
+@click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE and iCLIP configs)')
+@click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
+def test(light, devel, report, peaks, extra_args):
     """Run racoon_clip test suite
     
-    By default runs full test suite (DAG tests and report comparison).
+    By default runs full test suite (DAG tests, config tests, crosslinks tests, and peaks tests).
     Use --light for minimal testing, --devel for comprehensive testing including installation,
-    or --report for report generation testing.
+    --report for report generation testing, or --peaks for peaks testing only.
+    
+    Peaks testing includes both eCLIP ENCODE and iCLIP config files.
+    Use --extra-args to pass additional arguments to the underlying snakemake commands.
     """
     # Import here to avoid circular imports
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tests'))
@@ -497,24 +657,27 @@ def test(light, devel, report):
     suite = RacoonTestSuite()
     
     # Check for conflicting flags
-    flags_set = sum([light, devel, report])
+    flags_set = sum([light, devel, report, peaks])
     if flags_set > 1:
         click.echo("Error: Cannot specify multiple test type flags simultaneously")
         sys.exit(1)
     elif light:
-        success = suite.test_light()
+        success = suite.test_light(extra_args=extra_args)
     elif devel:
-        success = suite.devel_test()
+        success = suite.devel_test(extra_args=extra_args)
     elif report:
-        success = suite.test_report()
+        success = suite.test_report(extra_args=extra_args)
+    elif peaks:
+        success = suite.test_peaks(extra_args=extra_args)
     else:
         # Default: run full test suite
-        success = suite.test()
+        success = suite.test(extra_args=extra_args)
     
     sys.exit(0 if success else 1)
 
 
-cli.add_command(run)
+cli.add_command(crosslinks)
+cli.add_command(peaks)
 #cli.add_command(example_config)
 cli.add_command(citation)
 cli.add_command(test)

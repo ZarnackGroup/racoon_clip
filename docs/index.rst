@@ -45,13 +45,14 @@ Supported CLIP experiments
 Usage
 =========================
                                                                                                                                                                                                                                                                             
-Once installed, you can run racoon with:
+racoon_clip consists of two main commands:
 
 .. code:: bash
 
-   racoon_clip run --cores <number_of_cores> --configfile </path/to/config/file.yaml>
+   racoon_clip crosslinks --cores <number_of_cores> --configfile </path/to/config/file.yaml>
+   racoon_clip peaks --cores <number_of_cores> --configfile </path/to/config/file.yaml>
 
-Check the tutorial to find out what needs to be in your config.yaml file.
+Use `crosslinks` for crosslink identification and `peaks` for peak calling. Check the tutorial to find out what needs to be in your config.yaml file.
                                                                                                                                                             
 
 Requirements

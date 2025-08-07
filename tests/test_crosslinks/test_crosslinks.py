@@ -57,14 +57,14 @@ def show_config_differences(original_config, temp_config, log_file=None):
                 log_f.write(error_msg)
 
 
-def test_run_execution(config_file, log_file=None):
-    """Test if racoon_clip run executes without errors."""
+def test_run_execution(config_file, log_file=None, extra_args=None):
+    """Test if racoon_clip crosslinks executes without errors."""
     
     # Change to racoon_clip directory (2 levels up from where script is located)
     current_dir = os.getcwd()
     # Ensure we're starting from the script's directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    # From script location, go up 2 levels: tests/test_run -> tests -> racoon_clip
+    # From script location, go up 2 levels: tests/test_crosslinks -> tests -> racoon_clip
     racoon_clip_dir = os.path.dirname(os.path.dirname(script_dir))
     
     # Convert config file paths to absolute paths FIRST
@@ -150,9 +150,17 @@ def test_run_execution(config_file, log_file=None):
         racoon_log_path = os.path.join(temp_dir, racoon_log_name)
         print(f"Warning: Using temp directory for logs: {temp_dir}")
     
-    cmd = ["racoon_clip", "run", "--cores", "4",
+    cmd = ["racoon_clip", "crosslinks", "--cores", "4",
            "--configfile", config_file, 
            "--log", racoon_log_path]
+    
+    # Add extra arguments if provided
+    if extra_args:
+        if isinstance(extra_args, str):
+            # Split string into list of arguments
+            extra_args = extra_args.split()
+        cmd.extend(extra_args)
+        print(f"DEBUG: Added extra arguments: {extra_args}")
     
     print(f"DEBUG: Using config file for racoon_clip: {config_file}")
     
@@ -232,19 +240,19 @@ def test_run_execution(config_file, log_file=None):
 
 
 def test_run(config_file, log_file=None):
-    """Test if racoon_clip run executes without errors."""
+    """Test if racoon_clip crosslinks executes without errors."""
     
     # Generate log file name if not provided
     if log_file is None:
-        log_file = "test_racoon_clip.log"
+        log_file = "test_racoon_clip_crosslinks.log"
     
     # Initialize log file
     with open(log_file, 'w') as log_f:
-        log_f.write(f"Test run started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        log_f.write(f"Crosslinks test run started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         log_f.write(f"Config file: {config_file}\n")
         log_f.write("=" * 80 + "\n\n")
     
-    test_msg = f"Testing racoon_clip run for {config_file}"
+    test_msg = f"Testing racoon_clip crosslinks for {config_file}"
     with open(log_file, 'a') as log_f:
         log_f.write(test_msg + "\n")
         log_f.write(f"Log file: {log_file}\n\n")
@@ -252,13 +260,13 @@ def test_run(config_file, log_file=None):
     print(test_msg)
     print(f"Log file: {log_file}")
     
-    # Test run execution (conversion happens inside test_run_execution now)
+    # Test crosslinks execution (conversion happens inside test_run_execution now)
     return test_run_execution(config_file, log_file)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python test_run.py <config_file> [log_file]")
+        print("Usage: python test_crosslinks.py <config_file> [log_file]")
         sys.exit(1)
     
     config = sys.argv[1]

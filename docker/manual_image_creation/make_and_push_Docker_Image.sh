@@ -7,6 +7,7 @@ VERSION=$(awk -F'"' '/__version__/ {print $2}' ../../racoon_clip/__init__.py)
 echo $VERSION
 
 cp Dockerfile Dockerfile.old
+cp ../Dockerfile Dockerfile
 sed -i '' "s/VERSION_PLACEHOLDER/$VERSION/g" Dockerfile
 
 # Replace 'yourusername' with your actual Docker Hub username

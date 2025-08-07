@@ -99,6 +99,7 @@ This is how the config file config_min_example_iCLIP.yaml looks like:
     # star alignment
     gtf: "<path/to/annotation.gtf>" # has to be unzipped at the moment
     genome_fasta: "<path/to/genome.fa>" # has to be unzipped or bgzip
+    star_index: "" # optional prebuilt STAR index directory
     read_length: 75 # readlength 
 
 As long as you are in the racoon_clip/example_data directory you can use the config file as it is. If you want to run the example from another directory or you analyse your own CLIP2 data, you need to adjust the paths in the config file:
@@ -111,6 +112,7 @@ As long as you are in the racoon_clip/example_data directory you can use the con
   adapter_file: "<path/to/adapter/file>" 
   gtf: "<path/to/annotation.gtf>"
   genome_fasta: "<path/to/genome.fasta>"
+  star_index: "" # optional prebuilt STAR index directory
 
 .. Note::
 
@@ -150,7 +152,9 @@ You can now run the minimal example:
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> --configfile <path/to/config_test_iCLIP.yaml>
+  racoon_clip crosslinks --cores <n_cores> --configfile <path/to/config_test_iCLIP.yaml>
+  racoon_clip peaks --cores <n_cores> --configfile <path/to/config_test_iCLIP.yaml>
+
 
 All resulting files will be written into a folder "results" inside your wdir.
 
@@ -162,7 +166,7 @@ You can also run racoon_clip without a config file. For the iCLIP example, you w
 
 .. code:: bash
 
-  racoon_clip run --cores 6 \
+  racoon_clip crosslinks --cores 6 \
   --experiment-type "iCLIP" \
   -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
@@ -178,7 +182,7 @@ For the other minimal examples, you would use "eCLIP" or "eCLIP_ENCODE" as exper
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> \
+  racoon_clip crosslinks --cores <n_cores> \
   --experiment_type "eCLIP" \
   -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
@@ -189,7 +193,7 @@ For the other minimal examples, you would use "eCLIP" or "eCLIP_ENCODE" as exper
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> \
+  racoon_clip crosslinks --cores <n_cores> \
   --experiment_type "eCLIP_ENCODE" \
   -wdir "<path/where/to/put/results>" \
   --infiles "<path/to/first/sample.fastq> <path/to/second/sample.fastq>" \
@@ -203,7 +207,7 @@ In addition, this example shows how to merge samples by groups with ``--experime
 
 .. code:: bash
 
-  racoon_clip run --cores <n_cores> \
+  racoon_clip crosslinks --cores <n_cores> \
   --experiment_type "iCLIP2" \
   --demultiplex True \
   -wdir "<path/where/to/put/results>" \
@@ -239,7 +243,8 @@ racoon_clip offers many options to customise the workflow for your data. All set
 
 .. code:: bash
 
-  racoon_clip run -h
+  racoon_clip crosslinks -h
+  racoon_clip peaks -h
 
 
 

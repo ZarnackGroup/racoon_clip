@@ -61,6 +61,7 @@ TRIM=config["adapter_trimming"] == "True" or config["adapter_trimming"] == "true
 TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] == True or config["experiment_type"] == "iCLIP3"
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 MIR_starts=config["mir_starts_allowed"].split()
+STAR_INDEX=config["star_index"] if config["star_index"] != "" else None
 
 
 # get groups
@@ -74,6 +75,9 @@ if config["experiment_group_file"] is not None and os.path.exists(config["experi
                 GROUPS.add(first_column)
 else:
     GROUPS.add("all_samples")
+    
+print("groups:") 
+print(GROUPS)
 
 # get experiment info
 # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other"
@@ -294,6 +298,22 @@ def mqc_for_readlength():
         return config["wdir"]+"/results/fastqc/raw/multiqc_data/multiqc_fastqc.txt"
     else:
         return config["wdir"]+"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"
+    
+def get_star_index():
+    if STAR_INDEX is not None:
+        chkpnt_file = config["wdir"]+"/results/tmp/.star_index.chkpnt"
+        # Create empty checkpoint file
+        with open(chkpnt_file, 'w') as f:
+            pass
+        return STAR_INDEX
+    else:
+        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/"
+       
+def get_star_index_chpnt():
+    if STAR_INDEX is not None:
+        return config["wdir"]+"/results/tmp/.star_index.chkpnt"
+    else:
+        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt"
 
 
 
@@ -301,7 +321,8 @@ def mqc_for_readlength():
 
 #################################################
 #################################################
-# rule all --> conditional output to define which steps should be done
+# rule crosslinks, peakcalling and all
+# --> conditional output to define which steps should be done
 #################################################
 #################################################
 
@@ -366,11 +387,23 @@ rule all:
         myoutput,
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
+        expand("{wdir}/results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
+        # # # # Report
+        config["wdir"]+"/results/Report.html",
+        # config["wdir"]+"/results/.finished"  
+    message:  "========================= \n ================================ \n RACOON-CLIP FINISHED! \n ================================ \n ================================ " 
+   
+
+rule all_crosslinks:
+    input:
+        myoutput,
+        # # # # crosslink_sites
+        expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         # merged, indexed bam files
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
-    message:  "========================= \n ================================ \n RACOON FINISHED! \n ================================ \n ================================ " 
+    message:  "========================= \n ================================ \n RACOON-CLIP crosslinks FINISHED! \n ================================ \n ================================ " 
         
 
 
@@ -789,15 +822,15 @@ rule align:
     input:
         reads= get_demult_trim_reads,
         #fastqc_res1=expand("results/fastqc/separate_samples/flexbarOut_barcode_{sample}.html",sample = SAMPLES),
-        index_chkpnt= re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt"
-        
+        idx = get_star_index(),
+        index_chkpnt= get_star_index_chpnt()            
     output:
         chkpnt = touch(config["wdir"]+"/results/.{sample}.bam.SE.chkpnt"),
         bam=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam",
         #unaligned="{wdir}/results/aligned/{sample}.Unmapped.out.mate1"
     params:
         gtf=config["gtf"],
-        index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/",
+        #index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/",
         dir="results/aligned/",
         wdir=config["wdir"],
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
@@ -826,7 +859,7 @@ rule align:
         then
             echo "gzip"
             STAR --runMode alignReads \
-            --genomeDir {params.index} \
+            --genomeDir {input.idx} \
             --outFileNamePrefix {wildcards.sample}. \
             --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
             --outFilterMismatchNmax {params.outFilterMismatchNmax} \
@@ -841,7 +874,7 @@ rule align:
             --runThreadN {threads}
         else
             STAR --runMode alignReads \
-            --genomeDir {params.index} \
+            --genomeDir {input.idx} \
             --outFileNamePrefix {wildcards.sample}. \
             --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
             --outFilterMismatchNmax {params.outFilterMismatchNmax} \
@@ -1140,24 +1173,24 @@ rule merged_bam_index:
 
 rule pc_peak_calling:
     input:
-        bam_merge = config['wdir']+"/results/bam_merged/{groups}.bam",
-        bam_index = config['wdir']+"/results/bam_merged/{groups}.bam.bai"
+        bam_merge = config['wdir']+"/results/bam_merged/{groups}.sort.bam",
+        bam_index = config['wdir']+"/results/bam_merged/{groups}.sort.bam.bai"
     output:
-        peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed"
+        peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed",
     params: 
-        gtf=config["gtf"],
+        fasta=config["genome_fasta"],
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
         mem_mb = 180000
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_pureclip.yml"
     message: 
         "========================= \n Pureclip peak calling on group {wildcards.groups} \n this may take several days ================================ \n" 
     shell:
         """
         pureclip -i {input.bam_merge} \
         --bai {input.bam_index} \
-        -g {params.gtf} \
+        -g {params.fasta} \
         -o {output.peaks} \
         -nt {threads} \
         """
