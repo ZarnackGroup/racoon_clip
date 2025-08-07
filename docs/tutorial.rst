@@ -155,5 +155,5 @@ Deduplication
 How to customise racoon_clips behaviour
 ------------------
 
-Check out how to customise racoon_clip  :ref:`here <tutorial_customise>`. 
+Check out how to customise racoon_clip in the :ref:`Tutorial: customise racoon_clip <tutorial_customise>` section. 
 
