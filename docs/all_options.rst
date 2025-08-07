@@ -76,8 +76,15 @@ In the command line every option can be specified by adding ``--`` in front and 
 
 .. code:: commandline
 
-   racoon_clip crosslinks ..  --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
-   racoon_clip peaks ..  --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
+   racoon_clip crosslinks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
+   racoon_clip peaks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
+
+You can also check for the commandline parameters with
+
+.. code:: commandline
+
+   racoon_clip crosslinks -h
+   racoon_clip peaks -h
 
 .. note::
 
@@ -104,7 +111,7 @@ Input files and output directory
 
 - **wdir** (path): *default "./racoon_clip_out"*; Path where results are written to. A folder “results” containing all output will be created. Be aware that if a folder “results” already exists in this directory, it will be overwritten.
 
-- **infiles** (path(s) to file(s)): One or multiple file paths to the fastq files of all samples. Multiple files should be provided in one string separated by a space. When demultiplexing should be performed by racoon_clip, specify only one input fastq file of the multiplexed reads. At the moment fasta files are not supported, as they will not allow any quality filtering.
+- **infiles** (path(s) to file(s)): One or multiple file paths to the fastq files of all samples. Multiple files should be provided in one string, separated by a space. When demultiplexing should be performed by racoon_clip, specify only one input fastq file of the multiplexed reads. Fasta files are not supported, as they will not allow any quality filtering.
 
 - **seq_format** ("-Q33"/"-Q64"): *default "-Q33"*; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a Sanger sequencer.
 
