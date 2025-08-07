@@ -86,6 +86,7 @@ This runs a quick test doing basic functionality checks
    racoon_clip test full
 
 This runs the complete test suite including:
+
 - All tests from the light test
 - Full workflow execution tests with example data
 
