@@ -34,7 +34,6 @@ The performed steps are a quality filter (optional), demultiplexing (optional), 
 .. figure:: ../Workflow.png
    :width: 500
 
-   Steps performed by racoon_clip.
 
 Supported CLIP experiments
 ==============================
