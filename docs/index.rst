@@ -32,7 +32,7 @@ The performed steps are a quality filter (optional), demultiplexing (optional), 
 
 **Schema of workflow:**
 
-.. figure:: ../Workflow.png
+.. figure:: ../racoon_clip_workflow_2.0.png
    :width: 500
 
 
