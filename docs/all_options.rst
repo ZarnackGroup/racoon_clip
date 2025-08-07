@@ -13,8 +13,8 @@ You can specify all parameters and options of racoon either directly in the comm
 
 .. code:: commandline
 
-   racoon_clip crosslinks .. --configfile <your_configfile> --cores <n_cores>
-   racoon_clip peaks .. --configfile <your_configfile> --cores <n_cores>
+   racoon_clip crosslinks --configfile <your_configfile> --cores <n_cores>
+   racoon_clip peaks --configfile <your_configfile> --cores <n_cores>
 
 To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters, that should be used in default, do not need to be specified in the config.yaml file. Here is an example of a config.yaml file containing all default options:
 
@@ -48,10 +48,14 @@ To make your own config file you can start with an empty yaml file or copy one o
     demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no bacode filtering will be done
     min_read_length: 15
     
-    #adapter adapter_trimming
+    # adapter trimming
     adapter_file: ""
     adapter_cycles: 1
     adapter_trimming: True
+
+    # 3'end trimming
+    trim3: False
+    trim3_len: 3
     
     # star alignment
     gtf: "" # has to be unzipped at the moment
