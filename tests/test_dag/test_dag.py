@@ -12,7 +12,7 @@ def generate_dag(config_file):
     tests_dir = Path(__file__).parent.parent
     os.chdir(tests_dir.parent)
     
-    cmd = ["racoon_clip", "run", "--cores", "1", "--dag",
+    cmd = ["racoon_clip", "peaks", "--cores", "1", "--dag",
            "--configfile", config_file]
     
     try:

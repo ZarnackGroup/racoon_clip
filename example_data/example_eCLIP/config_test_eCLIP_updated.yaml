@@ -29,7 +29,7 @@ read_length: 45
 samples: test_eCLIP_s1.chr21 test_eCLIP_s2.chr21
 seq_format: -Q33
 snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
-star_index: ''
+star_index: example_data/example_annotation_human_chr21/test_annotation_chr21_idx_sjdbOverhang44
 total_barcode_len: 0
 trim3: 'False'
 trim3_len: 3
