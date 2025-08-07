@@ -1,3 +1,5 @@
+.. _tutorial_customise:
+
 Tutorial: Customise racoon_clip
 ================================
 
