@@ -41,6 +41,8 @@ Supported CLIP experiments
 - miR-eCLIP
 - custom set-ups for other CLIP experiments based on read-stops
 
+.. figure:: ../CLIP_types.png
+   :width: 400
 
 Usage
 =========================
