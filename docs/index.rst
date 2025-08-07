@@ -67,6 +67,7 @@ Requirements
 
 - Docker / Singularity / Apptainer
 or
+
 - python =3.9.0
 - mamba >= 1.3.1
 
