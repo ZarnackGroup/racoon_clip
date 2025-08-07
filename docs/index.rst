@@ -65,6 +65,8 @@ Use `crosslinks` for crosslink identification and `peaks` for peak calling. Chec
 Requirements
 ================
 
+- Docker / Singularity / Apptainer
+or
 - python =3.9.0
 - mamba >= 1.3.1
 
