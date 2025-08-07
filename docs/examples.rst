@@ -237,24 +237,6 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 
 
-Customising racoon_clip
----------------------------------------------------
-racoon_clip offers many options to customise the workflow for your data. All settings can be passed to racoon_clip either in the command line or via a config file. For a full list of options please have a look at `options <all_options>` and
-
-.. code:: bash
-
-  racoon_clip crosslinks -h
-  racoon_clip peaks -h
-
-
-
-
-See also: 
-
-+ https://github.com/jdblischak/smk-simple-slurm/tree/main/examples/list-partitions
-
-+ https://snakemake.readthedocs.io/en/stable/executing/cluster.html
-
 
 
 
