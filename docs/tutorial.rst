@@ -81,6 +81,7 @@ This depends on the experiment_type. If not specified otherwise, racoon_clip wil
 
 | **iCLIP, iCLIP2, and other:** 
 | Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
+|
 | **iCLIP3:** 
 | Quality Control > Barcode and Adapter trimming > Trimming 3'end > Alignment > Deduplication > Crosslink detection
 |
