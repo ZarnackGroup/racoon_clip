@@ -4,6 +4,7 @@ Tutorial: Quickstart
 .. contents:: 
     :depth: 2
 
+    tutorial_customise
 
 How to run racoon_clip
 ---------------------------
