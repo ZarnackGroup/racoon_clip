@@ -81,8 +81,16 @@ You can find a tutorial and all options and a details description of the perform
 
 ## Test data
 
-You can test racoon_clip with one of the [minimal example data sets](https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples). See [here](https://racoon-clip.readthedocs.io/en/latest/examples.html#) for a walk-through of the examples.
+You can test racoon_clip with 
 
+```
+racoon_clip test
+```
+
+Or manually run one of the [minimal example data sets](https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples). See [here](https://racoon-clip.readthedocs.io/en/latest/examples.html#) for a walk-through of the examples.
+
+
+## Outputs
 racoon_clip produces a variety of files during the different steps of the workflow that will all be stored in a folder called results. These are the main output files form the results folder:
 
 - A summary of the performed steps called Report.html.
