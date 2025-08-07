@@ -107,8 +107,10 @@ If your experiment used one of these setups, you can use the expereriment_type p
 
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If your experiment uses one of the supported barcode setups, you can use the parameter **experiment_type**.
+Specify one of the following: "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI".0
 
-- **experiment_type** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/ "eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your barcode setup. 
+When experiment_type is specified, the parameters barcodeLength, umi1_len, umi2_len, total_barcode_len and encode will be ignored. 
 
 .. Note::
 
@@ -116,7 +118,7 @@ Using a standard barcode setup
 
 Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If your data does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them and also allow other experimental setups racoon uses a barcode consisting of **umi1 + experimental_barcode + umi2** is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode&UMI architecture:
+If your data does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to "other". In order to allow other experimental setups racoon_clip uses a barcode set-up consisting of **umi1 + experimental_barcode + umi2**. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode&UMI architecture:
 
 - **barcodeLength** (int): length of barcode 
 
@@ -193,8 +195,17 @@ There is also an option to pass all other STAR parameters with:
 
 Check the `STAR manual <https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf>`_ for a detailed description and all options.
 
+STAR parameters to allow multimapping:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To allow multimapping, you can add the following to the config file:
 
-How to run racoon_clip with snakemakes cluster execution
+..code::bash
+
+    outFilterMultimapNmax: 1000
+    moreSTARParameters: "--outSAMmultNmax 1 --winAnchorMultimapNmax 1000 --outMultimapperOrder Random"
+
+
+How to run racoon_clip with Snakemake cluster execution
 --------------------------------------------
 
 As racoon_clip is based on the snakemake workflow management system, in general, all snakemake commandline options can be passed to racoon_clip. For a full list of options check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the cluster execution and cloud execution of racoon_clip. 
