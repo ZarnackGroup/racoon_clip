@@ -16,7 +16,7 @@ You can run racoon_clip with the following command:
 
 
 
-What you need to specify in the config file
+What you need to specify in the config file:
 ---------------------------
 
 The config file is a .yaml file that contains all the information about your data. The following input is required from the user:
@@ -27,13 +27,13 @@ The config file is a .yaml file that contains all the information about your dat
 - gtf
 - either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, total_barcode_len, barcodeLength)
 - read_length
-- in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP, iCLIP2, or iCLIP3 barcode included)
+- in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP, iCLIP2 barcode included)
 
 .. Note::
 
   All paths need to be specified as absolute paths. Relative paths` (for example starting with ~) are not allowed.
 
-A minimal config file would therefore look like this:
+A minimal config file would look like this:
 
 .. code:: python
     
@@ -64,7 +64,7 @@ The experiment_type specifies the barcode and adapter setup in your data. You ca
 
 - **iCLIP3**: UMI of 9nt (at the 5' end)
 
-- **eCLIP** UMI of 10nt or 5nt in the beginning (5' end) of read2. Specify "eCLIP_10ntUMI" or "eCLIP_10ntUMI". 
+- **eCLIP**: UMI of 10nt or 5nt in the beginning (5' end) of read2. This option can be used for both eCLIP and seCLIP. Specify "eCLIP_10ntUMI" or "eCLIP_10ntUMI". 
 
 - **eCLIP from ENCODE:** UMI of 10nt or 5nt in the beginning (5' end) of read2 is already trimmed off and stored in the read name. Specify "eCLIP_ENCODE_5ntUMI" or "eCLIP_ENCODE_10ntUMI".
 
@@ -81,8 +81,10 @@ This depends on the experiment_type. If not specified otherwise, racoon_clip wil
 
 | **iCLIP, iCLIP2, and other:** 
 | Quality Control > Barcode and Adapter trimming > Alignment > Deduplication > Crosslink detection
+| **iCLIP3:** 
+| Quality Control > Barcode and Adapter trimming > Trimming 3'end > Alignment > Deduplication > Crosslink detection
 |
-| **eCLIP_5ntUMI, eCLIP_10ntUMI and iCLIP3:** 
+| **eCLIP_5ntUMI, eCLIP_10ntUMI:** 
 | Quality Control > UMI and Adapter trimming > Alignment > Deduplication > Crosslink detection
 |
 | **eCLIP_ENCODE_5ntUMI and eCLIP_ENCODE_10ntUMI:** 
@@ -100,12 +102,13 @@ You can use the following parameters to turn steps on or off:
     demultiplex: True/False
     quality_filter_barcodes: True/False
     adapter_trimming: True/False
+    trim3: True/False
     deduplicate: True/False
 
 
 Demultiplexing 
 ^^^^^^^^^^^^^^^^^
-Demultiplexing is currently only possible for single-end read data. Both the UMI and the barcode need to be positioned at the beginning of the read.
+Demultiplexing is only possible for single-end read data (e.g iCLIP and iCLIP2, not eCLIP). Both the UMI and the barcode need to be positioned at the beginning of the read.
 
 - **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
 - **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of the used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
@@ -135,6 +138,11 @@ Adapters
 - **adapter_file** (path): *default /params.dir/adapters.fa*; A fasta file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
 
 - **adapter_cycles** (int): *default 1*; How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP.
+
+Trimming at the 3' end
+^^^^^^^^^^^^^^^
+- **trim3** (True/False): *default False*; Whether nucleotides should be trimmed of the 3' end of the reads. This is necessary for iCLIP3.
+- **trim3_len** (int): *default 3*; The number of nucleotides to be trimmed off.
 
 
 Deduplication
