@@ -10,6 +10,7 @@ file.copy(wf_image_original_path, wf_image_tmp_path, overwrite = TRUE)
 rmarkdown::render(report_tmp_path,
   output_dir = paste0(snakemake@params[[1]], "/results/"),
   params = list(config = snakemake@params[[2]],  
-  snake_dir = snakemake@params[[3]]),
+  snake_dir = snakemake@params[[3]],
+  workflow_type = snakemake@params[[2]][["workflow_type"]]),
   output_format = "html_document"
 )

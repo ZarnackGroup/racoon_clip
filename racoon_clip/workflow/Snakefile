@@ -307,13 +307,13 @@ def get_star_index():
             pass
         return STAR_INDEX
     else:
-        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/"
+        return directory(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/")
        
 def get_star_index_chpnt():
     if STAR_INDEX is not None:
         return config["wdir"]+"/results/tmp/.star_index.chkpnt"
     else:
-        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt"
+        return touch(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt")
 
 
 
@@ -822,8 +822,29 @@ rule align:
     input:
         reads= get_demult_trim_reads,
         #fastqc_res1=expand("results/fastqc/separate_samples/flexbarOut_barcode_{sample}.html",sample = SAMPLES),
-        idx = get_star_index(),
-        index_chkpnt= get_star_index_chpnt()            
+        idx = get_star_index()
+        index_chkpnt= get_star_index_chpnt()        // ...existing code...
+                click.option(
+                    "--moreSTARParameters", "moreSTARParameters",
+                    help= "Additional parameters, that can be directly  passed to STAR (see also STAR documentation).",   
+                    default="",
+                    show_default=True, 
+                ),
+                click.option(
+                    "--star-index",
+                    help= "Path to an existing STAR genome index directory. If provided, genome indexing will be skipped and this index will be used for alignment. If not provided, a new STAR index will be created from the provided genome fasta and GTF files.",   
+                    default="",
+                    show_default=False, 
+                ),
+                click.option(
+                    "-dedup", "--deduplicate",
+                    help= "Wheter crosslinks should be deduplicated by UMI. Turn of if reads do not contain UMIs.",   
+                    type=click.Choice(['False', 'True'], case_sensitive=False),
+                    default="True",
+                    show_default=True, 
+                ), 
+        // ...existing code...
+        
     output:
         chkpnt = touch(config["wdir"]+"/results/.{sample}.bam.SE.chkpnt"),
         bam=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam",
@@ -859,7 +880,7 @@ rule align:
         then
             echo "gzip"
             STAR --runMode alignReads \
-            --genomeDir {input.idx} \
+            --genomeDir {output.idx} \
             --outFileNamePrefix {wildcards.sample}. \
             --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
             --outFilterMismatchNmax {params.outFilterMismatchNmax} \
@@ -874,7 +895,7 @@ rule align:
             --runThreadN {threads}
         else
             STAR --runMode alignReads \
-            --genomeDir {input.idx} \
+            --genomeDir {params.index} \
             --outFileNamePrefix {wildcards.sample}. \
             --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
             --outFilterMismatchNmax {params.outFilterMismatchNmax} \
