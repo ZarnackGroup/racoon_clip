@@ -1971,3 +1971,42 @@ snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefi
 
 snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /home/mek24iv/racoon_devel/racoon_clip/example_data/example_iCLIP3/config_test_iCLIP3_updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 1 --dag
 [2025:08:07 09:11:00] Snakemake finished successfully
+[2025:08:07 14:06:09] commandline values
+[2025:08:07 14:06:09] default values
+[2025:08:07 14:06:09] Updating config file with commandline values
+[2025:08:07 14:06:09] Writing config file to /storage/zar/projects/melina/10_WTAP_iCLIP_Max/01_files_for_pipe/config_human_updated.yaml
+[2025:08:07 14:06:09] ---------------------
+[2025:08:07 14:06:09] | Snakemake command |
+[2025:08:07 14:06:09] ---------------------
+
+snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /storage/zar/projects/melina/10_WTAP_iCLIP_Max/01_files_for_pipe/config_human_updated.yaml --use-conda --conda-frontend mamba all_crosslinks --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 16 --profile /home/mek24iv/cluster_profile
+[2025:08:07 14:06:17] ERROR: Snakemake failed
+[2025:08:07 14:08:37] commandline values
+[2025:08:07 14:08:37] default values
+[2025:08:07 14:08:37] Updating config file with commandline values
+[2025:08:07 14:08:37] Writing config file to /storage/zar/projects/melina/10_WTAP_iCLIP_Max/01_files_for_pipe/config_human_updated.yaml
+[2025:08:07 14:08:37] ---------------------
+[2025:08:07 14:08:37] | Snakemake command |
+[2025:08:07 14:08:37] ---------------------
+
+snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /storage/zar/projects/melina/10_WTAP_iCLIP_Max/01_files_for_pipe/config_human_updated.yaml --use-conda --conda-frontend mamba all_crosslinks --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 16 --profile /home/mek24iv/cluster_profile
+[2025:08:08 13:45:58] commandline values
+[2025:08:08 13:45:58] default values
+[2025:08:08 13:45:58] Updating config file with commandline values
+[2025:08:08 13:45:58] Writing config file to /home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC_updated.yaml
+[2025:08:08 13:45:58] ---------------------
+[2025:08:08 13:45:58] | Snakemake command |
+[2025:08:08 13:45:58] ---------------------
+
+snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC_updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 1 --dag
+[2025:08:08 13:46:10] Snakemake finished successfully
+[2025:08:08 13:46:11] commandline values
+[2025:08:08 13:46:11] default values
+[2025:08:08 13:46:11] Updating config file with commandline values
+[2025:08:08 13:46:11] Writing config file to /home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP/config_test_eCLIP_updated.yaml
+[2025:08:08 13:46:11] ---------------------
+[2025:08:08 13:46:11] | Snakemake command |
+[2025:08:08 13:46:11] ---------------------
+
+snakemake -s /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/Snakefile --configfile /home/mek24iv/racoon_devel/racoon_clip/example_data/example_eCLIP/config_test_eCLIP_updated.yaml --use-conda --conda-frontend mamba --jobs 1 --rerun-incomplete --printshellcmds --nolock --show-failed-logs --cores 1 --dag
+[2025:08:08 13:46:16] Snakemake finished successfully

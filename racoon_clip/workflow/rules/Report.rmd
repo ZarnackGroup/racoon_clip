@@ -50,7 +50,7 @@ library(knitr)
 
 # Overview of steps performed
 
-```{r}
+```{r, results='asis'}
 if(params$workflow_type == "peaks"){
 cat("**racoon_clip peaks** was used.")
 } else {
@@ -116,6 +116,7 @@ dedup <- as.logical(config["deduplicate",])
 no_trim <- !any(demult, trim, qual_bc)
 only_trim <- ((!demult) && trim)
 qual_bc_no_demult <- ((!demult) && qual_bc )
+mir <- config["experiment_type",] == "miReCLIP"
 
 # Check if we're running peaks workflow
 peaks <- (params$workflow_type == "peaks")
@@ -613,14 +614,20 @@ The genome annotation is indexed using STAR --runMode genomeGenerate. The merged
 ```{r eval=!mir }
 star_out <- list.files(path = paste0(dir,"/results/aligned"), pattern = "*Log.final.out$", recursive = TRUE, full.names = T) %>% map(~read_delim(.x, delim="\t", col_names = c("type", "number")))
 
+star_mir_out_names <-  list.files(paste0(dir,"/results/aligned"), pattern = "*Log.final.out$", recursive = TRUE) %>%
+  gsub("chimeric_", "", . ) %>%
+  gsub(".Log.final.out", "",  . )
+
+
+names(star_out) <- star_mir_out_names 
+
 r <- c(5,8,9,23,24,25,26,28:33)
-star_out2 <- star_out %>%
-  map(., ~ .x[r, ]) %>%
-  map_dfr(~ .x$number) %>%
-  as.as.data.frame()
+star_out2 <- star_out %>% map(., ~.x[r,]) %>%
+  map_dfr( ~.x$number) 
 
 
 names <- star_out[[1]]$type[c(5,8,9,23,24,25,26,28:33)]
+star_out2 <- star_out2 %>% as.data.frame(.)
 rownames(star_out2) <- substr(names,1, nchar(star_out[[1]]$type)-2)
 
 # star_out2 <- star_out2 %>%
@@ -750,12 +757,12 @@ ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
 
 ```
 
-```{r eval=peaks, results = 'asis'}
+```{r eval=peaks, results='asis'}
 cat("# Peak calling \n")
 cat("Peaks are called with pureclip on the merged bam files of the sample groups (or all samples if no groups are specified). \n\n")
 ```
 
-```{r eval=peaks}
+```{r eval=peaks, results='asis'}
 # Function to count lines in peak bed files
 count_peak_lines <- function(peak_dir) {
   # Find all .bed files in the peaks directory
@@ -797,10 +804,13 @@ peaks_dir <- paste0(dir, "/results/peaks")
 if (dir.exists(peaks_dir)) {
   peak_summary <- count_peak_lines(peaks_dir)
   
-  cat("## Peak calling summary \n\n")
-  cat("Number of peaks identified in each sample/group: \n\n")
-  
-  kable(peak_summary, caption = "Peak counts per sample/group")
+
+  cat("Number of peaks identified in each sample/group: \n\n")}
+```
+
+```{r eval=peaks, results='asis'}
+if (dir.exists(peaks_dir)) {
+  print(kable(as.data.frame(peak_summary)))
   
   # Also create a simple bar plot if there are peaks
   if (nrow(peak_summary) > 0 && any(peak_summary$Peaks > 0)) {
@@ -813,7 +823,6 @@ if (dir.exists(peaks_dir)) {
       coord_flip()
   }
 } else {
-  cat("## Peak calling summary \n\n")
   cat("Peak directory not found. Peaks may not have been called yet or the directory structure may be different. \n\n")
 }
 ```
