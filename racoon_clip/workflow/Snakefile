@@ -1150,9 +1150,10 @@ rule sort_merged_bams:
         
 rule merged_bam_index:
     input:
-        config['wdir']+"/results/bam_merged/{groups}.sort.bam"
+        config['wdir']+"/results/bam_merged/{groups}.sort.bam",
     output:
-        chpnt = touch(config["wdir"]+"/results/tmp/.merged.{groups}.bai.chkpnt")
+        chpnt = touch(config["wdir"]+"/results/tmp/.merged.{groups}.bai.chkpnt"),
+        idx = config['wdir']+"/results/bam_merged/{groups}.sort.bam.bai"
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
@@ -1284,7 +1285,7 @@ rule multiqc_raw_multi:
     shell:
         """
         cd {params.wdir}/results/fastqc/raw  && \
-        multiqc --export .
+        multiqc -f --export .
         """
 
 rule fastqc_filt_multi:
