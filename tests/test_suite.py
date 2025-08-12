@@ -115,6 +115,59 @@ class RacoonTestSuite:
             error_msg += f"Working directory: {cwd_path}"
             return False, error_msg
 
+    def run_command_realtime(self, cmd: List[str],
+                            cwd: Path = None) -> Tuple[bool, str]:
+        """Run command with real-time output display"""
+        cwd_path = cwd or self.base_dir
+        print_colored(f"Running command: {' '.join(cmd)}")
+        print_colored(f"Working directory: {cwd_path}")
+        print_colored("=" * 60)
+
+        try:
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=cwd_path,
+                bufsize=1,
+                universal_newlines=True
+            )
+            
+            output_lines = []
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    print(output.strip())  # Print in real-time
+                    output_lines.append(output)
+            
+            return_code = process.poll()
+            full_output = ''.join(output_lines)
+            
+            if return_code == 0:
+                print_colored("=" * 60)
+                print_success(f"Command completed successfully")
+                return True, full_output
+            else:
+                print_colored("=" * 60)
+                print_error(f"Command failed with exit code {return_code}")
+                return False, full_output
+                
+        except FileNotFoundError as e:
+            error_msg = f"Command not found: {' '.join(cmd)}\n"
+            error_msg += f"Error: {str(e)}\n"
+            error_msg += f"Working directory: {cwd_path}"
+            print_error(error_msg)
+            return False, error_msg
+        except Exception as e:
+            error_msg = f"Unexpected error running command: {' '.join(cmd)}\n"
+            error_msg += f"Error: {str(e)}\n"
+            error_msg += f"Working directory: {cwd_path}"
+            print_error(error_msg)
+            return False, error_msg
+
     def test_dag(self, config_file: str) -> bool:
         """Test DAG generation for a single config file"""
         print_colored(f"Testing DAG for: {Path(config_file).name}")
@@ -256,18 +309,41 @@ class RacoonTestSuite:
             print_error(f"Installation test script not found: {test_script}")
             return False
 
+        # Get current version from __init__.py
+        try:
+            init_file = self.base_dir / "racoon_clip" / "__init__.py"
+            if init_file.exists():
+                with open(init_file, 'r') as f:
+                    content = f.read()
+                import re
+                version_match = re.search(r'__version__\s*=\s*[\'"]([^\'"]+)[\'"]', content)
+                if version_match:
+                    current_version = version_match.group(1)
+                    print_colored(f"Using current version from __init__.py: {current_version}")
+                else:
+                    current_version = "1.2.0"
+                    print_colored(f"Could not parse version from __init__.py, using default: {current_version}")
+            else:
+                current_version = "1.2.0"
+                print_colored(f"__init__.py not found, using default version: {current_version}")
+        except Exception as e:
+            current_version = "1.2.0"
+            print_colored(f"Error reading version from __init__.py: {e}, using default: {current_version}")
+
         # Make script executable
         os.chmod(test_script, 0o755)
 
-        # Run installation test
-        success, output = self.run_command(
-            [str(test_script)], cwd=test_script.parent)
+        # Run installation test with real-time output, passing the current version
+        success, output = self.run_command_realtime(
+            [str(test_script), current_version], cwd=test_script.parent)
 
         if success:
             print_success("Installation test passed")
             return True
         else:
-            print_error(f"Installation test failed: {output}")
+            print_error(f"Installation test failed")
+            if output:
+                print_error(f"Output: {output}")
             return False
 
     def compare_reports(self, old_report: Path, new_report: Path) -> bool:
