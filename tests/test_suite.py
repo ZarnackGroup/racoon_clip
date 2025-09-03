@@ -311,24 +311,26 @@ class RacoonTestSuite:
 
         # Get current version from __init__.py
         try:
-            init_file = self.base_dir / "racoon_clip" / "__init__.py"
+            init_file = self.base_dir.parent / "racoon_clip" / "__init__.py"
+            print_colored(f"Looking for version in: {init_file}")
             if init_file.exists():
                 with open(init_file, 'r') as f:
                     content = f.read()
+                print_colored(f"__init__.py content preview: {content[:200]}...")
                 import re
                 version_match = re.search(r'__version__\s*=\s*[\'"]([^\'"]+)[\'"]', content)
                 if version_match:
                     current_version = version_match.group(1)
-                    print_colored(f"Using current version from __init__.py: {current_version}")
+                    print_colored(f"✓ Successfully parsed version from __init__.py: {current_version}")
                 else:
-                    current_version = "1.2.0"
-                    print_colored(f"Could not parse version from __init__.py, using default: {current_version}")
+                    current_version = "1.3.0"
+                    print_colored(f"⚠ Could not parse version from __init__.py, using default: {current_version}")
             else:
-                current_version = "1.2.0"
-                print_colored(f"__init__.py not found, using default version: {current_version}")
+                current_version = "1.3.0"
+                print_colored(f"⚠ __init__.py not found at {init_file}, using default version: {current_version}")
         except Exception as e:
-            current_version = "1.2.0"
-            print_colored(f"Error reading version from __init__.py: {e}, using default: {current_version}")
+            current_version = "1.3.0"
+            print_colored(f"⚠ Error reading version from __init__.py: {e}, using default: {current_version}")
 
         # Make script executable
         os.chmod(test_script, 0o755)
