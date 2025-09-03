@@ -307,13 +307,13 @@ def get_star_index():
             pass
         return STAR_INDEX
     else:
-        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/"
-       
+        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx/"
+    
 def get_star_index_chpnt():
     if STAR_INDEX is not None:
         return config["wdir"]+"/results/tmp/.star_index.chkpnt"
     else:
-        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt"
+        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx.chpnt"
 
 
 
@@ -790,14 +790,9 @@ rule create_STAR_index:
     input:
         gtf=config["gtf"],
         genome_fasta=config["genome_fasta"],
-        #r_l_file = config["wdir"]+"/results/tmp/read_length.chkpnt"
-    params:
-        wdir=config["wdir"],
-        dir="results/tmp/star_index",
-        genome_sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])
     output: 
-        idx = directory(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/"),
-        chkpnt = touch(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt")
+        idx = directory(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx/"),
+        chkpnt = touch(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx.chpnt")
     conda:
         "envs/racoon_main_v0.4.yml"
     message: 
@@ -811,32 +806,28 @@ rule create_STAR_index:
         --runMode genomeGenerate \
         --genomeDir {output.idx} \
         --genomeFastaFiles {input.genome_fasta} \
-        --sjdbGTFfile {input.gtf} \
-        --sjdbOverhang {params.genome_sjdbOverhang} \
         --readFilesCommand zcat
         """
-#genome_sjdbOverhang=$( cat {input.genome_sjdbOverhang} | awk 'NR==1{{print $1}}' )
+
 
 
 rule align:
     input:
         reads= get_demult_trim_reads,
-        #fastqc_res1=expand("results/fastqc/separate_samples/flexbarOut_barcode_{sample}.html",sample = SAMPLES),
         idx = get_star_index(),
         index_chkpnt= get_star_index_chpnt()            
     output:
         chkpnt = touch(config["wdir"]+"/results/.{sample}.bam.SE.chkpnt"),
         bam=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam",
-        #unaligned="{wdir}/results/aligned/{sample}.Unmapped.out.mate1"
+
     params:
         gtf=config["gtf"],
-        #index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + "/",
-        dir="results/aligned/",
         wdir=config["wdir"],
+        dir="results/aligned/",
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
         outFilterMismatchNmax=config["outFilterMismatchNmax"],
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"]), # # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
+        sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["total_barcode_len"]), # # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"],
         dedup = DEDUP,
@@ -848,13 +839,14 @@ rule align:
         "envs/racoon_main_v0.4.yml"
     resources:
         mem_mb = 40000
+        
     shell:
         """
         chmod +x {input.reads} && \
         mkdir -p {params.wdir}/{params.dir} && \
         chmod -R +x {params.wdir}/{params.dir} && \
         cd {params.wdir}/{params.dir} && \
-        
+            
         if [[ {input.reads} =~ \.gz$ ]]
         then
             echo "gzip"
@@ -866,6 +858,7 @@ rule align:
             --outFilterMultimapNmax {params.outFilterMultimapNmax} \
             --alignEndsType "Extend5pOfRead1" \
             --sjdbGTFfile {params.gtf} \
+            --sjdbOverhang {params.sjdbOverhang} \
             --outReadsUnmapped {params.outReadsUnmapped} \
             --outSJfilterReads {params.outSJfilterReads} \
             --readFilesCommand zcat \
@@ -881,6 +874,7 @@ rule align:
             --outFilterMultimapNmax {params.outFilterMultimapNmax} \
             --alignEndsType "Extend5pOfRead1" \
             --sjdbGTFfile {params.gtf} \
+            --sjdbOverhang {params.sjdbOverhang} \
             --outReadsUnmapped {params.outReadsUnmapped} \
             --outSJfilterReads {params.outSJfilterReads} \
             --outSAMtype BAM SortedByCoordinate \
@@ -1855,18 +1849,18 @@ rule merge_trimmed:
 rule align_chimeric:
     input:
         reads=config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz",
-        index_chkpnt= re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"])) + ".chpnt",
-        index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx_sjdbOverhang" + str(int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["barcodeLength"]))
+        index_chkpnt= re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx.chpnt",
+        index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx" 
     output:
         bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam"
     params:
         gtf=config["gtf"],
-        dir="results/mir_analysis/aligned_chimeric_bam/",
         wdir=config["wdir"],
+        dir="results/mir_analysis/aligned_chimeric_bam/",
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
         outFilterMismatchNmax=config["outFilterMismatchNmax"],
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        sjdbOverhang=config["read_length"] - 1 - int(get_barcode_experiment_info()["barcodeLength"]),
+        sjdbOverhang=config["read_length"] - 1 - int(get_barcode_experiment_info()["total_barcode_len"]),
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"]
     threads: 2 # x each sample automatically assigned by snakemake
