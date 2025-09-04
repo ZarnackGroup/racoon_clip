@@ -1,5 +1,7 @@
-FROM continuumio/miniconda3:23.10.0-1
-#FROM condaforge/mambaforge:23.11.0-0
+FROM condaforge/miniforge3:25.3.1-0
+#FROM condaforge/mambaforge:22.9.0-2
+#FROM condaforge/mambaforge:4.14.0-2
+#
 
 # Set timezone to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,45 +15,52 @@ RUN apt clean \
     git \
     gcc \ 
     g++ \
-    libtiff5 && \
+    libtiff-dev \
+    libarchive-tools \
+    libarchive-dev && \
+    ldconfig && \
     apt-get purge && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install exact Python 3.9.0 using conda
-RUN conda install -c conda-forge python=3.9.0 pip -y && conda clean -afy
+# Get python 3.9 with miniforge (mamba already included)
+##################################
+
+# Install exact Python 3.9.0 using mamba (already available in miniforge)
+RUN mamba install -c conda-forge python=3.9.0 pip -y && mamba clean -afy
 
 # Check installed Python version
 RUN echo "Python version:" && python --version && python -c "import sys; print(f'Exact version: {sys.version}')"
 
-# RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-# RUN bash Miniforge3-Linux-x86_64.sh
+# check mamba is available
+RUN mamba --version
 
-RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.1.2.0.zip
-RUN unzip v.1.2.0.zip
+# Get racoon_clip
+##################################
 
-WORKDIR /racoon_clip-v.1.2.0/ 
+RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.1.3.0.zip
+RUN unzip v.1.3.0.zip
 
-# RUN conda install --quiet --yes -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' && \
-#     conda create --yes -n racoon_clip python=3.9.2 pip botocore  && \
-#     echo "conda activate racoon_clip" >> ~/.bashrc
-# SHELL ["/bin/bash", "--login", "-c"]
-# ENV PATH /opt/conda/envs/racoon_clip/bin:$PATH
+WORKDIR /racoon_clip-v.1.3.0/ 
 
-WORKDIR /racoon_clip-v.1.2.0/racoon_clip.egg-info
-#RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
-#RUN sed -i '1s/^/pulp==2.7.0 /' requires.txt
-#RUN pip install pulp==2.7.0
-#RUN pip install botocore
+# Install racoon_clip directly in the base environment
+RUN pip install --verbose -e . && \
+    pip show racoon_clip
 
-WORKDIR /racoon_clip-v.1.2.0/
-RUN pip install -e .
+# Test racoon_clip installation
+##############################
+
+# Test racoon_clip installation (installed in base environment)
 RUN racoon_clip -h
 RUN racoon_clip test --light
 
+# Set default entrypoint
+CMD ["/bin/bash"]
 
 
-# WORKDIR /racoon_clip-1.2.0/racoon_clip/minimal_examples
+
+
+# WORKDIR /racoon_clip-1.3.0/racoon_clip/minimal_examples
 # RUN unzip minimal_example_eCLIP.zip
 
 
