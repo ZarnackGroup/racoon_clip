@@ -456,7 +456,7 @@ def get_bai_files(wcs):
     
 def get_bam_dedup():
     if DEDUP == True:
-        return config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
+        return config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam"  # Removed .sort - use coordinate-sorted output
     else:
         return config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
 
@@ -543,8 +543,8 @@ if MIR == True:
     myoutput.append(expand("{wdir}/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz", wdir=WDIR, sample = SAMPLES))
     myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam", wdir=WDIR, sample = SAMPLES))
     myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/.fastqc.{sample}.trim.non_chimeric.chkpnt",  wdir=WDIR, sample = SAMPLES))
+    # COMMENTED OUT - No longer generating .sort.bam files as they're unnecessary
+    # myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",  wdir=WDIR, sample = SAMPLES))
     myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw", wdir=WDIR,  sample = SAMPLES ))
     myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bw", groups=GROUPS, wdir=WDIR))
     myoutput.append(config["wdir"]+"/results/Report_miR.html")
@@ -1143,18 +1143,20 @@ rule deduplication:
         fi
         """
 
-rule sort_bams:
-    input:
-        config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam"
-    output:
-        config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
-    conda:
-        "envs/racoon_samtools.yml"
-    threads: 1 # x each sample automatically assigned by snakemake
-    message: 
-            "========================= \n Sorting deduplicated {wildcards.sample} \n ================================ \n" 
-    shell:
-        "samtools sort -n {input} -o {output}"
+
+# COMMENTED OUT - sort_bams rule is unnecessary for bamtobed and causes issues with samtools merge
+# rule sort_bams:
+#     input:
+#         config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.bam"
+#     output:
+#         config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
+#     conda:
+#         "envs/racoon_main_v0.4.yml"
+#     threads: 1 # x each sample automatically assigned by snakemake
+#     message: 
+#             "========================= \n Sorting deduplicated {wildcards.sample} \n ================================ \n" 
+#     shell:
+#         "samtools sort -n {input} -o {output}"
 
 
 
@@ -1198,13 +1200,17 @@ rule get_crosslinks:
     shell:
         """
         #### Convert all read locations to intervals in bed file format using BEDTools
-        bedtools bamtobed -i {input.bam} > {output.bed} 
-        \
+        bedtools bamtobed -i {input.bam} > {output.bed}
+        
+        #### Filter out reads at chromosome boundaries (first nt on + strand, last nt on - strand)
+        awk 'BEGIN{{OFS="\t"}} FNR==NR{{chr_len[$1]=$2; next}} !(($6=="+" && $2==0) || ($6=="-" && $3==chr_len[$1]))' {params.genome_fasta}.fai {output.bed} > {output.bed}.tmp && mv {output.bed}.tmp {output.bed}
+        
         #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
-        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} 
+        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift}
+        
         #### Extract the 5' end of the shifted intervals and pile up into coverage track in bedgraph file format (separately for each strand) using BEDTools (in case of RPM-normalised coverage tracks, use additional parameter -scale with 1,000,000/#mappedReads)
-        bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n > {output.bed_plus} 
-        bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n  > {output.bed_minus} 
+        bedtools genomecov -bg -strand + -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n > {output.bed_plus}
+        bedtools genomecov -bg -strand - -5 -i {output.bed_shift} -g {params.genome_fasta}.fai | LC_COLLATE=C sort -k1,1 -k2,2n -k3,3n > {output.bed_minus}
         """
 
 rule turn_crosslinks_to_bw:
@@ -1332,7 +1338,7 @@ checkpoint merge_bam:
     shell:
         """
         if [[ "{params.dedup}" == "True" ]]; then
-            s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.sort.bam"}}' {input.groups} )" 
+            s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.duprm.bam"}}' {input.groups} )"  # Removed .sort - use coordinate-sorted files
             samtools merge -f {output.bam_merge} $s
         else
             s="$(awk '{{ print "{params.wdir}/results/aligned/" $2 ".Aligned.sortedByCoord.out.bam"}}' {input.groups} )" 
@@ -1467,13 +1473,11 @@ rule fastqc_raw_multi:
 in_multiqc_raw_multi = list()
 in_multiqc_filt_multi = list()
 in_multiqc = list()
-in_multiqc_bam = list()
 
 
 in_multiqc_raw_multi.append(expand("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt", wdir=WDIR, sample=SAMPLES))
 in_multiqc_filt_multi.append(expand("{wdir}/results/tmp/.fastqc.filtered.{sample}.chkpnt", wdir=WDIR, sample=SAMPLES))
 in_multiqc.append(expand("{wdir}/results/tmp/.fastqc.{sample}.trim.chkpnt", wdir=WDIR, sample=SAMPLES))
-in_multiqc_bam.append(expand("{wdir}/results/tmp/.fastqc.{sample}.bam.chkpnt", wdir=WDIR, sample=SAMPLES))
 
 
 
@@ -1566,86 +1570,6 @@ rule multiqc:
     shell:
         """
         cd {params.wdir}/results/fastqc/separate_samples/  && \
-        multiqc -f --export .
-        """
-
-
-# 3) after alignment
-########################
-
-rule fastqc_samples_bam:
-    input:
-        bam = get_bam_files
-    output:
-        touch("{wdir}/results/tmp/.fastqc.{sample}.bam.chkpnt")
-    params: 
-        wdir=config["wdir"],
-        file=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
-    conda:
-        "envs/racoon_main_v0.4.yml"
-    message: 
-        "========================= \n FastQC of aligned {wildcards.sample} \n ================================ \n" 
-    threads: 1
-    shell:
-        """
-        mkdir -p {params.wdir}/results/fastqc/separate_samples_bam/ && \
-        fastqc {input.bam} -o {params.wdir}/results/fastqc/separate_samples_bam/ -q
-        """
-
-rule multiqc_bam:
-    input:
-        in_multiqc_bam
-    output:
-        config["wdir"]+"/results/fastqc/separate_samples_bam/multiqc_report.html"
-    params: wdir=config["wdir"]
-    conda:
-       "envs/racoon_main_v0.4.yml"
-    message: 
-        "========================= \n MultiQC of aligned \n ================================ \n" 
-    threads: 1
-    shell:
-        """
-          cd {params.wdir}/results/fastqc/separate_samples_bam/  && \
-          multiqc -f --export .
-          """
-
-
-# 4) after dup removal
-########################
-
-rule fastqc_samples_bam_duprm:
-    input:
-        file=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
-    output:
-        config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/{sample}.Aligned.sortedByCoord.out.duprm.sort_fastqc.html"
-    params: wdir=config["wdir"]
-        # "results/fastqc/separate_samples/{sample}.html",
-        # "results/fastqc/separate_samples/{sample}.zip"
-    conda:
-        "envs/racoon_main_v0.4.yml"
-    message: 
-        "========================= \n FastQC after duplicate removal {wildcards.sample} \n ================================ \n" 
-    threads: 1
-    shell:
-        """
-        mkdir -p {params.wdir}/results/fastqc/separate_samples_bam_duprm/ && \
-        fastqc {input.file} -o {params.wdir}/results/fastqc/separate_samples_bam_duprm/ -q
-        """
-
-rule multiqc_bam_duprm:
-    input:
-        expand(config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/{sample}.Aligned.sortedByCoord.out.duprm.sort_fastqc.html", sample=SAMPLES)
-    output:
-        config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html"
-    params: wdir=config["wdir"]
-    conda:
-       "envs/racoon_main_v0.4.yml"
-    message: 
-        "========================= \n MultiQC after duplicate removal \n ================================ \n" 
-    threads: 1
-    shell:
-        """
-        cd {params.wdir}/results/fastqc/separate_samples_bam_duprm/  && \
         multiqc -f --export .
         """
 
@@ -2140,16 +2064,19 @@ rule deduplication_chimeric:
         umi_tools dedup -I {input.bam} -L {output.log} -S {output.bam} --extract-umi-method read_id --method unique
         """
 
-rule sort_bams_chimeric:
-    input:
-        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bam"
-    output:
-        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
-    conda:
-        "envs/racoon_samtools.yml"
-    threads: 1 # x each sample automatically assigned by snakemake
-    shell:
-        "samtools sort -n {input} -o {output}"
+
+# COMMENTED OUT - sort_bams_chimeric rule is unnecessary for bamtobed
+# rule sort_bams_chimeric:
+#     input:
+#         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bam"
+#     output:
+#         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
+#     conda:
+#         "envs/racoon_main_v0.4.yml"
+#     threads: 1 # x each sample automatically assigned by snakemake
+#     shell:
+#         "samtools sort -n {input} -o {output}"
+
 
 #######################
 # extract crosslinked nucleotides from chimeric reads
@@ -2161,7 +2088,7 @@ rule sort_bams_chimeric:
 rule get_crosslinks_chimeric:
     input:
         genome_chkpnt=config["genome_fasta"]+".fai",
-        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
+        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bam"  # Removed .sort - use coordinate-sorted file
     output:
         bed=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bed",
         bed_shift=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.bed",
@@ -2279,80 +2206,6 @@ checkpoint merge_crosslink_bw_chimeric:
 # QCs for miR
 # -----------------------------
 
-# 5) aligned miRs
-####################
-rule fastqc_aligned_mir:
-    input:
-        config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.sam"
-    output:
-        config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/{sample}.alignMir_fastqc.html"
-    params: wdir=config["wdir"]
-    conda:
-        "envs/racoon_main_v0.4.yml"
-    threads: 1 # fastqc can use 1 thread per sample
-    shell:
-        """
-        mkdir -p {params.wdir}/results/fastqc/aligned_mir && \
-        fastqc {input} -o {params.wdir}/results/mir_analysis/fastqc/aligend_mir -q
-        """
-
-
-rule multiqc_aligned_mir:
-    input:
-        expand(config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/{sample}.alignMir_fastqc.html", sample = SAMPLES)
-    output:
-        config["wdir"]+"/results/mir_analysis/fastqc/aligend_mir/multiqc_report.html"
-    params: wdir=config["wdir"]
-    conda:
-       "envs/racoon_main_v0.4.yml"
-    threads: 1
-    shell:
-        """
-        cd {params.wdir}/results/mir_analysis/fastqc/aligend_mir  && \
-        multiqc -f --export .
-        """
-
-# 6) split trimmed chimeric reads
-####################
-rule fastqc_st_chimeric:
-    input:
-        config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.fastq.gz"
-    output:
-        config["wdir"]+"/results/mir_analysis/fastqc/split_chimeric/{sample}/multiqc_report.html"
-    params:
-        qc_dir=config["wdir"]+"/results/mir_analysis/fastqc/split_chimeric/{sample}",
-        split_dir=config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/{sample}/"
-    conda:
-        "envs/racoon_main_v0.4.yml"
-    threads: 1 # fastqc can use 1 thread per sample
-    shell:
-        """
-        mkdir -p {params.qc_dir} && \
-        chmod +x -R {params.qc_dir} && \
-        fastqc {params.split_dir}*.fastq.gz -o {params.qc_dir} -q && \
-        cd {params.qc_dir} && \
-        ls && \
-        multiqc -f --export .
-        """
-
-
-rule fastqc_samples_non_chimeric:
-    input:
-        file=get_demult_trim_reads
-    output:
-        touch("{wdir}/results/.fastqc.{sample}.trim.non_chimeric.chkpnt"),
-    params: wdir=config["wdir"]
-        # "results/fastqc/separate_samples/{sample}.html",
-        # "results/fastqc/separate_samples/{sample}.zip"
-    conda:
-        "envs/racoon_main_v0.4.yml"
-    threads: 1
-    shell:
-        """
-        mkdir -p {params.wdir}/results/fastqc/non_chimeric/ && \
-        fastqc {input.file} -o {params.wdir}/results/fastqc/non_chimeric/ -q
-        """
-
 # .. report miRs
 
 rule make_report_miR:
@@ -2371,23 +2224,6 @@ rule make_report_miR:
         """
         $CONDA_PREFIX/lib/R/bin/Rscript {params.snake_path}/workflow/rules/make_report_mir.R {params.wdir} {params.snake_path} "$CONDA_PREFIX" {params.config}
         """
-    # Access the environment's library path
-    
-    
-    # rule make_report_miR:
-    # input:
-    #     chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/chimeric_bowtie_stats.txt",
-    #     non_chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/non_chimeric_bowtie_stats.txt"
-    # output:
-        
-    # params:
 
-    # conda:
-    #     "envs/racoon_R_miRmodule_v0.1.yml"
-    # shell:
-    #     env_library_path = os.path.join(envs_dir, "racoon_R_miRmodule_v0.1", "lib", "R", "library")
-    #     print("Environment library path:", env_library_path)
-    #     # Pass the env_library_path to the R script
-    #     shell("Rscript rules/make_report_mir.R $env_library_path".format(script=input.script[0], env_library_path=env_library_path))
 
 
