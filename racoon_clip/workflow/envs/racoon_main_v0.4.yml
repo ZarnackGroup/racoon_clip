@@ -167,7 +167,6 @@ dependencies:
   - requests=2.32.4=pyhd8ed1ab_0
   - rich=14.1.0=pyhe01879c_0
   - rich-click=1.8.9=pyhd8ed1ab_0
-  - samtools=1.11=h6270b1f_0
   - seqan-library=2.4.0=0
   - setuptools=80.9.0=pyhff2d567_0
   - simplejson=3.20.1=py310ha75aee5_0

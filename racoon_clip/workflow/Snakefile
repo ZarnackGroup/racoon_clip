@@ -1104,7 +1104,7 @@ rule bam_index:
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     message: 
             "========================= \n Indexing .bam file of {wildcards.sample} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
@@ -1149,7 +1149,7 @@ rule sort_bams:
     output:
         config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     message: 
             "========================= \n Sorting deduplicated {wildcards.sample} \n ================================ \n" 
@@ -1167,7 +1167,7 @@ rule make_genome_index:
     output:
         config["genome_fasta"]+".fai"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: workflow.cores * 0.5 # so it can run parrallel to deduplication and bam sorting
     message: 
             "========================= \n Indexing genome fasta \n ================================ \n provided genome: {params.genome_fasta}" 
@@ -1326,7 +1326,7 @@ checkpoint merge_bam:
         dedup=DEDUP
     threads: 1
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     message: 
         "========================= \n Merging .bam files of group {wildcards.groups} \n ================================ \n" 
     shell:
@@ -1347,7 +1347,7 @@ rule sort_merged_bams:
     output:
         config['wdir']+"/results/bam_merged/{groups}.sort.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     message: 
             "========================= \n Sorting merged bam files of group {wildcards.groups} \n ================================ \n" 
@@ -1363,7 +1363,7 @@ rule merged_bam_index:
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     message: 
             "========================= \n Indexing .bam file of {wildcards.groups} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
@@ -1865,7 +1865,7 @@ rule split_by_miR_alignment:
         filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
         filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     shell:
         """
         # sam flags: 0 == aligned, 4 == not aligned
@@ -1884,7 +1884,7 @@ rule stats_miR_alignment:
         filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
         filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     shell:
         """
         for i in {input.chimeric}
@@ -1965,7 +1965,7 @@ rule split_by_mapping_start:
         # list=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
         # miR_names=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     shell:
         """
         mkdir -p {params.filename} && \
@@ -2113,7 +2113,7 @@ rule bam_index_chimeric:
     output:
         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         """
@@ -2146,7 +2146,7 @@ rule sort_bams_chimeric:
     output:
         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         "samtools sort -n {input} -o {output}"
