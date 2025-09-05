@@ -1416,7 +1416,7 @@ rule fastqc:
         
 rule fastqc_one_filtered:
     input:
-        config["wdir"]+"/results/barcode_filter/renamed.fastq.gz"
+git         config["wdir"]+"/results/barcode_filter/renamed.fastq.gz"
     output:
         touch("{wdir}/results/tmp/.fastqc.filtered.chkpnt"),
     params: wdir=config["wdir"]
