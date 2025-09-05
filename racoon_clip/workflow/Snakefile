@@ -97,13 +97,6 @@ if "samples" in config and config["samples"]:
                 break
         auto_generated_samples.append(sample_name)
     
-    # Verify that user-specified names match auto-generated names
-    if set(SAMPLES) != set(auto_generated_samples):
-        print("ERROR: User-specified sample names do not match auto-generated names from file paths.")
-        print("Auto-generated names:", auto_generated_samples)
-        print("User-specified names:", SAMPLES)
-        raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
-    
 else:
     # Auto-generate sample names from file paths
     SAMPLES = []
@@ -134,6 +127,27 @@ for sample, file_path in SAMPLE_TO_FILE.items():
 # Keep INPATH for backward compatibility (assumes files in same directory)
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
 DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
+
+# Validate sample names against file names if samples were user-specified and demux is False
+if "samples" in config and config["samples"] and DEMUX == False:
+    # Re-create auto_generated_samples for validation
+    auto_generated_samples = []
+    for file_path in SAMPLES_FULL:
+        basename = os.path.basename(file_path)
+        sample_name = basename
+        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
+            if sample_name.endswith(ext):
+                sample_name = sample_name[:-len(ext)]
+                break
+        auto_generated_samples.append(sample_name)
+    
+    # Verify that user-specified names match auto-generated names
+    if set(SAMPLES) != set(auto_generated_samples):
+        print("ERROR: User-specified sample names do not match auto-generated names from file paths.")
+        print("Auto-generated names:", auto_generated_samples)
+        print("User-specified names:", SAMPLES)
+        raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
+
 QUAL_BC=(config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
 #ENCODE=config["encode"] == "True"
@@ -1090,7 +1104,7 @@ rule bam_index:
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     message: 
             "========================= \n Indexing .bam file of {wildcards.sample} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
@@ -1129,6 +1143,7 @@ rule deduplication:
         fi
         """
 
+
 # COMMENTED OUT - sort_bams rule is unnecessary for bamtobed and causes issues with samtools merge
 # rule sort_bams:
 #     input:
@@ -1144,6 +1159,7 @@ rule deduplication:
 #         "samtools sort -n {input} -o {output}"
 
 
+
 ######################
 # extraction of crosslinked nucleotides
 #######################
@@ -1153,7 +1169,7 @@ rule make_genome_index:
     output:
         config["genome_fasta"]+".fai"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: workflow.cores * 0.5 # so it can run parrallel to deduplication and bam sorting
     message: 
             "========================= \n Indexing genome fasta \n ================================ \n provided genome: {params.genome_fasta}" 
@@ -1316,7 +1332,7 @@ checkpoint merge_bam:
         dedup=DEDUP
     threads: 1
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     message: 
         "========================= \n Merging .bam files of group {wildcards.groups} \n ================================ \n" 
     shell:
@@ -1337,7 +1353,7 @@ rule sort_merged_bams:
     output:
         config['wdir']+"/results/bam_merged/{groups}.sort.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     message: 
             "========================= \n Sorting merged bam files of group {wildcards.groups} \n ================================ \n" 
@@ -1353,7 +1369,7 @@ rule merged_bam_index:
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     message: 
             "========================= \n Indexing .bam file of {wildcards.groups} \n ================================ \n" 
     threads: 1 # x each sample automatically assigned by snakemake
@@ -1773,7 +1789,7 @@ rule split_by_miR_alignment:
         filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
         filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     shell:
         """
         # sam flags: 0 == aligned, 4 == not aligned
@@ -1792,7 +1808,7 @@ rule stats_miR_alignment:
         filename=config["wdir"]+"/results/mir_analysis/aligned_mir/",
         filename_non_chimeric = config["wdir"]+"/results/tmp/non_chimeric/"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     shell:
         """
         for i in {input.chimeric}
@@ -1873,7 +1889,7 @@ rule split_by_mapping_start:
         # list=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
         # miR_names=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     shell:
         """
         mkdir -p {params.filename} && \
@@ -2021,7 +2037,7 @@ rule bam_index_chimeric:
     output:
         config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_samtools.yml"
     threads: 1 # x each sample automatically assigned by snakemake
     shell:
         """
@@ -2048,6 +2064,7 @@ rule deduplication_chimeric:
         umi_tools dedup -I {input.bam} -L {output.log} -S {output.bam} --extract-umi-method read_id --method unique
         """
 
+
 # COMMENTED OUT - sort_bams_chimeric rule is unnecessary for bamtobed
 # rule sort_bams_chimeric:
 #     input:
@@ -2059,6 +2076,7 @@ rule deduplication_chimeric:
 #     threads: 1 # x each sample automatically assigned by snakemake
 #     shell:
 #         "samtools sort -n {input} -o {output}"
+
 
 #######################
 # extract crosslinked nucleotides from chimeric reads
