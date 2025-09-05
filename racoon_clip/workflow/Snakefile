@@ -47,10 +47,91 @@ print(SNAKE_PATH)
 #     config_default = yaml.safe_load(f)
 
 WDIR=config["wdir"]
-SAMPLES_FULL=config["infiles"].split()
+# Handle glob patterns in infiles (e.g., *.fastq, *.fastq.gz)
+import glob
+import os
+infiles_raw = config["infiles"]
+if "*" in infiles_raw:
+    # Expand glob pattern
+    SAMPLES_FULL = glob.glob(infiles_raw)
+    if not SAMPLES_FULL:
+        raise ValueError(f"ERROR: No files found matching pattern: {infiles_raw}")
+    # Sort for consistent ordering
+    SAMPLES_FULL.sort()
+else:
+    # Split space-separated file list
+    SAMPLES_FULL = infiles_raw.split()
+    # Check that all files exist and are readable
+    missing_files = []
+    unreadable_files = []
+    for file_path in SAMPLES_FULL:
+        if not os.path.exists(file_path):
+            missing_files.append(file_path)
+        elif not os.access(file_path, os.R_OK):
+            unreadable_files.append(file_path)
+    
+    if missing_files:
+        raise ValueError(f"ERROR: The following input files do not exist: {', '.join(missing_files)}")
+    
+    if unreadable_files:
+        raise ValueError(f"ERROR: No permission to read the following files: {', '.join(unreadable_files)}")
+
 print("samples")
 print(SAMPLES_FULL)
-SAMPLES=config["samples"].split()
+
+# Auto-generate sample names from file paths, or use config if specified
+if "samples" in config and config["samples"]:
+    # Use user-specified sample names
+    SAMPLES = config["samples"].split()
+    
+    # Auto-generate sample names to compare against user-specified names
+    auto_generated_samples = []
+    for file_path in SAMPLES_FULL:
+        # Extract filename without directory and extensions
+        basename = os.path.basename(file_path)
+        # Remove common file extensions
+        sample_name = basename
+        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
+            if sample_name.endswith(ext):
+                sample_name = sample_name[:-len(ext)]
+                break
+        auto_generated_samples.append(sample_name)
+    
+    # Verify that user-specified names match auto-generated names
+    if set(SAMPLES) != set(auto_generated_samples):
+        print("ERROR: User-specified sample names do not match auto-generated names from file paths.")
+        print("Auto-generated names:", auto_generated_samples)
+        print("User-specified names:", SAMPLES)
+        raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
+    
+else:
+    # Auto-generate sample names from file paths
+    SAMPLES = []
+    for file_path in SAMPLES_FULL:
+        # Extract filename without directory and extensions
+        basename = os.path.basename(file_path)
+        # Remove common file extensions
+        sample_name = basename
+        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
+            if sample_name.endswith(ext):
+                sample_name = sample_name[:-len(ext)]
+                break
+        SAMPLES.append(sample_name)
+    
+    print("INFO: Auto-generated sample names from input files:")
+    for file_path, sample_name in zip(SAMPLES_FULL, SAMPLES):
+        print(f"  {file_path} -> {sample_name}")
+
+print("Final samples:")
+print(SAMPLES)
+
+# Create mapping from sample names to full file paths
+SAMPLE_TO_FILE = dict(zip(SAMPLES, SAMPLES_FULL))
+print("Sample to file mapping:")
+for sample, file_path in SAMPLE_TO_FILE.items():
+    print(f"  {sample} -> {file_path}")
+
+# Keep INPATH for backward compatibility (assumes files in same directory)
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
 DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
 QUAL_BC=(config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
@@ -62,6 +143,46 @@ TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] 
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 MIR_starts=config["mir_starts_allowed"].split()
 STAR_INDEX=config["star_index"] if config["star_index"] != "" else None
+
+# Validate reference files
+
+# Check GTF file
+gtf_file = config["gtf"]
+if not os.path.exists(gtf_file):
+    raise ValueError(f"ERROR: GTF file does not exist: {gtf_file}")
+if not os.access(gtf_file, os.R_OK):
+    raise ValueError(f"ERROR: No permission to read GTF file: {gtf_file}")
+if not gtf_file.lower().endswith('.gtf'):
+    raise ValueError(f"ERROR: GTF file must end with .gtf extension: {gtf_file}")
+
+# Check genome FASTA file
+genome_fasta = config["genome_fasta"]
+if not os.path.exists(genome_fasta):
+    raise ValueError(f"ERROR: Genome FASTA file does not exist: {genome_fasta}")
+if not os.access(genome_fasta, os.R_OK):
+    raise ValueError(f"ERROR: No permission to read genome FASTA file: {genome_fasta}")
+if not genome_fasta.lower().endswith(('.fasta', '.fa')):
+    raise ValueError(f"ERROR: Genome FASTA file must end with .fasta or .fa extension: {genome_fasta}")
+
+# Check STAR index directory if specified
+if STAR_INDEX is not None:
+    if not os.path.exists(STAR_INDEX):
+        raise ValueError(f"ERROR: STAR index directory does not exist: {STAR_INDEX}")
+    if not os.path.isdir(STAR_INDEX):
+        raise ValueError(f"ERROR: STAR index path is not a directory: {STAR_INDEX}")
+    if not os.access(STAR_INDEX, os.R_OK):
+        raise ValueError(f"ERROR: No permission to read STAR index directory: {STAR_INDEX}")
+    # Check if directory contains STAR index files
+    star_files = ['Genome', 'SA', 'SAindex']
+    missing_star_files = []
+    for star_file in star_files:
+        star_path = os.path.join(STAR_INDEX, star_file)
+        if not os.path.exists(star_path):
+            missing_star_files.append(star_file)
+    if missing_star_files:
+        raise ValueError(f"ERROR: STAR index directory is missing required files: {', '.join(missing_star_files)}. Directory: {STAR_INDEX}")
+
+
 
 
 # get groups
@@ -82,10 +203,8 @@ print(GROUPS)
 # get experiment info
 # one of "iCLIP", "iCLIP2", "eCLIP", "eCLIP_ENCODE" or "other"
 
-
 TYPE = config["experiment_type"]
 
-#TODO add quality_filter_barcode=False to encode
 
 def get_barcode_experiment_info():
     if TYPE== "iCLIP":
@@ -198,6 +317,27 @@ print(get_barcode_experiment_info()["encode"])
 ENCODE = get_barcode_experiment_info()["encode"]
 MIR = get_barcode_experiment_info()["miR"]
 
+# Check for ENCODE and quality filtering compatibility
+if ENCODE == True and QUAL_BC == True:
+    print("WARNING: Quality filtering is not compatible with ENCODE data types.")
+    print("Setting quality_filter_barcodes to False for ENCODE experiment type.")
+    QUAL_BC = False
+
+# Check for ENCODE and demultiplexing compatibility
+if ENCODE == True and DEMUX == True:
+    raise ValueError("ERROR: ENCODE data cannot be demultiplexed. ENCODE experiment types (eCLIP_ENCODE_5ntUMI, eCLIP_ENCODE_10ntUMI) are already demultiplexed. Please set demultiplex=False in your configuration.")
+
+# Check for demultiplexing without adapter trimming
+if DEMUX == True and TRIM == False:
+    print("WARNING: Demultiplexing (demultiplex=True) automatically includes adapter trimming.")
+    print("Adapter trimming will be performed during demultiplexing using the specified or default adapter file.")
+    print("The adapter_trimming=False setting only affects the separate adapter trimming step for non-multiplexed data.")
+
+# Check for TRIM3 without TRIM compatibility
+if TRIM3 == True and TRIM == False:
+    raise ValueError("ERROR: 3' trimming (trim3=True) without adapter trimming (adapter_trimming=False) is not implemented. Please set adapter_trimming=True if you want to use trim3=True.")
+
+
 #############################################
 #############################################
 ### definitions for inputs
@@ -206,19 +346,35 @@ MIR = get_barcode_experiment_info()["miR"]
 
 # get multiple inputfiles with or without gz
 def get_start_fastqs(wcs):
-    if GZ == True:
-        return INPATH+"/{sample}.fastq.gz"
+    # Use the sample-to-file mapping to get the actual file path
+    sample_name = wcs.sample if hasattr(wcs, 'sample') else wcs
+    if isinstance(sample_name, str):
+        return SAMPLE_TO_FILE.get(sample_name, INPATH + f"/{sample_name}.fastq.gz" if GZ else INPATH + f"/{sample_name}.fastq")
     else:
-        return INPATH+"/{sample}.fastq"
+        # Fallback to old behavior for compatibility
+        if GZ == True:
+            return INPATH+"/{sample}.fastq.gz"
+        else:
+            return INPATH+"/{sample}.fastq"
    
 
 # get files for adapter trimming
 def get_files_for_trim_SE(wcs):
+    return config["wdir"]+"/results/barcode_filter/{sample}_renamed.fastq.gz"
+  
+
+# get input for header processing
+def get_files_for_header_processing(wcs):
     if QUAL_BC == True:
-        return config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq"
-    elif QUAL_BC != True and ENCODE == True:
-        return config["wdir"]+"/results/encUMI/{sample}.fastq.gz"
-    elif QUAL_BC != True and ENCODE != True:
+        return config["wdir"]+"/results/barcode_filter/filtered.fastq.gz"
+    else:
+        return config["infiles"]
+
+# get input for header processing (demultiplexed data)
+def get_files_for_header_processing_demux(wcs):
+    if QUAL_BC == True:
+        return config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq.gz"
+    else:
         return get_start_fastqs(wcs)
   
 
@@ -229,15 +385,13 @@ def get_demult_trim_reads(wcs):
         return [config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.non_chimeric.sort.fastq.gz"]
     
     elif MIR != True:
-        # if ENCODE == True: 
-            #     return config["wdir"]+"/results/demultiplex/trimmed_{sample}_encUMI.fastq.gz"
         if TRIM3 != True:
             if DEMUX == True:  # with demulitplexing
                 return [config["wdir"]+"/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz"]
             elif DEMUX != True and TRIM == True:  # without demultiplexing
                 return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
             elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
-                return get_start_fastqs(wcs)
+                return config["wdir"]+"/results/barcode_filter/{sample}_renamed.fastq.gz"
         elif TRIM3 == True:
             return config["wdir"]+"/results/trim3/trim3_{sample}.fastq.gz"
                 
@@ -249,7 +403,7 @@ def get_demult_trim_reads_for_3trim(wcs):
     elif DEMUX != True and TRIM == True:  # without demultiplexing
         return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
     elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
-        return get_start_fastqs(wcs)
+        return config["wdir"]+"/results/barcode_filter/{sample}_renamed.fastq.gz"
         
 
 
@@ -262,7 +416,7 @@ def get_demult_trim_reads_for_qc (wcs):
         elif DEMUX != True and TRIM == True:  # without demultiplexing
                 return config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
         elif DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
-            return get_start_fastqs(wcs)
+            return config["wdir"]+"/results/barcode_filter/{sample}_renamed.fastq.gz"
         
 def get_demult_trim_reads_for_mir(wcs):
     if MIR == True:
@@ -333,7 +487,7 @@ if DEMUX == True:
     myoutput.append(expand("{wdir}/results/tmp/.fastqc.chkpnt", wdir=WDIR))
     # barcode filter will be always done when demultiplexing
     myoutput.append(expand("{wdir}/results/barcode_filter/barcodes_detected.txt", wdir=WDIR))
-    myoutput.append(expand("{wdir}/results/barcode_filter/filtered.fastq.gz", wdir=WDIR))
+    myoutput.append(expand("{wdir}/results/barcode_filter/renamed.fastq.gz", wdir=WDIR))
 
 # when not demultiplexing do fastqc of all input files
 if DEMUX != True:
@@ -342,7 +496,7 @@ if DEMUX != True:
 # non multiplexed data can be filtered for umi quality optionally
 if DEMUX != True and QUAL_BC == True:
     myoutput.append(expand("{wdir}/results/fastqc/filtered/multiqc_report.html", wdir=WDIR))
-    myoutput.append(expand("{wdir}/results/barcode_filter/{sample}_filtered.fastq", wdir=WDIR, sample = SAMPLES))
+    myoutput.append(expand("{wdir}/results/barcode_filter/{sample}_renamed.fastq.gz", wdir=WDIR, sample = SAMPLES))
 
 # non multiplexed data can be filtered for umi quality optionally
 
@@ -460,7 +614,31 @@ rule filter_barcode_quality:
     threads: 1 # gunzip breaks file with more then one thread
     shell:
         #"bash workflow/scripts/filter_barcode_quality.sh {input.fastq} {input.list} && touch {output.token}"
-        """ seqkit grep -f {input.list} {input.fastq}| awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' | gzip > {output.file} """
+        """
+        if [[ {input.fastq} == *.gz ]]; then
+            seqkit grep -f {input.list} {input.fastq} | gzip > {output.file}
+        else
+            seqkit grep -f {input.list} {input.fastq} | gzip > {output.file}
+        fi
+        """
+
+
+rule process_headers:
+    input:
+        fastq=get_files_for_header_processing
+    output:
+        file="{wdir}/results/barcode_filter/renamed.fastq.gz"
+    message: 
+        "========================= \n Processing FASTQ headers \n ================================ \n" 
+    threads: 1
+    shell:
+        """
+        if [[ {input.fastq} == *.gz ]]; then
+            zcat {input.fastq} | awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' | gzip > {output.file}
+        else
+            cat {input.fastq} | awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' | gzip > {output.file}
+        fi
+        """
 
 
 # write barcode file for barcodes stats
@@ -470,7 +648,7 @@ rule extract_barcodes:
 # this rule writes a txt with all barcodes to be able to do more analysis later
 # probably Mirkos code wich directly takes out interesting parameters is faster --> writes a smaller file
     input:
-        expand("{wdir}/results/barcode_filter/filtered.fastq.gz", wdir=WDIR)
+        expand("{wdir}/results/barcode_filter/renamed.fastq.gz", wdir=WDIR)
     output:
         "{wdir}/results/barcode_filter/barcodes_detected.txt"
     params:
@@ -496,7 +674,7 @@ rule extract_barcodes:
 rule demultiplex_flexbar:
 # revisit flexbar params some different for mirko
     input:
-        fasta=expand("{wdir}/results/barcode_filter/filtered.fastq.gz", wdir=WDIR), 
+        fasta=expand("{wdir}/results/barcode_filter/renamed.fastq.gz", wdir=WDIR), 
         barcodes=config["barcodes_fasta"]
     output:
          expand("{wdir}/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz", sample = SAMPLES, wdir=WDIR )
@@ -543,20 +721,20 @@ rule demultiplex_flexbar:
 ######################
 # encode data: move umi
 ######################
-rule encode_umi:
-    input: 
-      get_start_fastqs
-    output:
-      config["wdir"]+"/results/encUMI/{sample}.fastq.gz" ##!!TODO
-    params:
-        umi_length=get_barcode_experiment_info()["umi1_len"],
-    message: 
-        "========================= \n Handeling encode UMI position \n ================================ \n provided length of UMI: {params.umi_length}"
-    shell:
-        """
-        zcat -f < {input} | awk 'BEGIN{{FS=" "}} NR%4==1 {{print "@" substr($1, ({params.umi_length}+3), 500) "_" substr($1, 2, {params.umi_length})}}; NR%4==2 {{print}} ; NR%4==3 {{print}}; NR%4==0 {{print}};' | gzip > {output}
-        """
- # " " $2
+# rule encode_umi:
+#     input: 
+#       get_start_fastqs
+#     output:
+#       config["wdir"]+"/results/encUMI/{sample}.fastq.gz" ##!!TODO
+#     params:
+#         umi_length=get_barcode_experiment_info()["umi1_len"],
+#     message: 
+#         "========================= \n Handeling encode UMI position \n ================================ \n provided length of UMI: {params.umi_length}"
+#     shell:
+#         """
+#         zcat -f < {input} | awk 'BEGIN{{FS=" "}} NR%4==1 {{print "@" substr($1, ({params.umi_length}+3), 500) "_" substr($1, 2, {params.umi_length})}}; NR%4==2 {{print}} ; NR%4==3 {{print}}; NR%4==0 {{print}};' | gzip > {output}
+#         """
+#  # " " $2
 
 
 
@@ -601,7 +779,7 @@ rule filter_umi_quality:
         list=out_high_quality_umi,
         fastq=get_start_fastqs
     output:
-        file=config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq"
+        file=config["wdir"]+"/results/barcode_filter/{sample}_filtered.fastq.gz"
     conda:
         "envs/racoon_seqkit_v0.2.yml"
     threads: 1 # gunzip breaks file with more then one thread
@@ -610,7 +788,29 @@ rule filter_umi_quality:
     shell:
         #"bash workflow/scripts/filter_barcode_quality.sh {input.fastq} {input.list} && touch {output.token}"
         """ 
-        seqkit grep -f {input.list} {input.fastq} | awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' > {output.file} 
+        if [[ {input.fastq} == *.gz ]]; then
+            seqkit grep -f {input.list} {input.fastq} | gzip > {output.file}
+        else
+            seqkit grep -f {input.list} {input.fastq} | gzip > {output.file}
+        fi
+        """
+
+
+rule process_headers_demux:
+    input:
+        fastq=get_files_for_header_processing_demux
+    output:
+        file=config["wdir"]+"/results/barcode_filter/{sample}_renamed.fastq.gz"
+    message: 
+        "========================= \n Processing FASTQ headers for {wildcards.sample} \n ================================ \n" 
+    threads: 1
+    shell:
+        """
+        if [[ {input.fastq} == *.gz ]]; then
+            zcat {input.fastq} | awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' | gzip > {output.file}
+        else
+            cat {input.fastq} | awk '{{if(FNR%4==1){{gsub(" |/", "#", $0)}} print }}' | gzip > {output.file}
+        fi
         """
 
 
@@ -633,7 +833,6 @@ rule write_barcode_file:
         barcode=config["barcodes_fasta"],
         barcodeLength=get_barcode_experiment_info()["total_barcode_len"],
         sample=SAMPLES,
-        encode=get_barcode_experiment_info()["encode"],
         dir_script= SNAKE_PATH
     message: 
         "========================= \n Initialise barcodes + UMIs \n ================================ \n" 
@@ -642,7 +841,7 @@ rule write_barcode_file:
  # If there is only a UMI but no barcode, write a barcode file consisting of Ns in the length of the UMI
     shell:
         """
-        if [[ {params.encode} == True ]] || [[ "{params.barcodeLength}" == 0 ]]
+        if [[ "{params.barcodeLength}" == 0 ]]
         then
             touch {output.barcode}
         else
@@ -680,7 +879,6 @@ rule adapter_trimming_flexbar_single_end:
         barcodeLength=get_barcode_experiment_info()["total_barcode_len"],
         sample="{sample}",
         adapterCycles=config["adapter_cycles"],
-        encode=get_barcode_experiment_info()["encode"],
         barcode = config["wdir"]+"/results/demultiplex/barcode.fa",
     threads: workflow.cores  # allows
     conda:
@@ -689,7 +887,7 @@ rule adapter_trimming_flexbar_single_end:
         "========================= \n Adapter trimming for {wildcards.sample} \n ================================ \n barcodes and UMIs are also trimmed off, if present \n provided barcodes: {params.barcode} \n provided adapters: {params.adapter}"  
     shell:
         """
-        if [[ "{params.encode}" == "False" ]] && [[ "{params.barcodeLength}" != 0 ]]; then
+        if [[ "{params.barcodeLength}" != 0 ]]; then
             flexbar -r {input.fasta} \
             --zip-output GZ \
             --threads {threads} \
@@ -1218,7 +1416,7 @@ rule fastqc:
         
 rule fastqc_one_filtered:
     input:
-        config["wdir"]+"/results/barcode_filter/filtered.fastq.gz"
+git         config["wdir"]+"/results/barcode_filter/renamed.fastq.gz"
     output:
         touch("{wdir}/results/tmp/.fastqc.filtered.chkpnt"),
     params: wdir=config["wdir"]
