@@ -97,13 +97,6 @@ if "samples" in config and config["samples"]:
                 break
         auto_generated_samples.append(sample_name)
     
-    # Verify that user-specified names match auto-generated names
-    if set(SAMPLES) != set(auto_generated_samples):
-        print("ERROR: User-specified sample names do not match auto-generated names from file paths.")
-        print("Auto-generated names:", auto_generated_samples)
-        print("User-specified names:", SAMPLES)
-        raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
-    
 else:
     # Auto-generate sample names from file paths
     SAMPLES = []
@@ -134,6 +127,27 @@ for sample, file_path in SAMPLE_TO_FILE.items():
 # Keep INPATH for backward compatibility (assumes files in same directory)
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
 DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
+
+# Validate sample names against file names if samples were user-specified and demux is False
+if "samples" in config and config["samples"] and DEMUX == False:
+    # Re-create auto_generated_samples for validation
+    auto_generated_samples = []
+    for file_path in SAMPLES_FULL:
+        basename = os.path.basename(file_path)
+        sample_name = basename
+        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
+            if sample_name.endswith(ext):
+                sample_name = sample_name[:-len(ext)]
+                break
+        auto_generated_samples.append(sample_name)
+    
+    # Verify that user-specified names match auto-generated names
+    if set(SAMPLES) != set(auto_generated_samples):
+        print("ERROR: User-specified sample names do not match auto-generated names from file paths.")
+        print("Auto-generated names:", auto_generated_samples)
+        print("User-specified names:", SAMPLES)
+        raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
+
 QUAL_BC=(config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
 #ENCODE=config["encode"] == "True"
@@ -1416,7 +1430,7 @@ rule fastqc:
         
 rule fastqc_one_filtered:
     input:
-git         config["wdir"]+"/results/barcode_filter/renamed.fastq.gz"
+        config["wdir"]+"/results/barcode_filter/renamed.fastq.gz"
     output:
         touch("{wdir}/results/tmp/.fastqc.filtered.chkpnt"),
     params: wdir=config["wdir"]
