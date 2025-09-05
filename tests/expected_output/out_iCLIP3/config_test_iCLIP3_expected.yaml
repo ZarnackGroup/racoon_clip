@@ -12,7 +12,7 @@ experiment_groups: ''
 experiment_type: iCLIP3
 genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
 gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
-infiles: example_data/example_iCLIP3/test_iCLIP3_s1.chr21.fastq example_data/example_iCLIP3/test_iCLIP3_s2.chr21.fastq
+infiles: example_data/example_iCLIP3/*.fastq 
 log: racoon_clip.log
 minBaseQuality: 10
 min_read_length: 15
@@ -26,7 +26,7 @@ outReadsUnmapped: Fastx
 outSJfilterReads: Unique
 quality_filter_barcodes: true
 read_length: 150
-samples: test_iCLIP3_s1.chr21 test_iCLIP3_s2.chr21
+samples: ''
 seq_format: -Q33
 star_index: ''
 snakebase: /workspace/racoon_clip/racoon_clip/workflow

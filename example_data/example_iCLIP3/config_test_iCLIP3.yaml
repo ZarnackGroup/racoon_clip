@@ -2,11 +2,11 @@
 wdir: "tests/expected_output/out_iCLIP3"
 
 # input
-infiles: "example_data/example_iCLIP3/test_iCLIP3_s1.chr21.fastq example_data/example_iCLIP3/test_iCLIP3_s2.chr21.fastq" # for multiple files after demultiplexing
+infiles: "example_data/example_iCLIP3/*.fastq" # for multiple files after demultiplexing
 
 
 #SAMPLES
-samples: "test_iCLIP3_s1.chr21 test_iCLIP3_s2.chr21" # sample name needs to be identical for read 1 and 2 of same sample
+samples: "" # sample name needs to be identical for read 1 and 2 of same sample
 
 
 # umi1_len: 9
