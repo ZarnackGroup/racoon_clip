@@ -377,6 +377,8 @@ def create_config_dicts(workflow_type, working_directory, log, infiles, samples,
                     "deduplicate": deduplicate,
                     "mir_genome_fasta": mir_genome_fasta,
                     "mir_starts_allowed": mir_starts_allowed,
+                    "fastqScreen": False,
+                    "fastqScreen_config": "",
                     }
     
     default_config = {"wdir": "./racoon_clip_out", 
@@ -415,6 +417,8 @@ def create_config_dicts(workflow_type, working_directory, log, infiles, samples,
                     "deduplicate": True,
                     "mir_genome_fasta": "",
                     "mir_starts_allowed": "1 2 3 4",
+                    "fastqScreen": False,
+                    "fastqScreen_config": "",
                     }
     
     return merge_config, default_config
@@ -603,13 +607,16 @@ def citation(**kwargs):
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
 @click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE and iCLIP configs)')
+@click.option('--fastqscreen', is_flag=True, help='Run fastqscreen test suite')
 @click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
-def test(light, devel, report, peaks, extra_args):
+def test(light, devel, report, peaks, fastqscreen, extra_args):
     """Run racoon_clip test suite
     
-    By default runs full test suite (DAG tests, config tests, crosslinks tests, and peaks tests).
+    By default runs full test suite (DAG tests, config tests, crosslinks tests, peaks tests, 
+    and fastqscreen tests).
     Use --light for minimal testing, --devel for comprehensive testing including installation,
-    --report for report generation testing, or --peaks for peaks testing only.
+    --report for report generation testing, --peaks for peaks testing only, or --fastqscreen for
+    fastqscreen testing only.
     
     Peaks testing includes both eCLIP ENCODE and iCLIP config files.
     Use --extra-args to pass additional arguments to the underlying snakemake commands.
@@ -621,7 +628,7 @@ def test(light, devel, report, peaks, extra_args):
     suite = RacoonTestSuite()
     
     # Check for conflicting flags
-    flags_set = sum([light, devel, report, peaks])
+    flags_set = sum([light, devel, report, peaks, fastqscreen])
     if flags_set > 1:
         click.echo("Error: Cannot specify multiple test type flags simultaneously")
         sys.exit(1)
@@ -633,6 +640,8 @@ def test(light, devel, report, peaks, extra_args):
         success = suite.test_report(extra_args=extra_args)
     elif peaks:
         success = suite.test_peaks(extra_args=extra_args)
+    elif fastqscreen:
+        success = suite.test_fastqscreen(extra_args=extra_args)
     else:
         # Default: run full test suite
         success = suite.test(extra_args=extra_args)
@@ -640,8 +649,105 @@ def test(light, devel, report, peaks, extra_args):
     sys.exit(0 if success else 1)
 
 
+# Deprecated run command - redirects to crosslinks
+@click.command(
+    epilog=help_msg_extra,
+    context_settings=dict(
+        help_option_names=["-h", "--help"], ignore_unknown_options=True
+    ),
+)
+@common_options
+def run(_configfile, 
+        log, 
+        working_directory, 
+        infiles,
+        samples,
+        experiment_groups,
+        experiment_group_file,
+        seq_format,
+        barcodeLength,
+        minBaseQuality,
+        umi1_len,
+        umi2_len,
+        total_barcode_len,
+        encode,
+        encode_umi_length,
+        experiment_type,
+        barcodes_fasta,
+        quality_filter_barcodes,
+        demultiplex,
+        min_read_length,
+        adapter_file,
+        adapter_cycles,
+        adapter_trimming,
+        trim3,
+        trim3_len,
+        gtf,
+        genome_fasta,
+        star_index,
+        read_length,
+        outFilterMismatchNoverReadLmax,
+        outFilterMismatchNmax,
+        outFilterMultimapNmax,
+        outReadsUnmapped,
+        outSJfilterReads,
+        moreSTARParameters,
+        deduplicate,
+        mir_genome_fasta,
+        mir_starts_allowed,
+        **kwargs):
+    """
+    [DEPRECATED] Run racoon_clip analysis
+    
+    ⚠️  WARNING: The 'run' command is deprecated and will be removed in a future version.
+    Please use 'racoon_clip crosslinks' instead for crosslink detection without peak calling,
+    or 'racoon_clip peaks' for the full pipeline including peak calling.
+    
+    This command currently redirects to 'racoon_clip crosslinks' for backward compatibility.
+    """
+    # Print deprecation warning
+    click.echo(click.style(
+        "\n⚠️  DEPRECATION WARNING ⚠️\n"
+        "The 'racoon_clip run' command is deprecated and will be removed in a future version.\n"
+        "Please use:\n"
+        "  - 'racoon_clip crosslinks' for crosslink detection (without peak calling)\n"
+        "  - 'racoon_clip peaks' for the full pipeline (including peak calling)\n"
+        "\nFor now, this command will execute 'racoon_clip crosslinks'...\n",
+        fg='yellow',
+        bold=True
+    ))
+    
+    # Create configuration dictionaries (same as crosslinks)
+    merge_config, default_config = create_config_dicts(
+        "crosslinks", working_directory, log, infiles, samples, experiment_groups, 
+        experiment_group_file, seq_format, barcodeLength, minBaseQuality, umi1_len, 
+        umi2_len, total_barcode_len, encode, encode_umi_length, experiment_type, 
+        barcodes_fasta, quality_filter_barcodes, demultiplex, min_read_length, 
+        adapter_file, adapter_cycles, adapter_trimming, trim3, trim3_len, gtf, 
+        genome_fasta, star_index, read_length, outFilterMismatchNoverReadLmax, 
+        outFilterMismatchNmax, outFilterMultimapNmax, outReadsUnmapped, 
+        outSJfilterReads, moreSTARParameters, deduplicate, mir_genome_fasta, 
+        mir_starts_allowed)
+    
+    # Create a new dictionary containing non-default values given by the user
+    non_default_config = {key: value for key, value in merge_config.items() if value != default_config.get(key)}
+
+    # run snakemake with all_crosslinks rule (same as crosslinks command)
+    run_snakemake(
+        snakefile_path=snake_base(os.path.join("workflow", "Snakefile")),
+        user_configfile=_configfile,
+        log=log,
+        targets=["all_crosslinks"],
+        **kwargs,
+        merge_config=non_default_config,
+        default_config=default_config,
+        working_directory=working_directory
+    )
+
+
 cli.add_command(crosslinks)
 cli.add_command(peaks)
+cli.add_command(run)  # Deprecated - kept for backward compatibility
 #cli.add_command(example_config)
 cli.add_command(citation)
 cli.add_command(test)

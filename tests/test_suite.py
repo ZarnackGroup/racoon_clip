@@ -38,6 +38,10 @@ from test_crosslinks import test_run_execution
 sys.path.append(str(Path(__file__).parent / "test_peaks"))
 from test_peaks import test_peaks_execution
 
+# Import FASTQSCREEN testing functionality
+sys.path.append(str(Path(__file__).parent / "test_fastqscreen"))
+from test_fastqscreen import test_fastqscreen_execution
+
 
 # Color definitions for output
 class Colors:
@@ -194,7 +198,8 @@ class RacoonTestSuite:
             return False
 
         # Use the imported test_run_execution function for crosslinks
-        return test_run_execution(str(config_path), extra_args=extra_args)
+        success, _ = test_run_execution(str(config_path), extra_args=extra_args)
+        return success
 
     def test_all_dags(self) -> bool:
         """Test DAG generation for all config files"""
@@ -262,7 +267,23 @@ class RacoonTestSuite:
             return False
 
         # Use the imported test_peaks_execution function for peaks (full pipeline)
-        return test_peaks_execution(str(config_path), extra_args=extra_args)
+        success, _ = test_peaks_execution(str(config_path), extra_args=extra_args)
+        return success
+
+    def test_fastqscreen_execution(self, config_file: str, extra_args=None) -> bool:
+        """Test fastqscreen execution for a single config file"""
+        print_colored(f"Testing fastqscreen for: {Path(config_file).name}")
+        
+        # Check if config file exists
+        config_path = self.base_dir.parent / config_file
+        print_colored(f"Looking for config file at: {config_path}")
+        if not config_path.exists():
+            print_error(f"Config file not found: {config_file}")
+            return False
+
+        # Use the imported test_fastqscreen_execution function
+        success, _ = test_fastqscreen_execution(str(config_path), extra_args=extra_args)
+        return success
 
     def test_all_peaks(self, extra_args=None) -> bool:
         """Test peaks execution for eCLIP ENCODE and iCLIP config files"""
@@ -525,13 +546,15 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 All light tests passed!")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
         else:
             print_error("❌ Some light tests failed!")
             
         return success
 
     def test(self, extra_args=None) -> bool:
-        """Full test: DAG tests, config tests, crosslinks tests, and peaks tests (conditional)"""
+        """Full test: DAG tests, config tests, crosslinks tests, peaks tests, and fastqscreen tests (conditional)"""
         print_colored("🧪 Running Full Test Suite")
         print_colored("="*50)
         
@@ -545,11 +568,17 @@ class RacoonTestSuite:
         # Test config files second
         config_success = self.test_config_files()
         
-        # Only run the execution tests (crosslinks and peaks) if DAG and config tests pass
+        # Only run the execution tests (crosslinks, peaks, and fastqscreen) if DAG and config tests pass
         if dag_success and config_success:
             crosslinks_success = self.test_all_crosslinks(extra_args=extra_args)
             peaks_success = self.test_all_peaks(extra_args=extra_args)
-            success = crosslinks_success and peaks_success
+            
+            # Test fastqscreen
+            fastqscreen_config = "example_data/example_fastqscreen/config_test_iCLIP_fastqscreen.yaml"
+            print_colored(f"\nTesting fastqscreen for: {Path(fastqscreen_config).name}")
+            fastqscreen_success = self.test_fastqscreen_execution(fastqscreen_config, extra_args=extra_args)
+            
+            success = crosslinks_success and peaks_success and fastqscreen_success
         else:
             print_colored("\n⚠️ Skipping execution tests due to DAG or config test failures")
             success = False
@@ -557,6 +586,8 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 All tests passed!")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
         else:
             print_error("❌ Some tests failed!")
             
@@ -577,8 +608,35 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 Peaks test passed!")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
         else:
             print_error("❌ Peaks test failed!")
+            
+        return success
+
+    def test_fastqscreen(self, extra_args=None) -> bool:
+        """Fastqscreen only test: Only run fastqscreen execution test"""
+        print_colored("🧪 Running FastqScreen Test Suite")
+        print_colored("="*50)
+        
+        # Print extra args info if provided
+        if extra_args:
+            print_colored(f"Extra arguments for snakemake: {extra_args}")
+        
+        # Test fastqscreen with the specific config file
+        fastqscreen_config = "example_data/example_fastqscreen/config_test_iCLIP_fastqscreen.yaml"
+        
+        print_colored(f"\nTesting fastqscreen for: {Path(fastqscreen_config).name}")
+        success = self.test_fastqscreen_execution(fastqscreen_config, extra_args=extra_args)
+        
+        print_colored("\n" + "="*50)
+        if success:
+            print_success("🎉 FastqScreen test passed!")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
+        else:
+            print_error("❌ FastqScreen test failed!")
             
         return success
 
@@ -721,6 +779,8 @@ class RacoonTestSuite:
         if success:
             print_success("🎉 Report generation test passed!")
             print_colored("Generated reports should be available in the report_test directories")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
         else:
             print_error("❌ Report generation test failed!")
             print_error(f"R script output: {output}")
@@ -738,6 +798,8 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 Report test passed!")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
         else:
             print_error("❌ Report test failed!")
             
@@ -758,16 +820,64 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 Development test passed!")
+            # Clean up immediately after the success message
+            self.cleanup_results_folders()
         else:
             print_error("❌ Development test failed!")
             
         return success
 
+    def cleanup_results_folders(self):
+        """Remove all test result folders from expected_output directory after successful tests."""
+        print_colored("\n=== Cleaning up test result folders ===")
+
+        # Check expected_output directory
+        expected_output_dir = self.base_dir / "expected_output"
+        
+        if not expected_output_dir.exists():
+            print_warning(f"Expected output directory does not exist: {expected_output_dir}")
+            return
+            
+        # Look for all result directories within subdirectories of expected_output
+        result_dirs_found = False
+        for results_dir in expected_output_dir.glob("*/results"):
+            result_dirs_found = True
+            try:
+                if results_dir.is_dir():
+                    print_colored(f"Removing results directory: {results_dir}")
+                    shutil.rmtree(results_dir)
+                    print_success(f"Removed: {results_dir}")
+            except Exception as e:
+                print_warning(f"Could not remove results directory {results_dir}: {e}")
+        
+        if not result_dirs_found:
+            print_colored("No results directories found to clean up.")
+            
+        print_colored("=== Cleanup completed ===\n")
+            
+    def cleanup_old_logs(self, base_dir):
+        """Remove racoon_clip log files older than the current day."""
+        current_date = datetime.datetime.now().strftime('%Y%m%d')
+        log_dir = base_dir / "logs"  # Assuming logs are stored in a 'logs' directory
+
+        if not log_dir.exists():
+            print(f"DEBUG: Log directory does not exist: {log_dir}")
+            return
+
+        for log_file in log_dir.glob("racoon_clip_*.log"):
+            log_date = log_file.stem.split('_')[-1]
+            if log_date < current_date:
+                try:
+                    log_file.unlink()
+                    print(f"DEBUG: Deleted old log file: {log_file}")
+                except Exception as e:
+                    print(f"WARNING: Could not delete log file {log_file}: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="Racoon CLIP test suite")
     parser.add_argument(
         "test_type", 
-        choices=["test_light", "test", "test_peaks", "devel_test", "dev_report", "test_report"],
+        choices=["test_light", "test", "test_peaks", "test_fastqscreen", "devel_test", "dev_report", "test_report"],
         help="Type of test to run"
     )
     
@@ -781,6 +891,8 @@ def main():
         success = suite.test()
     elif args.test_type == "test_peaks":
         success = suite.test_peaks()
+    elif args.test_type == "test_fastqscreen":
+        success = suite.test_fastqscreen()
     elif args.test_type == "devel_test":
         success = suite.devel_test()
     elif args.test_type == "dev_report":
@@ -790,7 +902,10 @@ def main():
     else:
         print_error(f"Unknown test type: {args.test_type}")
         return 1
-        
+    
+    # Always clean up old logs, regardless of test outcome
+    suite.cleanup_old_logs(suite.base_dir.parent)
+    
     return 0 if success else 1
 
 if __name__ == "__main__":

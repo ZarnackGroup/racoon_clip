@@ -49,4 +49,8 @@ moreSTARParameters: ""
 # deduplicate
 deduplicate: True
 
+# FastQ Screen
+fastqScreen: False
+fastqScreen_config: ""
+
 

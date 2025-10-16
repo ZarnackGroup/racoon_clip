@@ -10,6 +10,8 @@ encode_umi_length: 10
 experiment_group_file: ''
 experiment_groups: ''
 experiment_type: eCLIP_10ntUMI
+fastqScreen: False
+fastqScreen_config: ""
 genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
 gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
 infiles: example_data/example_eCLIP/test_eCLIP_s1.chr21.fastq example_data/example_eCLIP/test_eCLIP_s2.chr21.fastq
