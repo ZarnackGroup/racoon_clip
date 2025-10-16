@@ -26,7 +26,6 @@ dependencies:
   - cycler=0.12.1=pyhd8ed1ab_1
   - dbus=1.13.6=h5008d03_3
   - expat=2.7.1=hecca717_0
-  - fastqc=0.12.1=hdfd78af_0
   - fastx_toolkit=0.0.14=h503566f_12
   - flexbar=3.5.0=hac0a8cf_8
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
@@ -126,7 +125,6 @@ dependencies:
   - markupsafe=3.0.2=py310h89163eb_1
   - matplotlib-base=3.10.1=py310h68603db_0
   - mdurl=0.1.2=pyhd8ed1ab_1
-  - multiqc=1.19=pyhdfd78af_0
   - munkres=1.0.7=py_1
   - mysql-common=8.0.32=h14678bc_0
   - mysql-connector-c=6.1.11=h6eb9d5d_1007
