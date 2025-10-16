@@ -57,14 +57,66 @@ def show_config_differences(original_config, temp_config, log_file=None):
                 log_f.write(error_msg)
 
 
-def test_run_execution(config_file, log_file=None, extra_args=None):
-    """Test if racoon_clip crosslinks executes without errors."""
+def convert_fastqscreen_config_paths(fastqscreen_config_file, racoon_clip_dir):
+    """Convert relative paths in fastqScreen config file to absolute paths."""
+    if not fastqscreen_config_file or not os.path.exists(fastqscreen_config_file):
+        return fastqscreen_config_file
+    
+    # Create absolute paths version of fastqScreen config
+    config_basename = os.path.splitext(os.path.basename(fastqscreen_config_file))[0]
+    abs_fastqscreen_config = os.path.join(
+        os.path.dirname(fastqscreen_config_file), 
+        f"{config_basename}_absolute_paths.config"
+    )
+    
+    print(f"DEBUG: Converting fastqScreen config paths: {fastqscreen_config_file}")
+    
+    try:
+        with open(fastqscreen_config_file, 'r') as f:
+            lines = f.readlines()
+        
+        new_lines = []
+        for line in lines:
+            # Look for DATABASE lines
+            if line.strip().startswith('DATABASE'):
+                parts = line.split()
+                if len(parts) >= 3:
+                    db_name = parts[1]
+                    db_path = parts[2]
+                    
+                    # Convert relative path to absolute
+                    if not os.path.isabs(db_path):
+                        abs_db_path = os.path.join(racoon_clip_dir, db_path.lstrip('/'))
+                        new_line = f"DATABASE    {db_name}    {abs_db_path}\n"
+                        print(f"DEBUG: Converted DATABASE {db_name}: {db_path} -> {abs_db_path}")
+                        new_lines.append(new_line)
+                    else:
+                        new_lines.append(line)
+                else:
+                    new_lines.append(line)
+            else:
+                new_lines.append(line)
+        
+        # Write converted config
+        with open(abs_fastqscreen_config, 'w') as f:
+            f.writelines(new_lines)
+        
+        print(f"DEBUG: Created absolute paths fastqScreen config: {abs_fastqscreen_config}")
+        return abs_fastqscreen_config
+        
+    except Exception as e:
+        print(f"WARNING: Could not convert fastqScreen config paths: {e}")
+        return fastqscreen_config_file
+
+
+def test_fastqscreen_execution(config_file, log_file=None, extra_args=None):
+    """Test if racoon_clip crosslinks with fastqScreen executes without errors."""
     
     # Change to racoon_clip directory (2 levels up from where script is located)
     current_dir = os.getcwd()
     # Ensure we're starting from the script's directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    # From script location, go up 2 levels: tests/test_crosslinks -> tests -> racoon_clip
+    # From script location, go up 2 levels: tests/test_fastqscreen -> tests -> racoon_clip
     racoon_clip_dir = os.path.dirname(os.path.dirname(script_dir))
     
     # Convert config file paths to absolute paths FIRST
@@ -84,7 +136,7 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
                 print("DEBUG: Using YAML mode for conversion")
                 
                 # Convert paths
-                path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta']
+                path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'fastqScreen_config']
                 for key in path_keys:
                     if key in config_data and config_data[key]:
                         value = config_data[key]
@@ -97,6 +149,12 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
                                 abs_path = os.path.join(racoon_clip_dir, value.lstrip('/'))
                                 config_data[key] = abs_path
                                 print(f"DEBUG: Converted {key}: {value} -> {abs_path}")
+                
+                # If fastqScreen_config exists and was converted, also convert the paths inside it
+                if 'fastqScreen_config' in config_data and config_data['fastqScreen_config']:
+                    original_fastqscreen_config = config_data['fastqScreen_config']
+                    abs_fastqscreen_config = convert_fastqscreen_config_paths(original_fastqscreen_config, racoon_clip_dir)
+                    config_data['fastqScreen_config'] = abs_fastqscreen_config
                 
                 # Write converted config
                 with open(abs_config_file, 'w') as abs_f:
@@ -197,11 +255,11 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
                 # Check if run completed successfully
                 if return_code == 0:
                     log_and_print("=" * 50, log_f)
-                    log_and_print("✅ RUN test PASSED: racoon_clip run completed successfully", log_f)
+                    log_and_print("✅ FASTQSCREEN test PASSED: racoon_clip run completed successfully", log_f)
                     return True, abs_config_file
                 else:
                     log_and_print("=" * 50, log_f)
-                    log_and_print("❌ RUN test FAILED: racoon_clip run failed", log_f)
+                    log_and_print("❌ FASTQSCREEN test FAILED: racoon_clip run failed", log_f)
                     log_and_print(f"Return code: {return_code}", log_f)
                     return False, abs_config_file
         else:
@@ -223,15 +281,15 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
             
             print("=" * 50)
             if return_code == 0:
-                print("✅ RUN test PASSED: racoon_clip run completed successfully")
+                print("✅ FASTQSCREEN test PASSED: racoon_clip run completed successfully")
                 return True, abs_config_file
             else:
-                print("❌ RUN test FAILED: racoon_clip run failed")
+                print("❌ FASTQSCREEN test FAILED: racoon_clip run failed")
                 print(f"Return code: {return_code}")
                 return False, abs_config_file
         
     except (FileNotFoundError, OSError) as e:
-        error_msg = f"❌ RUN test FAILED: System error: {e}"
+        error_msg = f"❌ FASTQSCREEN test FAILED: System error: {e}"
         if log_file:
             with open(log_file, 'a') as log_f:
                 log_f.write(error_msg + "\n")
@@ -255,20 +313,20 @@ def cleanup_results_folder(config_file):
         print(f"WARNING: Could not delete results folder: {e}")
 
 
-def test_run(config_file, log_file=None):
-    """Test if racoon_clip crosslinks executes without errors."""
+def test_fastqscreen(config_file, log_file=None):
+    """Test if racoon_clip crosslinks with fastqScreen executes without errors."""
     
     # Generate log file name if not provided
     if log_file is None:
-        log_file = "test_racoon_clip_crosslinks.log"
+        log_file = "test_racoon_clip_fastqscreen.log"
     
     # Initialize log file
     with open(log_file, 'w') as log_f:
-        log_f.write(f"Crosslinks test run started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        log_f.write(f"FastqScreen test run started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         log_f.write(f"Config file: {config_file}\n")
         log_f.write("=" * 80 + "\n\n")
     
-    test_msg = f"Testing racoon_clip crosslinks for {config_file}"
+    test_msg = f"Testing racoon_clip fastqscreen for {config_file}"
     with open(log_file, 'a') as log_f:
         log_f.write(test_msg + "\n")
         log_f.write(f"Log file: {log_file}\n\n")
@@ -276,8 +334,8 @@ def test_run(config_file, log_file=None):
     print(test_msg)
     print(f"Log file: {log_file}")
     
-    # Test crosslinks execution (conversion happens inside test_run_execution now)
-    success, abs_config_file = test_run_execution(config_file, log_file)
+    # Test fastqscreen execution (conversion happens inside test_fastqscreen_execution now)
+    success, abs_config_file = test_fastqscreen_execution(config_file, log_file)
     
     # Cleanup results folder if test was successful
     if success and abs_config_file:
@@ -288,11 +346,11 @@ def test_run(config_file, log_file=None):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python test_crosslinks.py <config_file> [log_file]")
+        print("Usage: python test_fastqscreen.py <config_file> [log_file]")
         sys.exit(1)
     
     config = sys.argv[1]
     log_file = sys.argv[2] if len(sys.argv) > 2 else None
     
-    success = test_run(config, log_file)
+    success = test_fastqscreen(config, log_file)
     sys.exit(0 if success else 1)

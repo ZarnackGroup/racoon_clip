@@ -121,6 +121,15 @@ mir <- config["experiment_type",] == "miReCLIP"
 # Check if we're running peaks workflow
 peaks <- (params$workflow_type == "peaks")
 
+# Check if FastQ Screen is enabled
+fastq_screen_enabled <- FALSE
+if ("fastqScreen" %in% rownames(config)) {
+  fastq_screen_enabled <- as.logical(config["fastqScreen",])
+  if (is.na(fastq_screen_enabled)) {
+    fastq_screen_enabled <- (config["fastqScreen",] == "True" || config["fastqScreen",] == "true")
+  }
+}
+
 if(config["experiment_type",] == "noBarcode_noUMI"){
   dedup <- FALSE}
 
@@ -261,7 +270,7 @@ titles_pbq <- lapply(pbq, function(x) substr(x, p, nchar(x)-n-7 ))
 
 pbsc <- list.files(path = paste0(dir,"/results/fastqc/raw"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
 
-# list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
+# list.files(path = paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
 
 # pbq <- pbq %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
 # pbsc <- pbsc %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
@@ -299,6 +308,15 @@ for(i in 1:length(pbq)){
 ```
 
 ## {-}
+
+```{r eval = fastq_screen_enabled, results = 'asis'}
+cat("# FastQ Screen contamination check \n")
+cat("FastQ Screen was used to check for potential contamination from different organisms. The plot shows the percentage of reads mapping to each reference genome.\n")
+```
+
+```{r eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.png"))}
+include_graphics(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.png"))
+```
 
 ```{r eval=qual_bc, results = 'asis'}
 cat(paste("# Quality filtering in barcode region \n Sequences are filtered for a **minimum base quality of", config["minBaseQuality",], "** within the barcode region to ensure correct sample and duplicate assignment.\n"))
@@ -379,10 +397,10 @@ fastqc_report_filtered_t <- fastqc_report_filtered[,c(1,5:7,11)]
 kable(fastqc_report_filtered_t)
 
 
-# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_base_sequence_quality_plot_1.png"))
-# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_sequence_gc_content_plot_Percentages.png"))
+# include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_per_base_sequence_quality_plot_1.png"))
+# include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_per_sequence_gc_content_plot_Percentages.png"))
 # 
-# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_sequence_length_distribution_plot_1.png"))
+# include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_sequence_length_distribution_plot_1.png"))
 
 
 
@@ -394,7 +412,7 @@ titles_pbq <- lapply(pbq, function(x) substr(x, p ,nchar(x)-n-7 ))
 
 pbsc <- list.files(path = paste0(dir,"/results/fastqc/filtered"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
 
-# list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
+# list.files(path = paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
 
 # pbq <- pbq %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
 # pbsc <- pbsc %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
@@ -456,7 +474,7 @@ Samples are demultiplexed with Flexbar and adapters are trimmed in the same step
 
 
 ```{r demultiplexed_samples, out.width="100%", dpi = 100, results = "asis", eval=demult}
-fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"), delim="\t")
+fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_data/multiqc_fastqc.txt"), delim="\t")
 fastqc_report_filtered_t <- fastqc_report_filtered[,c(1,5:7,11)] %>% 
   #mutate(avg_sequence_length = round(avg_sequence_length, digits = 1)) %>% 
   arrange(as.character(Sample))
@@ -465,21 +483,21 @@ fastqc_report_filtered_t <- fastqc_report_filtered[,c(1,5:7,11)] %>%
 kable(fastqc_report_filtered_t) 
 
 
-# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_base_sequence_quality_plot_1.png"))
-# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_per_sequence_gc_content_plot_Percentages.png"))
+# include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_per_base_sequence_quality_plot_1.png"))
+# include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_per_sequence_gc_content_plot_Percentages.png"))
 # 
-# include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_sequence_length_distribution_plot_1.png"))
+# include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_sequence_length_distribution_plot_1.png"))
 
 
-# pbq <- list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\per_base_quality.png$", recursive = TRUE, full.names = T) 
-# p <- nchar(paste0(dir,"/results/fastqc/separate_samples/"))+1
+# pbq <- list.files(path = paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming"), pattern = "\\per_base_quality.png$", recursive = TRUE, full.names = T) 
+# p <- nchar(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/"))+1
 # n <- nchar("/Images/per_base_quality.png")
 # titles_pbq <- lapply(pbq, function(x) substr(x, p, nchar(x)-n-7 ))
 # # titles_pbq
 # 
-# pbsc <- list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
+# pbsc <- list.files(path = paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming"), pattern = "\\per_base_sequence_content.png$", recursive = TRUE, full.names = T)
 # 
-# # list.files(path = paste0(dir,"/results/fastqc/separate_samples"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
+# # list.files(path = paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming"), pattern = "\\sequence_length", recursive = TRUE, full.names = T)
 # 
 # # pbq <- pbq %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
 # # pbsc <- pbsc %>% map(~png::readPNG(.x, native = F) %>% rasterGrob )
@@ -595,8 +613,8 @@ if(file.exists(f)){
 ```{r eval=only_trim, results = 'asis'}
 cat("## Adapter content after trimming \n")
 
-if(file.exists(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))){
-  include_graphics(paste0(dir,"/results/fastqc/separate_samples/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
+if(file.exists(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))){
+  include_graphics(paste0(dir,"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_plots/png/mqc_fastqc_adapter_content_plot_1.png"))
 }else{
   cat("\n \n  **Trimming successful, no adapter contents left. **")
 }

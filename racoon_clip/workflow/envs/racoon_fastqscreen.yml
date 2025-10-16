@@ -1,0 +1,10 @@
+name: fastqscreen
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - fastq-screen=0.15.3
+  - bowtie2=2.5.2
+  - perl=5.32.1
+  - multiqc=1.15

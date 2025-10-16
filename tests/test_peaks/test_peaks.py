@@ -152,7 +152,7 @@ def test_peaks_execution(config_file, log_file=None, extra_args=None):
     abs_config_file = create_absolute_paths_config(config_file, log_file)
     if abs_config_file is None:
         print("Failed to create absolute paths config file")
-        return False
+        return False, None
     
     # Set up working directory (same dir as the script for temp files)
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -216,22 +216,22 @@ def test_peaks_execution(config_file, log_file=None, extra_args=None):
                 if return_code == 0:
                     log_and_print("=" * 50, log_f)
                     log_and_print("✅ PEAKS test PASSED: racoon_clip peaks completed successfully", log_f)
-                    return True
+                    return True, abs_config_file
                 else:
                     log_and_print("=" * 50, log_f)
                     log_and_print("❌ PEAKS test FAILED: racoon_clip peaks failed", log_f)
                     log_and_print(f"Return code: {return_code}", log_f)
-                    return False
+                    return False, abs_config_file
         else:
             # Fallback if no log file specified
             process = subprocess.run(cmd, cwd=working_dir)
             if process.returncode == 0:
                 print("✅ PEAKS test PASSED: racoon_clip peaks completed successfully")
-                return True
+                return True, abs_config_file
             else:
                 print("❌ PEAKS test FAILED: racoon_clip peaks failed")
                 print(f"Return code: {process.returncode}")
-                return False
+                return False, abs_config_file
                 
     except FileNotFoundError:
         error_msg = "❌ PEAKS test FAILED: racoon_clip command not found. Make sure racoon_clip is installed and in PATH."
@@ -239,14 +239,30 @@ def test_peaks_execution(config_file, log_file=None, extra_args=None):
         if log_file:
             with open(log_file, 'a') as log_f:
                 log_f.write(error_msg + "\n")
-        return False
+        return False, abs_config_file
     except Exception as e:
         error_msg = f"❌ PEAKS test FAILED: Unexpected error: {e}"
         print(error_msg)
         if log_file:
             with open(log_file, 'a') as log_f:
                 log_f.write(error_msg + "\n")
-        return False
+        return False, abs_config_file
+
+
+def cleanup_results_folder(config_file):
+    """Delete the results folder specified in the wdir of the absolute config file."""
+    try:
+        with open(config_file, 'r') as f:
+            if YAML_AVAILABLE:
+                config_data = yaml.safe_load(f)
+                wdir = config_data.get('wdir')
+                if wdir and os.path.exists(wdir):
+                    shutil.rmtree(wdir)
+                    print(f"DEBUG: Deleted results folder: {wdir}")
+            else:
+                print("DEBUG: YAML not available, skipping cleanup.")
+    except Exception as e:
+        print(f"WARNING: Could not delete results folder: {e}")
 
 
 def test_peaks(config_file, log_file=None):
@@ -271,7 +287,13 @@ def test_peaks(config_file, log_file=None):
     print(f"Log file: {log_file}")
     
     # Test peaks execution (conversion happens inside test_peaks_execution now)
-    return test_peaks_execution(config_file, log_file)
+    success, abs_config_file = test_peaks_execution(config_file, log_file)
+    
+    # Clean up results folder if success
+    if success and abs_config_file:
+        cleanup_results_folder(abs_config_file)
+    
+    return success
 
 
 if __name__ == "__main__":

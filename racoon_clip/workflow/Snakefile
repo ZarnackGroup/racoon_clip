@@ -38,7 +38,9 @@ ARGS = sys.argv
 # pattern = r"\.yaml\s*>$"
 # replacement = "_full.yaml"
 # CONFIG_PATH = re.sub(pattern, replacement, CON_P)
-SNAKE_PATH = os.path.dirname(config["snakebase"])
+# Use workflow.basedir to get the actual Snakefile directory instead of config["snakebase"]
+# which may have incorrect paths like /workspace/racoon_clip
+SNAKE_PATH = os.path.dirname(workflow.basedir)
 print(SNAKE_PATH)
 
 
@@ -153,6 +155,16 @@ GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz"
 #ENCODE=config["encode"] == "True"
 ADAPTER_FILE=config["adapter_file"] #if "adapter_file" in config else config_default["adapter_file"]
 TRIM=config["adapter_trimming"] == "True" or config["adapter_trimming"] == "true" or config["adapter_trimming"] == True
+FASTQ_SCREEN=(config["fastqScreen"] == "True" or config["fastqScreen"] == "true" or config["fastqScreen"] == True)
+
+# Validate FastQ Screen config if enabled
+if FASTQ_SCREEN:
+    if not config["fastqScreen_config"]:
+        print("ERROR: FastQ Screen is enabled but no configuration file specified. Please set fastqScreen_config in your config file.")
+        exit(1)
+    elif not os.path.exists(config["fastqScreen_config"]):
+        print(f"ERROR: FastQ Screen configuration file not found: {config['fastqScreen_config']}")
+        exit(1)
 TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] == True or config["experiment_type"] == "iCLIP3"
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 MIR_starts=config["mir_starts_allowed"].split()
@@ -465,7 +477,7 @@ def mqc_for_readlength():
     if DEMUX != True and TRIM != True:  # without demultiplexing, without trimming
         return config["wdir"]+"/results/fastqc/raw/multiqc_data/multiqc_fastqc.txt"
     else:
-        return config["wdir"]+"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"
+        return config["wdir"]+"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_data/multiqc_fastqc.txt"
     
 def get_star_index():
     if STAR_INDEX is not None:
@@ -517,10 +529,10 @@ if DEMUX != True and QUAL_BC == True:
 # adapter adapter_trimming
 if DEMUX == True and TRIM == True:  # with demulitplexing
     myoutput.append(expand("{wdir}/results/demultiplex/flexbarOut_barcode_{sample}.fastq.gz",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/fastqc/separate_samples/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
+    myoutput.append(expand("{wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
 if DEMUX != True and TRIM == True:  # without demultiplexing
         myoutput.append(expand("{wdir}/results/demultiplex/trimmed_{sample}.fastq.gz",  wdir=WDIR, sample = SAMPLES))
-        myoutput.append(expand("{wdir}/results/fastqc/separate_samples/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
+        myoutput.append(expand("{wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_report.html", wdir=WDIR),)  # fastqc of trimmed samples
 
 
 # alignment
@@ -556,6 +568,8 @@ rule all:
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         expand("{wdir}/results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
+        # # # # FastQ Screen (if enabled)
+        (config["wdir"]+"/results/fastqscreen_multi") if FASTQ_SCREEN else [],
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
@@ -568,6 +582,8 @@ rule all_crosslinks:
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         # merged, indexed bam files
+        # # # # FastQ Screen (if enabled)
+        (config["wdir"]+"/results/fastqscreen_multi") if FASTQ_SCREEN else [],
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
@@ -980,7 +996,7 @@ rule trim3_flexbar:
 
 # rule get_read_length:
 #     input: 
-#         ckpnt = config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html"
+#         ckpnt = config["wdir"]+"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_report.html"
 #     output: 
 #         txt = "params.dir/read_length.txt",
 #         ckpnt = touch(config["wdir"]+"/results/tmp/read_length.chkpnt")
@@ -1068,6 +1084,7 @@ rule align:
             --outFilterMismatchNoverReadLmax {params.outFilterMismatchNoverReadLmax} \
             --outFilterMismatchNmax {params.outFilterMismatchNmax} \
             --outFilterMultimapNmax {params.outFilterMultimapNmax} \
+            --outSAMattributes All \
             --alignEndsType "Extend5pOfRead1" \
             --sjdbGTFfile {params.gtf} \
             --sjdbOverhang {params.sjdbOverhang} \
@@ -1087,6 +1104,7 @@ rule align:
             --alignEndsType "Extend5pOfRead1" \
             --sjdbGTFfile {params.gtf} \
             --sjdbOverhang {params.sjdbOverhang} \
+            --outSAMattributes All \
             --outReadsUnmapped {params.outReadsUnmapped} \
             --outSJfilterReads {params.outSJfilterReads} \
             --outSAMtype BAM SortedByCoordinate \
@@ -1417,14 +1435,14 @@ rule pc_peak_calling:
 
 # 1.1) one raw file
 #####################
-rule fastqc:
+rule fastqc_multiplexed:
     input:
         config["infiles"]
     output:
         touch("{wdir}/results/tmp/.fastqc.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_fastqc.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of {input} \n ================================ \n" 
@@ -1436,12 +1454,12 @@ rule fastqc:
         
 rule fastqc_one_filtered:
     input:
-        config["wdir"]+"/results/barcode_filter/renamed.fastq.gz"
+        config["wdir"]+"/results/barcode_filter/filtered.fastq.gz"
     output:
         touch("{wdir}/results/tmp/.fastqc.filtered.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_fastqc.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of {input} \n ================================ \n" 
@@ -1460,7 +1478,7 @@ rule fastqc_raw_multi:
         touch("{wdir}/results/tmp/.fastqc.{sample}.raw.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_fastqc.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of {input} \n ================================ \n" 
@@ -1488,7 +1506,7 @@ rule multiqc_raw_multi:
         config["wdir"]+"/results/fastqc/raw/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.4.yml"
+       "envs/racoon_fastqc.yml"
     threads: 1
     message: 
         "========================= \n MultiQC of raw read files \n ================================ \n" 
@@ -1505,7 +1523,7 @@ rule fastqc_filt_multi:
         touch(config["wdir"]+"/results/tmp/.fastqc.filtered.{sample}.chkpnt"),
     params: wdir=config["wdir"]
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_fastqc.yml"
     threads: 1 # fastqc can use 1 thread per sample
     message: 
         "========================= \n FastQC of quality filtered read file of {wildcards.sample} \n ================================ \n" 
@@ -1522,7 +1540,7 @@ rule multiqc_filt_multi:
         config["wdir"]+"/results/fastqc/filtered/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.4.yml"
+       "envs/racoon_fastqc.yml"
     threads: 1
     message: 
         "========================= \n MultiQC of quality filtered read files \n ================================ \n" 
@@ -1543,33 +1561,33 @@ rule fastqc_samples:
     output:
         touch("{wdir}/results/tmp/.fastqc.{sample}.trim.chkpnt"),
     params: wdir=config["wdir"]
-        # "results/fastqc/separate_samples/{sample}.html",
-        # "results/fastqc/separate_samples/{sample}.zip"
+        # "results/fastqc/samples_after_demultiplexing_or_trimming/{sample}.html",
+        # "results/fastqc/samples_after_demultiplexing_or_trimming/{sample}.zip"
     conda:
-        "envs/racoon_main_v0.4.yml"
+        "envs/racoon_fastqc.yml"
     message: 
         "========================= \n FastQC of on adapter trimmed read file of {wildcards.sample} \n ================================ \n" 
     threads: 1
     shell:
         """
-        mkdir -p {params.wdir}/results/fastqc/separate_samples/ && \
-        fastqc {input.file} -o {params.wdir}/results/fastqc/separate_samples/ -q
+        mkdir -p {params.wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/ && \
+        fastqc {input.file} -o {params.wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/ -q
         """
 
 rule multiqc:
     input:
         in_multiqc
     output:
-        config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html"
+        config["wdir"]+"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_report.html"
     params: wdir=config["wdir"]
     conda:
-       "envs/racoon_main_v0.4.yml"
+        "envs/racoon_fastqc.yml"
     message: 
         "========================= \n MultiQC of on adapter trimmed read files \n ================================ \n" 
     threads: 1
     shell:
         """
-        cd {params.wdir}/results/fastqc/separate_samples/  && \
+        cd {params.wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/  && \
         multiqc -f --export .
         """
 
@@ -1582,71 +1600,62 @@ rule multiqc:
 
 stats = list()
 
-if DEMUX == True:
-    stats.append(config["wdir"]+"/results/tmp/.fastqc.chkpnt")
-    stats.append(config["wdir"]+"/results/tmp/.fastqc.filtered.chkpnt")
 
+# raw 
+if DEMUX == True:
+    stats.append(config["wdir"]+"/results/tmp/.fastqc.chkpnt")  
 if DEMUX != True:
     stats.append(config["wdir"]+"/results/fastqc/raw/multiqc_report.html")
+    
+# quality filter    
+if DEMUX == True and QUAL_BC == True:
+    stats.append(config["wdir"]+"/results/tmp/.fastqc.filtered.chkpnt")    
 if DEMUX != True and QUAL_BC == True:
     stats.append(config["wdir"]+"/results/fastqc/filtered/multiqc_report.html")
+    
+# demultiplexed 
+if DEMUX == True:
+    stats.append(config["wdir"]+"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_report.html")
+    
+# trimming    
 if DEMUX != True and TRIM == True:
-    stats.append(config["wdir"]+"/results/fastqc/separate_samples/multiqc_report.html")
-if DEDUP == True:
-    stats.append(config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html")
+    stats.append(config["wdir"]+"/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_report.html")
+
+# fastq_screen
+if FASTQ_SCREEN == True:
+    stats.append(config["wdir"]+"/results/fastqscreen_multi")
+
+
+    
+# if DEDUP == True:
+#     stats.append(config["wdir"]+"/results/fastqc/separate_samples_bam_duprm/multiqc_report.html")
 
 rule fastqc_stats:
     input:
-        f1=stats,
-        f3=config["wdir"]+"/results/fastqc/separate_samples_bam/multiqc_report.html",
-        
-
+        f1=stats        
     output:
         touch(config["wdir"]+"/results/tmp/.fastqc_stats_chkpnt")
     params: 
         wdir=config["wdir"],
         qual_bc=QUAL_BC,
-        dedup=DEDUP,
-        demux=DEMUX
+        demux=DEMUX,
+        trim=TRIM
     message: 
         "========================= \n Preparing numbers for Report \n ================================ \n" 
     shell:
         """
-        unzip -o -q "{params.wdir}/results/fastqc/raw/*.zip" -d {params.wdir}/results/fastqc/raw/ && \
-        unzip -o -q "{params.wdir}/results/fastqc/separate_samples_bam/*.zip" -d {params.wdir}/results/fastqc/separate_samples_bam/ && \
-        unzip -o -q "{params.wdir}/results/fastqc/separate_samples/*.zip" -d {params.wdir}/results/fastqc/separate_samples/ && \
-        
-        if [ {params.dedup} == True ]
-        then
-            unzip -o -q "{params.wdir}/results/fastqc/separate_samples_bam_duprm/*.zip" -d {params.wdir}/results/fastqc/separate_samples_bam_duprm/ 
-        fi
+        unzip -o -q "{params.wdir}/results/fastqc/raw/*.zip" -d {params.wdir}/results/fastqc/raw/ 
 
-        if [ {params.qual_bc} == True ]
+        if [[ "{params.qual_bc}" == "True" ]]
         then
             unzip -o -q "{params.wdir}/results/fastqc/filtered/*.zip" -d {params.wdir}/results/fastqc/filtered/ 
         fi
-
+        
+        if [[ "{params.demux}" == "True" || "{params.trim}" == "True" ]]
+        then
+            unzip -o -q "{params.wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/*.zip" -d {params.wdir}/results/fastqc/samples_after_demultiplexing_or_trimming/ 
+        fi
         """
-
-# rule get_R_conda_env:
-#     input:
-#     output:
-#         config["wdir"]+"/results/tmp/conda_r_prefix.txt"
-#     params:
-#         wdir=config["wdir"],
-#         config= config,
-#         snake_path= SNAKE_PATH
-#     message: 
-#         "========================= \n Making racoon Report \n ================================ \n" 
-#     conda:
-#         "envs/racoon_R_v0.1.yml"
-#     shell:
-#         """
-#         echo $CONDA_PREFIX | cat > {output}
-#         """
-
-
-
 
 rule make_report:
     input:
@@ -1659,12 +1668,14 @@ rule make_report:
         wdir=config["wdir"],
         config= config,
         snake_path= SNAKE_PATH
+    log:
+        config["wdir"]+"/results/tmp/make_report.log"
     message: 
         "========================= \n Making racoon Report \n ================================ \n" 
     conda:
         "envs/racoon_R_v0.3.yml"
     script:
-       "{params.snake_path}/workflow/rules/make_report.R"
+        "rules/make_report.R"
 
 
 
@@ -1684,6 +1695,70 @@ rule cleanup:
     shell:
         """
         rm -r {params.tmp_dir}
+        """
+
+
+
+###-----------------------------------------
+###-----------------------------------------
+### FastQ Screen
+###-----------------------------------------
+###-----------------------------------------
+
+
+rule fastq_screen:
+    input:
+        # Use raw FASTQ files (same input as STAR)
+        get_demult_trim_reads
+    output:
+        html=config["wdir"]+"/results/fastqscreen/{sample}_screen.html",
+        txt=config["wdir"]+"/results/fastqscreen/{sample}_screen.txt"
+    params:
+        outdir=config["wdir"]+"/results/fastqscreen",
+        config=config["fastqScreen_config"]
+    threads: 4
+    conda:
+        "envs/racoon_fastqscreen.yml"
+    log:
+        "logs/fastqc_screen/{sample}.log"
+    shell:
+        """
+        mkdir -p {params.outdir}
+        fastq_screen --conf {params.config} \
+            --outdir {params.outdir} \
+            --threads {threads} \
+            --aligner bowtie2 \
+            --force {input}
+        
+        # Rename output files to match expected naming pattern
+        # fastq_screen names files based on input filename, we need consistent {sample}_screen naming
+        input_basename=$(basename {input} .fastq.gz)
+        if [ -f "{params.outdir}/${{input_basename}}_screen.html" ]; then
+            mv "{params.outdir}/${{input_basename}}_screen.html" {output.html}
+        fi
+        if [ -f "{params.outdir}/${{input_basename}}_screen.txt" ]; then
+            mv "{params.outdir}/${{input_basename}}_screen.txt" {output.txt}
+        fi
+        if [ -f "{params.outdir}/${{input_basename}}_screen.png" ]; then
+            mv "{params.outdir}/${{input_basename}}_screen.png" "{params.outdir}/{wildcards.sample}_screen.png"
+        fi
+        """
+
+rule fastq_screen_multi:
+    input:
+        expand(config["wdir"]+"/results/fastqscreen/{sample}_screen.txt", sample=SAMPLES)
+    output:
+        directory(config["wdir"]+"/results/fastqscreen_multi")
+    params:
+        outdir=config["wdir"]+"/results/fastqscreen_multi",
+        indir=config["wdir"]+"/results/fastqscreen"
+    threads: 1
+    conda:
+        "envs/racoon_fastqscreen.yml"
+    shell:
+        """
+        mkdir -p {params.outdir}
+        multiqc -f -o {params.outdir} -n fastqscreen_multiqc.html {params.indir}
         """
 
 ###-----------------------------------------
@@ -2180,7 +2255,7 @@ checkpoint merge_crosslink_bw_chimeric:
         genome_fasta=config["genome_fasta"],
         wdir=config["wdir"]
     conda:
-        "envs/racoon_ucsc_v0.3.yml"
+        "envs/racoon_ucsc_v0.4.yml"
     shell:
         """
         ### merge plus files per group
@@ -2219,7 +2294,7 @@ rule make_report_miR:
         config= config,
         snake_path= SNAKE_PATH
     conda:
-        "envs/racoon_R_v0.3.yml"
+        "envs/racoon_R_v0.4.yml"
     shell:
         """
         $CONDA_PREFIX/lib/R/bin/Rscript {params.snake_path}/workflow/rules/make_report_mir.R {params.wdir} {params.snake_path} "$CONDA_PREFIX" {params.config}
