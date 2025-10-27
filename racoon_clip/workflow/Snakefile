@@ -1025,7 +1025,7 @@ rule create_STAR_index:
         "========================= \n Indexing your genome annotation \n ================================ \n provided fasta: {input.genome_fasta} \n provided annotation: {input.gtf} \n" 
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
-        mem_mb = 20000
+        mem_mb = 40000
     shell:
         """  
         STAR --runThreadN {threads} \

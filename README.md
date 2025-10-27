@@ -30,7 +30,7 @@ singularity pull racoon_clip.sif docker://melinak/racoon_clip:latest
 
 To install the tool directly from GitHub the following are required:
 
-+ mamba >= 1.3.1
++ mamba >= 1.3.1 and < 2.0.0
 + python = 3.9.0
 
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
