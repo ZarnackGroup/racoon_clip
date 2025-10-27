@@ -164,10 +164,10 @@ t <- data.frame(config[c(
   "deduplicate"
 ), ])
 rownames(t) <- c(
-  "demuliplex",
+  "demultiplex",
   "adapter_trimming", 
-  "trim3", "
-  quality_filter_barcodes", 
+  "trim3",
+  "quality_filter_barcodes", 
   "encode", 
   "deduplicate"
 )
@@ -229,7 +229,7 @@ cat(paste("No groups specified. We will combine all samples for you."))
 
 # Quality control of raw files 
 
-Initial quality control of the raw sequencing file is performed with FastQC. Here you can see the sequencing quality and contend per base.
+Initial quality control of the raw sequencing file is performed with FastQC. Here you can see the sequencing quality and content per base.
 
 ```{r raw_quality, eval = demult}
 # get name of file
@@ -363,7 +363,7 @@ kable(read_numbers)
 
 
 ```{r eval=qual_bc, results = 'asis'}
-cat("## Sequencing quality and contend per base after the quality filtering step \n")
+cat("## Sequencing quality and content per base after the quality filtering step \n")
 ```
 
 ```{r barcode_filter2, eval=bc_filter_one_file, results = 'asis'}
@@ -756,7 +756,7 @@ names(umitools_out) <- umitools_out
 umitools_out_2 <- map_dfr(umitools_out, ~.x$number)
 umitools_out_2 <- t(umitools_out_2) %>% as.data.frame()
 
-colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplictaes)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nucleotide")
+colnames(umitools_out_2) <- c("Reads", "Crosslink events (without PCR duplicates)", "Crosslinked nucleotides", "Mean crosslink events per crosslinked nucleotide")
 umitools_out_2$Sample <- umitools_out_names
 rownames(umitools_out_2) <- umitools_out_names
 
