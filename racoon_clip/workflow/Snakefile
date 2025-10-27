@@ -145,7 +145,7 @@ if "samples" in config and config["samples"] and DEMUX == False:
     
     # Verify that user-specified names match auto-generated names
     if set(SAMPLES) != set(auto_generated_samples):
-        raise ValueError( User-specified sample names do not match auto-generated names from file paths.")
+        raise ValueError("User-specified sample names do not match auto-generated names from file paths.")
         print("Auto-generated names:", auto_generated_samples)
         print("User-specified names:", SAMPLES)
         raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
