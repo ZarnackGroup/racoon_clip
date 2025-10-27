@@ -145,7 +145,7 @@ if "samples" in config and config["samples"] and DEMUX == False:
     
     # Verify that user-specified names match auto-generated names
     if set(SAMPLES) != set(auto_generated_samples):
-        print("ERROR: User-specified sample names do not match auto-generated names from file paths.")
+        raise ValueError( User-specified sample names do not match auto-generated names from file paths.")
         print("Auto-generated names:", auto_generated_samples)
         print("User-specified names:", SAMPLES)
         raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
@@ -160,11 +160,9 @@ FASTQ_SCREEN=(config["fastqScreen"] == "True" or config["fastqScreen"] == "true"
 # Validate FastQ Screen config if enabled
 if FASTQ_SCREEN:
     if not config["fastqScreen_config"]:
-        print("ERROR: FastQ Screen is enabled but no configuration file specified. Please set fastqScreen_config in your config file.")
-        exit(1)
+        raise ValueError(f"ERROR: FastQ Screen is enabled but no configuration file specified. Please set fastqScreen_config in your config file.")
     elif not os.path.exists(config["fastqScreen_config"]):
-        print(f"ERROR: FastQ Screen configuration file not found: {config['fastqScreen_config']}")
-        exit(1)
+        raise ValueError(f"ERROR: FastQ Screen configuration file not found: {config['fastqScreen_config']}")
 TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] == True or config["experiment_type"] == "iCLIP3"
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 MIR_starts=config["mir_starts_allowed"].split()
