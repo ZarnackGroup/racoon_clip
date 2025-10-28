@@ -167,7 +167,7 @@ TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] 
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 MIR_starts=config["mir_starts_allowed"].split()
 STAR_INDEX=config["star_index"] if config["star_index"] != "" else None
-
+PEAKS=config["workflow_type"] == "peaks" 
 # Validate reference files
 
 # Check GTF file
@@ -1622,6 +1622,13 @@ if DEMUX != True and TRIM == True:
 # fastq_screen
 if FASTQ_SCREEN == True:
     stats.append(config["wdir"]+"/results/fastqscreen_multi")
+    
+# crosslink bw
+stats.append(expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", wdir=WDIR, sample=SAMPLES))   
+
+# peaks
+if PEAKS == True:
+    stats.append(expand(config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed", wdir=WDIR, groups=GROUPS)) 
 
 
     
