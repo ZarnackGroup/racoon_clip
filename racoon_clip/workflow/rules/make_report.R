@@ -18,7 +18,6 @@ file.copy(report_original_path, report_tmp_path, overwrite = TRUE)
 if (!file.exists(report_tmp_path)) {
   stop("ERROR: Failed to copy Report.rmd to: ", report_tmp_path)
 }
-cat("  Success!\n")
 
 # copy workflow overview
 wf_image_original_path <- paste0(snakemake@params[[3]], "/workflow/rules/racoon_clip_workflow_2.0.png")
