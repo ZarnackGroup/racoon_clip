@@ -32,6 +32,7 @@ The config file is a .yaml file that contains all the information about your dat
 - either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, total_barcode_len, barcodeLength)
 - read_length
 - in some cases a barcode fasta (for the demultiplexing functionality or for data with an iCLIP, iCLIP2 barcode included)
+- optional but recommended if you use the peaks module: restrict pureclip to train its model on a few chromosomes with morePureclipParameters. This will reduce the amount of memory needed.
 
 .. Note::
 
@@ -57,6 +58,9 @@ A minimal config file would look like this:
 
     # for the demultiplexing functionality or for data with experiment_type "iCLIP", "iCLIP2", or "iCLIP3"
     barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
+
+    # peakcalling setting (recommended)
+    morePureclipParameters: "-iv 'chr1;chr2;chr3;'"
 
 
 What is my experiement_type?
