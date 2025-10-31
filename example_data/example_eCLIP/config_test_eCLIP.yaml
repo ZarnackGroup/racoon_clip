@@ -23,3 +23,9 @@ genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21
 #star_index: "example_data/example_annotation_human_chr21/test_annotation_chr21_idx_sjdbOverhang44" # Path to STAR genome index directory. If empty, index will be generated from genome_fasta
 gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
 read_length: 45
+
+#To allow multimapping, you can add the following to the config file:
+
+outFilterMultimapNmax: 1000
+moreSTARParameters: "--outSAMmultNmax 1 --winAnchorMultimapNmax 1000 --outMultimapperOrder Random"
+

@@ -53,4 +53,8 @@ deduplicate: True
 fastqScreen: False
 fastqScreen_config: ""
 
+# Pureclip peak calling
+morePureclipParameters: ""
+
+
 

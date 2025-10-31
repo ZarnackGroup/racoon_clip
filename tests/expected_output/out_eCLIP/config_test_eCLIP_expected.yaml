@@ -10,8 +10,8 @@ encode_umi_length: 10
 experiment_group_file: ''
 experiment_groups: ''
 experiment_type: eCLIP_10ntUMI
-fastqScreen: False
-fastqScreen_config: ""
+fastqScreen: false
+fastqScreen_config: ''
 genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
 gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
 infiles: example_data/example_eCLIP/test_eCLIP_s1.chr21.fastq example_data/example_eCLIP/test_eCLIP_s2.chr21.fastq
@@ -20,10 +20,11 @@ minBaseQuality: 10
 min_read_length: 15
 mir_genome_fasta: ''
 mir_starts_allowed: 1 2 3 4
-moreSTARParameters: ''
+morePureclipParameters: ''
+moreSTARParameters: "--outSAMmultNmax 1 --winAnchorMultimapNmax 1000 --outMultimapperOrder Random"
 outFilterMismatchNmax: 999
 outFilterMismatchNoverReadLmax: 0.04
-outFilterMultimapNmax: 1
+outFilterMultimapNmax: 1000
 outReadsUnmapped: Fastx
 outSJfilterReads: Unique
 quality_filter_barcodes: true

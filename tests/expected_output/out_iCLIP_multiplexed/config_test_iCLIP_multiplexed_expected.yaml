@@ -10,8 +10,8 @@ encode_umi_length: 10
 experiment_group_file: ''
 experiment_groups: ''
 experiment_type: iCLIP2
-fastqScreen: False
-fastqScreen_config: ""
+fastqScreen: false
+fastqScreen_config: ''
 genome_fasta: example_data/example_annotation_human_chr21/test_annotation_chr21.fa
 gtf: example_data/example_annotation_human_chr21/test_annotation_chr21.gtf
 infiles: example_data/example_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz
@@ -20,6 +20,7 @@ minBaseQuality: 10
 min_read_length: 15
 mir_genome_fasta: ''
 mir_starts_allowed: 1 2 3 4
+morePureclipParameters: ''
 moreSTARParameters: ''
 outFilterMismatchNmax: 999
 outFilterMismatchNoverReadLmax: 0.04

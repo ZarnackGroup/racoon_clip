@@ -314,8 +314,84 @@ cat("# FastQ Screen contamination check \n")
 cat("FastQ Screen was used to check for potential contamination from different organisms. The plot shows the percentage of reads mapping to each reference genome.\n")
 ```
 
-```{r eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.png"))}
-include_graphics(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.png"))
+
+```{r eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.txt"))}
+# Read the FastQ Screen multiqc data
+fastqscreen_file <- paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.txt")
+
+# Read header line separately to extract column names
+header_line <- readLines(fastqscreen_file, n = 1)
+col_names_raw <- strsplit(header_line, "\t")[[1]]
+
+# Read the data without column names
+fastqscreen_data <- read_delim(fastqscreen_file, delim="\t", col_names = FALSE, skip = 1, show_col_types = FALSE)
+
+# Identify genome-specific columns (pairs of "counts" and "percentage")
+# Structure: Sample, total_reads, [genome counts, genome percentage]*, No hits counts, No hits percentage
+genome_cols <- col_names_raw[!col_names_raw %in% c("Sample", "total_reads", "No hits counts", "No hits percentage")]
+
+# For each genome, we have two columns: "genome counts" and "genome percentage"
+# Extract unique genome names by removing " counts" and " percentage" suffixes
+genome_names <- unique(gsub(" (counts|percentage)$", "", genome_cols))
+
+# Create clean column names by combining genome names with metric types
+clean_col_names <- c("Sample", "total_reads")
+for (genome in genome_names) {
+  clean_col_names <- c(clean_col_names, paste0(genome, "_counts"), paste0(genome, "_percentage"))
+}
+# Add "No hits" columns at the end
+clean_col_names <- c(clean_col_names, "NoHits_counts", "NoHits_percentage")
+
+# Assign clean column names to the data
+colnames(fastqscreen_data) <- clean_col_names
+
+# Clean up sample names (remove _screen suffix if present)
+fastqscreen_data$Sample <- gsub("_screen$", "", fastqscreen_data$Sample)
+
+# Create table with original-style names for display
+fastqscreen_report <- fastqscreen_data
+colnames(fastqscreen_report) <- col_names_raw
+fastqscreen_report$Sample <- gsub("_screen$", "", fastqscreen_report$Sample)
+
+# Identify percentage columns for plotting (those ending with "_percentage")
+percentage_cols <- grep("_percentage$", names(fastqscreen_data), value = TRUE)
+genome_names_plot <- gsub("_percentage$", "", percentage_cols)
+
+# Create a long format data frame for plotting (tidyr and stringr already loaded via tidyverse)
+# Extract percentage data for each genome
+plot_data <- fastqscreen_data %>%
+  select(Sample, all_of(percentage_cols)) %>%
+  pivot_longer(cols = all_of(percentage_cols), 
+               names_to = "Genome", 
+               values_to = "Percentage") %>%
+  mutate(Genome = gsub("_percentage$", "", Genome))
+
+```
+
+```{r eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.txt"))}
+# Display summary table
+kable(fastqscreen_report, caption = "FastQ Screen Results")
+```
+
+
+```{r eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.txt")), fig.width=10, fig.height=6}
+# Create stacked bar plot
+library(ggplot2)
+
+ggplot(plot_data, aes(x = Sample, y = Percentage, fill = Genome)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+        legend.position = "right",
+        plot.title = element_text(hjust = 0.5, face = "bold")) +
+  labs(title = "FastQ Screen - Genome Mapping Percentages",
+       x = "Sample",
+       y = "Mapping Percentage (%)",
+       fill = "Genome") +
+  scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 15)) +
+  scale_fill_viridis_d()
+```
+
 ```
 
 ```{r eval=qual_bc, results = 'asis'}
@@ -560,12 +636,14 @@ head(barcodes_found)
 
 ggplot(barcodes_found[c(1:100),], aes(x=barcode, y = n, fill = dist))+
   geom_col()+
-  theme(text=element_text(size=50))
+  theme(text=element_text(size=50))+
+  scale_fill_viridis_d()
 
 
 ggplot(barcodes_found[ barcodes_found$dist != 0,], aes(x=barcode, y = log(n), fill = as.factor(dist)))+
   geom_col()+
-  theme(text=element_text(size=50))
+  theme(text=element_text(size=50))+
+  scale_fill_viridis_d()
 
 
 
@@ -705,7 +783,9 @@ ggplot(gg.df, aes( x = Sample, y = as.numeric(value), fill = variable))+
         legend.title= element_blank(),
         legend.position = "top")+
   ylab("Number of reads")+
-  coord_flip()
+  coord_flip()+
+  scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 25)) +
+  scale_fill_viridis_d()
 
 
 
@@ -771,7 +851,9 @@ ggplot(gg.umitools_out_2, aes(x = Sample, y = value, fill = variable))+
         legend.title= element_blank(),
         legend.position = "top")+
   ylab("Number of reads")+
-  coord_flip()
+  coord_flip()+
+  scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 25)) +
+  scale_fill_viridis_d()
 
 ```
 

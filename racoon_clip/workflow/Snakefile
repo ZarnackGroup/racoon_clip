@@ -585,7 +585,7 @@ rule all_crosslinks:
         # # # # Report
         config["wdir"]+"/results/Report.html",
         # config["wdir"]+"/results/.finished"  
-    message:  "========================= \n ================================ \n RACOON-CLIP crosslinks FINISHED! \n ================================ \n ================================ " 
+    message:  "========================= \n ================================ \n RACOON-CLIP FINISHED! \n ================================ \n ================================ " 
         
 
 
@@ -1056,6 +1056,7 @@ rule align:
         sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["total_barcode_len"]), # # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"],
+        moreSTARParameters=config["moreSTARParameters"],
         dedup = DEDUP,
         trim=TRIM
     message: 
@@ -1091,7 +1092,8 @@ rule align:
             --readFilesCommand zcat \
             --outSAMtype BAM SortedByCoordinate \
             --readFilesIn {input.reads} \
-            --runThreadN {threads}
+            --runThreadN {threads} \
+            {params.moreSTARParameters}
         else
             STAR --runMode alignReads \
             --genomeDir {input.idx} \
@@ -1107,7 +1109,8 @@ rule align:
             --outSJfilterReads {params.outSJfilterReads} \
             --outSAMtype BAM SortedByCoordinate \
             --readFilesIn {input.reads} \
-            --runThreadN {threads}
+            --runThreadN {threads} \
+            {params.moreSTARParameters}
         fi
         """
 
@@ -1408,6 +1411,7 @@ rule pc_peak_calling:
         peaks = config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed",
     params: 
         fasta=config["genome_fasta"],
+        morePureclipParameters=config["morePureclipParameters"]
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
         mem_mb = 180000
@@ -1422,6 +1426,7 @@ rule pc_peak_calling:
         -g {params.fasta} \
         -o {output.peaks} \
         -nt {threads} \
+        {params.morePureclipParameters}
         """
 
 
@@ -2078,7 +2083,8 @@ rule align_chimeric:
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
         sjdbOverhang=config["read_length"] - 1 - int(get_barcode_experiment_info()["total_barcode_len"]),
         outReadsUnmapped=config["outReadsUnmapped"],
-        outSJfilterReads=config["outSJfilterReads"]
+        outSJfilterReads=config["outSJfilterReads"],
+        moreSTARParameters=config["moreSTARParameters"]
     threads: 2 # x each sample automatically assigned by snakemake
     resources:
         mem_mb = 40000
@@ -2104,7 +2110,8 @@ rule align_chimeric:
         --outSAMtype BAM SortedByCoordinate \
         --readFilesCommand zcat \
         --readFilesIn {input.reads} \
-        --runThreadN {threads}
+        --runThreadN {threads} \
+        {params.moreSTARParameters}
         """
 
 ######################

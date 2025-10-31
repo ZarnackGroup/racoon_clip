@@ -20,10 +20,12 @@ minBaseQuality: 10
 min_read_length: 15
 mir_genome_fasta: ''
 mir_starts_allowed: 1 2 3 4
-moreSTARParameters: ''
+morePureclipParameters: ''
+moreSTARParameters: --outSAMmultNmax 1 --winAnchorMultimapNmax 1000 --outMultimapperOrder
+  Random
 outFilterMismatchNmax: 999
 outFilterMismatchNoverReadLmax: 0.04
-outFilterMultimapNmax: 1
+outFilterMultimapNmax: 1000
 outReadsUnmapped: Fastx
 outSJfilterReads: Unique
 quality_filter_barcodes: true
