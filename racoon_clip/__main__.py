@@ -288,6 +288,12 @@ def common_options(func):
             help= "A vector of values that gives the allowed start positions of the micro RNA in the read. At least one start position needs to be allowed.",  
             default="1 2 3 4", 
         ),
+        click.option(
+            "--morePureclipParameters", "morePureclipParameters",
+            help= "Additional parameters, that can be directly passed to pureclip (see also pureclip documentation).",   
+            default="",
+            show_default=True, 
+        ),
 
 
     ]
@@ -335,7 +341,7 @@ def create_config_dicts(workflow_type, working_directory, log, infiles, samples,
                        genome_fasta, star_index, read_length, outFilterMismatchNoverReadLmax, 
                        outFilterMismatchNmax, outFilterMultimapNmax, outReadsUnmapped, 
                        outSJfilterReads, moreSTARParameters, deduplicate, mir_genome_fasta, 
-                       mir_starts_allowed):
+                       mir_starts_allowed, morePureclipParameters):
     """Create merge_config and default_config dictionaries for both peaks and crosslinks commands"""
     
     merge_config = {"wdir": working_directory, 
@@ -377,6 +383,7 @@ def create_config_dicts(workflow_type, working_directory, log, infiles, samples,
                     "deduplicate": deduplicate,
                     "mir_genome_fasta": mir_genome_fasta,
                     "mir_starts_allowed": mir_starts_allowed,
+                    "morePureclipParameters": morePureclipParameters,
                     "fastqScreen": False,
                     "fastqScreen_config": "",
                     }
@@ -419,6 +426,7 @@ def create_config_dicts(workflow_type, working_directory, log, infiles, samples,
                     "mir_starts_allowed": "1 2 3 4",
                     "fastqScreen": False,
                     "fastqScreen_config": "",
+                    "morePureclipParameters": "",
                     }
     
     return merge_config, default_config
@@ -475,6 +483,7 @@ def peaks( _configfile,
         deduplicate,
         mir_genome_fasta,
         mir_starts_allowed,
+        morePureclipParameters,
         **kwargs): 
     
     """Run racoon_clip peaks analysis (full pipeline including peak calling)"""
@@ -488,7 +497,7 @@ def peaks( _configfile,
         genome_fasta, star_index, read_length, outFilterMismatchNoverReadLmax, 
         outFilterMismatchNmax, outFilterMultimapNmax, outReadsUnmapped, 
         outSJfilterReads, moreSTARParameters, deduplicate, mir_genome_fasta, 
-        mir_starts_allowed)
+        mir_starts_allowed, morePureclipParameters)
     
     # Create a new dictionary containing non-default values given by the user
     non_default_config = {key: value for key, value in merge_config.items() if value != default_config.get(key)}
@@ -556,6 +565,7 @@ def crosslinks( _configfile,
         deduplicate,
         mir_genome_fasta,
         mir_starts_allowed,
+        morePureclipParameters,
         **kwargs): 
     
     """Run racoon_clip crosslinks analysis (up to crosslink detection, no peak calling)"""
@@ -569,7 +579,7 @@ def crosslinks( _configfile,
         genome_fasta, star_index, read_length, outFilterMismatchNoverReadLmax, 
         outFilterMismatchNmax, outFilterMultimapNmax, outReadsUnmapped, 
         outSJfilterReads, moreSTARParameters, deduplicate, mir_genome_fasta, 
-        mir_starts_allowed)
+        mir_starts_allowed, morePureclipParameters)
     
     # Create a new dictionary containing non-default values given by the user
     non_default_config = {key: value for key, value in merge_config.items() if value != default_config.get(key)}
@@ -695,6 +705,7 @@ def run(_configfile,
         deduplicate,
         mir_genome_fasta,
         mir_starts_allowed,
+        morePureclipParameters,
         **kwargs):
     """
     [DEPRECATED] Run racoon_clip analysis
@@ -727,7 +738,7 @@ def run(_configfile,
         genome_fasta, star_index, read_length, outFilterMismatchNoverReadLmax, 
         outFilterMismatchNmax, outFilterMultimapNmax, outReadsUnmapped, 
         outSJfilterReads, moreSTARParameters, deduplicate, mir_genome_fasta, 
-        mir_starts_allowed)
+        mir_starts_allowed, morePureclipParameters)
     
     # Create a new dictionary containing non-default values given by the user
     non_default_config = {key: value for key, value in merge_config.items() if value != default_config.get(key)}

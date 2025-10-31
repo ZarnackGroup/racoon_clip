@@ -197,11 +197,11 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
                 # Check if run completed successfully
                 if return_code == 0:
                     log_and_print("=" * 50, log_f)
-                    log_and_print("✅ RUN test PASSED: racoon_clip run completed successfully", log_f)
+                    log_and_print("✅ CROSSLINKS test PASSED: racoon_clip crosslinks completed successfully", log_f)
                     return True, abs_config_file
                 else:
                     log_and_print("=" * 50, log_f)
-                    log_and_print("❌ RUN test FAILED: racoon_clip run failed", log_f)
+                    log_and_print("❌ CROSSLINKS test FAILED: racoon_clip crosslinks failed", log_f)
                     log_and_print(f"Return code: {return_code}", log_f)
                     return False, abs_config_file
         else:
@@ -223,15 +223,15 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
             
             print("=" * 50)
             if return_code == 0:
-                print("✅ RUN test PASSED: racoon_clip run completed successfully")
+                print("✅ CROSSLINKS test PASSED: racoon_clip crosslinks completed successfully")
                 return True, abs_config_file
             else:
-                print("❌ RUN test FAILED: racoon_clip run failed")
+                print("❌ CROSSLINKS test FAILED: racoon_clip crosslinks failed")
                 print(f"Return code: {return_code}")
                 return False, abs_config_file
         
     except (FileNotFoundError, OSError) as e:
-        error_msg = f"❌ RUN test FAILED: System error: {e}"
+        error_msg = f"❌ CROSSLINKS test FAILED: System error: {e}"
         if log_file:
             with open(log_file, 'a') as log_f:
                 log_f.write(error_msg + "\n")

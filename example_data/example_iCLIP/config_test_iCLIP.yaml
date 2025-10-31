@@ -21,3 +21,6 @@ adapter_file: "example_data/example_iCLIP/adapter.fa"
 genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
 gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
 read_length: 45
+
+# pureclip params
+morePureclipParameters: "-iv 'chr21;'"

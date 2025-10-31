@@ -228,8 +228,8 @@ class RacoonTestSuite:
 
         return failed == 0
 
-    def test_all_crosslinks(self, extra_args=None) -> bool:
-        """Test crosslinks execution for all config files"""
+    def test_all_crosslinks(self, extra_args=None) -> tuple:
+        """Test crosslinks execution for all config files. Returns (success, failed_tests)"""
         print_colored("=== Testing Crosslinks Execution ===")
 
         passed = 0
@@ -253,7 +253,7 @@ class RacoonTestSuite:
             for test in failed_tests:
                 print_colored(f"  - {test}")
 
-        return failed == 0
+        return (failed == 0, failed_tests)
 
     def test_peaks_execution(self, config_file: str, extra_args=None) -> bool:
         """Test peaks execution for a single config file"""
@@ -285,8 +285,8 @@ class RacoonTestSuite:
         success, _ = test_fastqscreen_execution(str(config_path), extra_args=extra_args)
         return success
 
-    def test_all_peaks(self, extra_args=None) -> bool:
-        """Test peaks execution for eCLIP ENCODE and iCLIP config files"""
+    def test_all_peaks(self, extra_args=None) -> tuple:
+        """Test peaks execution for eCLIP ENCODE and iCLIP config files. Returns (success, failed_tests)"""
         print_colored("=== Testing Peaks Execution ===")
 
         # Test both eCLIP ENCODE and iCLIP config files for peaks
@@ -317,7 +317,7 @@ class RacoonTestSuite:
             for test in failed_tests:
                 print_colored(f"  - {test}")
 
-        return failed == 0
+        return (failed == 0, failed_tests)
 
     def test_installation(self) -> bool:
         """Run installation test"""
@@ -533,15 +533,20 @@ class RacoonTestSuite:
         if extra_args:
             print_colored(f"Extra arguments for snakemake: {extra_args}")
         
-        results = []
+        # Track failed tests
+        failed_tests = []
 
         # Test DAGs
-        results.append(self.test_all_dags())
+        dag_success = self.test_all_dags()
+        if not dag_success:
+            failed_tests.append("DAG tests")
         
         # Test config files
-        results.append(self.test_config_files())
+        config_success = self.test_config_files()
+        if not config_success:
+            failed_tests.append("Config file tests")
         
-        success = all(results)
+        success = dag_success and config_success
         
         print_colored("\n" + "="*50)
         if success:
@@ -550,6 +555,9 @@ class RacoonTestSuite:
             self.cleanup_results_folders()
         else:
             print_error("❌ Some light tests failed!")
+            print_error("\nFailed test categories:")
+            for test_name in failed_tests:
+                print_error(f"  ✗ {test_name}")
             
         return success
 
@@ -562,21 +570,35 @@ class RacoonTestSuite:
         if extra_args:
             print_colored(f"Extra arguments for snakemake: {extra_args}")
         
+        # Track failed tests with details
+        failed_tests = {}
+        
         # Test DAGs first
         dag_success = self.test_all_dags()
+        if not dag_success:
+            failed_tests["DAG tests"] = []
         
         # Test config files second
         config_success = self.test_config_files()
+        if not config_success:
+            failed_tests["Config file tests"] = []
         
         # Only run the execution tests (crosslinks, peaks, and fastqscreen) if DAG and config tests pass
         if dag_success and config_success:
-            crosslinks_success = self.test_all_crosslinks(extra_args=extra_args)
-            peaks_success = self.test_all_peaks(extra_args=extra_args)
+            crosslinks_success, crosslinks_failed = self.test_all_crosslinks(extra_args=extra_args)
+            if not crosslinks_success:
+                failed_tests["Crosslinks execution tests"] = crosslinks_failed
+                
+            peaks_success, peaks_failed = self.test_all_peaks(extra_args=extra_args)
+            if not peaks_success:
+                failed_tests["Peaks execution tests"] = peaks_failed
             
             # Test fastqscreen
             fastqscreen_config = "example_data/example_fastqscreen/config_test_iCLIP_fastqscreen.yaml"
             print_colored(f"\nTesting fastqscreen for: {Path(fastqscreen_config).name}")
             fastqscreen_success = self.test_fastqscreen_execution(fastqscreen_config, extra_args=extra_args)
+            if not fastqscreen_success:
+                failed_tests["FastqScreen execution test"] = [Path(fastqscreen_config).name]
             
             success = crosslinks_success and peaks_success and fastqscreen_success
         else:
@@ -590,6 +612,14 @@ class RacoonTestSuite:
             self.cleanup_results_folders()
         else:
             print_error("❌ Some tests failed!")
+            print_error("\nFailed test categories:")
+            for test_category, config_list in failed_tests.items():
+                if config_list:
+                    print_error(f"  ✗ {test_category}:")
+                    for config in config_list:
+                        print_error(f"      - {config}")
+                else:
+                    print_error(f"  ✗ {test_category}")
             
         return success
 
@@ -603,7 +633,7 @@ class RacoonTestSuite:
             print_colored(f"Extra arguments for snakemake: {extra_args}")
         
         # Test peaks only
-        success = self.test_all_peaks(extra_args=extra_args)
+        success, failed_configs = self.test_all_peaks(extra_args=extra_args)
         
         print_colored("\n" + "="*50)
         if success:
@@ -612,6 +642,10 @@ class RacoonTestSuite:
             self.cleanup_results_folders()
         else:
             print_error("❌ Peaks test failed!")
+            if failed_configs:
+                print_error("\nFailed config files:")
+                for config in failed_configs:
+                    print_error(f"  - {config}")
             
         return success
 
