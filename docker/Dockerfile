@@ -22,18 +22,21 @@ RUN apt clean \
     rm -rf /var/lib/apt/lists/*
 
 # Install exact Python 3.9.0 using conda
+RUN conda install -n base --override-channels -c conda-forge mamba=1 'python_abi=*=*cp*'
 RUN conda install -c conda-forge python=3.9.0 pip -y && conda clean -afy
+RUN which conda && which mamba
+
 
 # Install micromamba as a lightweight alternative to mamba
-RUN wget -qO- https://micromamba.snakepit.net/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-RUN mv bin/micromamba /usr/local/bin/
-RUN chmod +x /usr/local/bin/micromamba
+# RUN wget -qO- https://micromamba.snakepit.net/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+# RUN mv bin/micromamba /usr/local/bin/
+# RUN chmod +x /usr/local/bin/micromamba
 
 # Configure conda to use libmamba solver (will work with micromamba)
-RUN conda config --set solver libmamba || echo "libmamba solver not available, using classic"
+#RUN conda config --set solver libmamba || echo "libmamba solver not available, using classic"
 
 # Add conda and micromamba to PATH
-ENV PATH="/opt/conda/bin:/opt/conda/condabin:/usr/local/bin:$PATH"
+#ENV PATH="/opt/conda/bin:/opt/conda/condabin:/usr/local/bin:$PATH"
 
 # Check installed Python version
 RUN echo "Python version:" && python --version && python -c "import sys; print(f'Exact version: {sys.version}')"

@@ -1,7 +1,5 @@
-FROM condaforge/miniforge3:25.3.1-0
-#FROM condaforge/mambaforge:22.9.0-2
-#FROM condaforge/mambaforge:4.14.0-2
-#
+FROM continuumio/miniconda3:23.10.0-1
+#FROM condaforge/mambaforge:23.11.0-0
 
 # Set timezone to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,52 +13,62 @@ RUN apt clean \
     git \
     gcc \ 
     g++ \
-    libtiff-dev \
-    libarchive-tools \
+    libtiff5 \
+    libarchive13 \
     libarchive-dev && \
     ldconfig && \
     apt-get purge && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Get python 3.9 with miniforge (mamba already included)
-##################################
+# Install exact Python 3.9.0 using conda
+RUN conda install -n base --override-channels -c conda-forge mamba=1 'python_abi=*=*cp*'
+RUN conda install -c conda-forge python=3.9.0 pip -y && conda clean -afy
+RUN which conda && which mamba
 
-# Install exact Python 3.9.0 using mamba (already available in miniforge)
-RUN mamba install -c conda-forge python=3.9.0 pip -y && mamba clean -afy
+
+# Install micromamba as a lightweight alternative to mamba
+# RUN wget -qO- https://micromamba.snakepit.net/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+# RUN mv bin/micromamba /usr/local/bin/
+# RUN chmod +x /usr/local/bin/micromamba
+
+# Configure conda to use libmamba solver (will work with micromamba)
+#RUN conda config --set solver libmamba || echo "libmamba solver not available, using classic"
+
+# Add conda and micromamba to PATH
+#ENV PATH="/opt/conda/bin:/opt/conda/condabin:/usr/local/bin:$PATH"
 
 # Check installed Python version
 RUN echo "Python version:" && python --version && python -c "import sys; print(f'Exact version: {sys.version}')"
 
-# check mamba is available
-RUN mamba --version
 
-# Get racoon_clip
-##################################
+RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.2.0.5.zip
+RUN unzip v.2.0.5.zip
 
-RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.1.3.0.zip
-RUN unzip v.1.3.0.zip
+WORKDIR /racoon_clip-v.2.0.5/ 
 
-WORKDIR /racoon_clip-v.1.3.0/ 
+# RUN conda install --quiet --yes -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' && \
+#     conda create --yes -n racoon_clip python=3.9.2 pip botocore  && \
+#     echo "conda activate racoon_clip" >> ~/.bashrc
+# SHELL ["/bin/bash", "--login", "-c"]
+# ENV PATH /opt/conda/envs/racoon_clip/bin:$PATH
 
-# Install racoon_clip directly in the base environment
-RUN pip install --verbose -e . && \
-    pip show racoon_clip
+WORKDIR /racoon_clip-v.2.0.5/racoon_clip.egg-info
+#RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
+#RUN sed -i '1s/^/pulp==2.7.0 /' requires.txt
+#RUN pip install pulp==2.7.0
+#RUN pip install botocore
 
-# Test racoon_clip installation
-##############################
-
-# Test racoon_clip installation (installed in base environment)
+WORKDIR /racoon_clip-v.2.0.5/
+RUN pip install -e .
 RUN racoon_clip -h
 RUN racoon_clip test --light
-
-# Set default entrypoint
-CMD ["/bin/bash"]
-
+# check mamba is still available
+RUN which mamba
 
 
 
-# WORKDIR /racoon_clip-1.3.0/racoon_clip/minimal_examples
+# WORKDIR /racoon_clip-2.0.5/racoon_clip/minimal_examples
 # RUN unzip minimal_example_eCLIP.zip
 
 
