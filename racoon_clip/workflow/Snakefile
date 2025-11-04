@@ -308,7 +308,7 @@ def get_barcode_experiment_info():
             "barcodeLength": 0, 
             "umi1_len": 9, # antisense of used barcodes --> this is the 3' umi of the original barcode
             "umi2_len": 0,
-            "total_barcode_len": 10, # if already demux = umi1_len
+            "total_barcode_len": 9, # if already demux = umi1_len
             "encode": False,
             "miR": False,
             "trim3": True,
