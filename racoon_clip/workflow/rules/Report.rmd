@@ -392,10 +392,12 @@ ggplot(plot_data, aes(x = Sample, y = Percentage, fill = Genome)) +
   scale_fill_viridis_d()
 ```
 
-```
+
 
 ```{r eval=qual_bc, results = 'asis'}
+cat(" \n")
 cat(paste("# Quality filtering in barcode region \n Sequences are filtered for a **minimum base quality of", config["minBaseQuality",], "** within the barcode region to ensure correct sample and duplicate assignment.\n"))
+cat(" \n")
 ```
 
 ```{r eval=qual_bc, results = 'asis'}
@@ -445,12 +447,15 @@ cat("## Sequencing quality and content per base after the quality filtering step
 ```{r barcode_filter2, eval=bc_filter_one_file, results = 'asis'}
 cat("### Quality scores across all bases \n")
 include_graphics(paste0(dir,"/results/fastqc/filtered/filtered_fastqc/Images/per_base_quality.png"))
+cat(" \n")
+cat(" \n")
 ```
 
-\newline
+
 ```{r barcode_filter2.2, eval=bc_filter_one_file, results = 'asis'}
 cat(" \n")
 cat("\n ### Sequence content over all bases \n")
+cat(" \n")
 include_graphics(paste0(dir,"/results/fastqc/filtered/filtered_fastqc/Images/per_base_sequence_content.png"))
 cat(" \n")
 
@@ -518,7 +523,9 @@ cat("### {-} \n")
 ```
 
 ```{r eval=qual_bc_no_demult , results = 'asis'}
+cat("\n")
 cat("### Sequence content over all bases {.tabset}")
+cat("\n")
 ```
 
 ```{r out.width="100%", dpi = 100, results = "asis", eval=qual_bc_no_demult }

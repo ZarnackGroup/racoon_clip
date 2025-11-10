@@ -29,11 +29,15 @@ test_report <- function(config, output_dir, snake_dir){
   cat("Snake directory:", snake_dir, "\n")
   cat("Working directory:", getwd(), "\n")
   
+  # Track success status
+  report_success <- FALSE
+  
   # Use file.path for better path handling
   report_original_path <- file.path(snake_dir, "workflow/rules/Report.rmd")
   output_results_dir <- file.path(output_dir, "results")
   output_tmp_dir <- file.path(output_dir, "results/tmp")
-  report_tmp_path <- file.path(output_tmp_dir, "Report.rmd")
+  # Copy Report.rmd to results/ directory, not tmp/, so working directory is correct
+  report_tmp_path <- file.path(output_results_dir, "Report.rmd")
   
   cat("Report original path:", report_original_path, "\n")
   cat("Report original exists:", file.exists(report_original_path), "\n")
@@ -41,39 +45,10 @@ test_report <- function(config, output_dir, snake_dir){
   # Create directories recursively
   dir.create(output_tmp_dir, recursive = TRUE, showWarnings = FALSE)
   
-  # Create mock data directories and files that the report expects
-  mock_dirs <- c(
-    file.path(output_results_dir, "fastqc/raw/multiqc_data"),
-    file.path(output_results_dir, "fastqc/trimmed/multiqc_data"),
-    file.path(output_results_dir, "crosslinks"),
-    file.path(output_results_dir, "mapping"),
-    file.path(output_results_dir, "bigwig")
-  )
-  
-  for (dir in mock_dirs) {
-    dir.create(dir, recursive = TRUE, showWarnings = FALSE)
-  }
-  
-  # Create minimal mock data files
-  mock_fastqc_content <- "Sample\tTotal Sequences\tSequences flagged as poor quality\tSequence length\n"
-  mock_fastqc_content <- paste0(mock_fastqc_content, "test_sample\t1000000\t0\t50\n")
-  
-  write(mock_fastqc_content, file = file.path(output_results_dir, "fastqc/raw/multiqc_data/multiqc_fastqc.txt"))
-  write(mock_fastqc_content, file = file.path(output_results_dir, "fastqc/trimmed/multiqc_data/multiqc_fastqc.txt"))
-  
-  # Create empty files for other expected outputs
-  mock_files <- c(
-    "crosslinks/crosslinks_summary.txt",
-    "mapping/mapping_summary.txt"
-  )
-  
-  for (mock_file in mock_files) {
-    file_path <- file.path(output_results_dir, mock_file)
-    dir.create(dirname(file_path), recursive = TRUE, showWarnings = FALSE)
-    write("# Mock data for testing", file = file_path)
-  }
-  
-  cat("Created mock data files for report testing\n")
+  # Update config to have correct wdir path
+  # Report.rmd expects wdir to point to the OUTPUT directory parent, then adds /results/
+  # So if we're IN results/, we need wdir to be ".." to go: paste0("..", "/results/fastqc")
+  config["wdir"] <- ".."
   
   # Check if source file exists before copying
   if (!file.exists(report_original_path)) {
@@ -84,7 +59,8 @@ test_report <- function(config, output_dir, snake_dir){
   
   # copy workflow overview
   wf_image_original_path <- file.path(snake_dir, "workflow/rules/Workflow.png")
-  wf_image_tmp_path <- file.path(output_tmp_dir, "Workflow.png")
+  # Copy workflow image to results/ directory to match Report.rmd location
+  wf_image_tmp_path <- file.path(output_results_dir, "Workflow.png")
   
   if (file.exists(wf_image_original_path)) {
     file.copy(wf_image_original_path, wf_image_tmp_path, overwrite = TRUE)
@@ -105,13 +81,30 @@ test_report <- function(config, output_dir, snake_dir){
                       output_format = "html_document"
     )
     cat("Report generation completed successfully for:", output_dir, "\n")
+    report_success <- TRUE
   }, error = function(e) {
-    cat("Error during report generation:", e$message, "\n")
-    # Still consider it a partial success if we got this far
-    cat("Partial report generation completed for:", output_dir, "\n")
+    cat("\n========================================\n")
+    cat("ERROR during report generation\n")
+    cat("========================================\n")
+    cat("Error message:", e$message, "\n")
+    if (!is.null(e$call)) {
+      cat("Error call:", deparse(e$call), "\n")
+    }
+    # Print full error details
+    cat("\nFull error object:\n")
+    print(e)
+    cat("\nTraceback:\n")
+    print(traceback())
+    cat("========================================\n")
+    cat("FAILED: Report generation failed for:", output_dir, "\n")
+    cat("========================================\n\n")
+    report_success <- FALSE
   })
   
   cat("======================\n\n")
+  
+  # Return success status
+  return(report_success)
 }
 
 
@@ -157,20 +150,24 @@ cat("Report file exists:", file.exists(report_file), "\n")
 cat("Workflow image exists:", file.exists(workflow_image), "\n")
 cat("Theme file exists:", file.exists(theme_file), "\n")
 
+# Track overall success
+all_tests_passed <- TRUE
 
 # test eCLIP
 #----------------------
 output_dir <- "test_report_eCLIP"
 config <- read_yaml("inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml") %>% unlist()
 
-test_report(config, output_dir, snake_dir)
+success <- test_report(config, output_dir, snake_dir)
+if (!success) all_tests_passed <- FALSE
 
 # test eCLIP Encode
 #----------------------
 output_dir <- "test_report_eCLIP_ENCODE"
 config <- read_yaml("inputs_for_report_test/eCLIP_ENCODE/config_test_eCLIP_ENC.yaml") %>% unlist()
 
-test_report(config, output_dir, snake_dir)
+success <- test_report(config, output_dir, snake_dir)
+if (!success) all_tests_passed <- FALSE
 
 
 # test iCLIP 
@@ -178,7 +175,8 @@ test_report(config, output_dir, snake_dir)
 output_dir <- "test_report_iCLIP"
 config <- read_yaml("inputs_for_report_test/iCLIP/config_test_iCLIP.yaml") %>% unlist()
 
-test_report(config, output_dir, snake_dir)
+success <- test_report(config, output_dir, snake_dir)
+if (!success) all_tests_passed <- FALSE
 
 
 # test iCLIP multiplexed
@@ -186,7 +184,17 @@ test_report(config, output_dir, snake_dir)
 output_dir <- "test_report_iCLIP_multiplexed"
 config <- read_yaml("inputs_for_report_test/iCLIP_multiplexed/config_test_iCLIP_multiplexed.yaml") %>% unlist()
 
-test_report(config, output_dir, snake_dir)
+success <- test_report(config, output_dir, snake_dir)
+if (!success) all_tests_passed <- FALSE
+
+# Exit with appropriate status code
+if (!all_tests_passed) {
+  cat("\n=== REPORT TESTS FAILED ===\n")
+  quit(status = 1)
+} else {
+  cat("\n=== ALL REPORT TESTS PASSED ===\n")
+  quit(status = 0)
+}
 
 # params <- list(config = config,  
 #                snake_dir = "/Users/melinaklostermann/Documents/projects/racoon_clip/racoon_clip/racoon_clip")
