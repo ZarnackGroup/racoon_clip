@@ -551,8 +551,6 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 All light tests passed!")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ Some light tests failed!")
             print_error("\nFailed test categories:")
@@ -608,8 +606,6 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 All tests passed!")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ Some tests failed!")
             print_error("\nFailed test categories:")
@@ -638,8 +634,6 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 Peaks test passed!")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ Peaks test failed!")
             if failed_configs:
@@ -667,8 +661,6 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 FastqScreen test passed!")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ FastqScreen test failed!")
             
@@ -813,8 +805,6 @@ class RacoonTestSuite:
         if success:
             print_success("🎉 Report generation test passed!")
             print_colored("Generated reports should be available in the report_test directories")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ Report generation test failed!")
             print_error(f"R script output: {output}")
@@ -832,8 +822,6 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 Report test passed!")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ Report test failed!")
             
@@ -854,8 +842,6 @@ class RacoonTestSuite:
         print_colored("\n" + "="*50)
         if success:
             print_success("🎉 Development test passed!")
-            # Clean up immediately after the success message
-            self.cleanup_results_folders()
         else:
             print_error("❌ Development test failed!")
             
@@ -914,6 +900,11 @@ def main():
         choices=["test_light", "test", "test_peaks", "test_fastqscreen", "devel_test", "dev_report", "test_report"],
         help="Type of test to run"
     )
+    parser.add_argument(
+        "--no_clean",
+        action="store_true",
+        help="Do not remove test result folders after successful tests"
+    )
     
     args = parser.parse_args()
     
@@ -933,9 +924,18 @@ def main():
         success = suite.dev_report()
     elif args.test_type == "test_report":
         success = suite.test_report()
+        # Don't clean up after report test - reports need to be inspected
     else:
         print_error(f"Unknown test type: {args.test_type}")
         return 1
+    
+    # Clean up test results unless --no_clean flag is set or running report test
+    if success and not args.no_clean and args.test_type != "test_report":
+        suite.cleanup_results_folders()
+    elif args.no_clean:
+        print_colored("\n--no_clean flag set: Test result folders preserved")
+    elif args.test_type == "test_report":
+        print_colored("\nReport test: Result folders preserved for inspection")
     
     # Always clean up old logs, regardless of test outcome
     suite.cleanup_old_logs(suite.base_dir.parent)

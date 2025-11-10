@@ -618,8 +618,9 @@ def citation(**kwargs):
 @click.option('--report', is_flag=True, help='Run report generation test suite')
 @click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE and iCLIP configs)')
 @click.option('--fastqscreen', is_flag=True, help='Run fastqscreen test suite')
+@click.option('--no-clean', is_flag=True, help='Do not remove test result folders after successful tests')
 @click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
-def test(light, devel, report, peaks, fastqscreen, extra_args):
+def test(light, devel, report, peaks, fastqscreen, no_clean, extra_args):
     """Run racoon_clip test suite
     
     By default runs full test suite (DAG tests, config tests, crosslinks tests, peaks tests, 
@@ -648,6 +649,7 @@ def test(light, devel, report, peaks, fastqscreen, extra_args):
         success = suite.devel_test(extra_args=extra_args)
     elif report:
         success = suite.test_report(extra_args=extra_args)
+        # Don't clean up after report test - reports need to be inspected
     elif peaks:
         success = suite.test_peaks(extra_args=extra_args)
     elif fastqscreen:
@@ -655,6 +657,17 @@ def test(light, devel, report, peaks, fastqscreen, extra_args):
     else:
         # Default: run full test suite
         success = suite.test(extra_args=extra_args)
+    
+    # Clean up test results unless --no-clean flag is set or running report test
+    if success and not no_clean and not report:
+        suite.cleanup_results_folders()
+    elif no_clean:
+        click.echo("\n--no-clean flag set: Test result folders preserved")
+    elif report:
+        click.echo("\nReport test: Result folders preserved for inspection")
+    
+    # Always clean up old logs, regardless of test outcome
+    suite.cleanup_old_logs(suite.base_dir.parent)
     
     sys.exit(0 if success else 1)
 
