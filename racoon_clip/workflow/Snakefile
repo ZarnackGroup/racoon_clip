@@ -1069,7 +1069,7 @@ rule align:
         
     shell:
         """
-        chmod +x {input.reads} && \
+        chmod +x "$(dirname {input.reads})" && \
         mkdir -p {params.wdir}/{params.dir} && \
         chmod -R +x {params.wdir}/{params.dir} && \
         cd {params.wdir}/{params.dir} && \
