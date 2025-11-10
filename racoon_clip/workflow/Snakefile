@@ -1025,7 +1025,7 @@ rule create_STAR_index:
         "========================= \n Indexing your genome annotation \n ================================ \n provided fasta: {input.genome_fasta} \n provided annotation: {input.gtf} \n" 
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
-        mem_mb = 40000
+        mem_mb=lambda wildcards, attempt: [40000, 60000, 100000][min(attempt - 1, 2)],
     shell:
         """  
         STAR --runThreadN {threads} \
@@ -1065,7 +1065,7 @@ rule align:
     conda:
         "envs/racoon_main_v0.4.yml"
     resources:
-        mem_mb = 40000
+        mem_mb=lambda wildcards, attempt: [40000, 60000, 100000][min(attempt - 1, 2)],
         
     shell:
         """
@@ -1414,7 +1414,7 @@ rule pc_peak_calling:
         morePureclipParameters=config["morePureclipParameters"]
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
-        mem_mb = 180000
+        mem_mb=lambda wildcards, attempt: [180000, 200000, 250000][min(attempt - 1, 2)],
     conda:
         "envs/racoon_pureclip.yml"
     message: 
