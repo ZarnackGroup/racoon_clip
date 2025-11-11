@@ -1,4 +1,4 @@
-# eiCLIP_pipeline v6
+F# eiCLIP_pipeline v6
 # author Melina Klostermann
 
 from pickle import TRUE
@@ -1151,7 +1151,7 @@ rule deduplication:
         "envs/racoon_umi_tools_v0.3.yml"
     message: 
             "========================= \n Deduplicating {wildcards.sample} \n ================================ \n" 
-    threads: 1 # x each sample automatically assigned by snakemake
+    threads: 1 # cannot do more then 1
     shell:
         """
         if [[ {params.dedup} == True ]]
