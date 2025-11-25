@@ -479,10 +479,6 @@ def mqc_for_readlength():
     
 def get_star_index():
     if STAR_INDEX is not None:
-        chkpnt_file = config["wdir"]+"/results/tmp/.star_index.chkpnt"
-        # Create empty checkpoint file
-        with open(chkpnt_file, 'w') as f:
-            pass
         return STAR_INDEX
     else:
         return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx/"
@@ -1035,6 +1031,32 @@ rule create_STAR_index:
         --readFilesCommand zcat
         """
 
+
+# Rule to create checkpoint file when using pre-built STAR index
+rule use_existing_STAR_index:
+    output:
+        chkpnt = touch(config["wdir"]+"/results/tmp/.star_index.chkpnt")
+    run:
+        # Verify that the STAR index directory exists and contains required files
+        import os
+        star_index_dir = STAR_INDEX
+        required_files = ["SA", "SAindex"]  # Essential STAR index files
+        
+        if not os.path.isdir(star_index_dir):
+            raise ValueError(f"ERROR: STAR index directory does not exist: {star_index_dir}")
+        
+        missing_files = []
+        for req_file in required_files:
+            if not os.path.exists(os.path.join(star_index_dir, req_file)):
+                missing_files.append(req_file)
+        
+        if missing_files:
+            raise ValueError(f"ERROR: STAR index directory is missing required files: {', '.join(missing_files)}\n"
+                           f"Directory: {star_index_dir}")
+        
+        # Create the tmp directory if it doesn't exist
+        os.makedirs(os.path.dirname(output.chkpnt), exist_ok=True)
+        print(f"Using existing STAR index: {star_index_dir}")
 
 
 rule align:
