@@ -75,7 +75,7 @@ racoon_clip provides built-in test commands to verify your installation:
 
 .. code:: bash
 
-   racoon_clip test light
+   racoon_clip test --light
 
 This runs a quick test doing basic functionality checks
 
@@ -83,7 +83,7 @@ This runs a quick test doing basic functionality checks
 
 .. code:: bash
 
-   racoon_clip test full
+   racoon_clip test
 
 This runs the complete test suite including:
 
