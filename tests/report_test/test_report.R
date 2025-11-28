@@ -156,7 +156,7 @@ all_tests_passed <- TRUE
 # test eCLIP
 #----------------------
 output_dir <- "test_report_eCLIP"
-config <- read_yaml("inputs_for_report_test/eCLIP/config_test_report_eCLIP.yaml") %>% unlist()
+config <- read_yaml("inputs_for_report_test/eCLIP/config_test_report_eCLIP_absolute_paths.yaml") %>% unlist()
 
 success <- test_report(config, output_dir, snake_dir)
 if (!success) all_tests_passed <- FALSE
@@ -164,7 +164,7 @@ if (!success) all_tests_passed <- FALSE
 # test eCLIP Encode
 #----------------------
 output_dir <- "test_report_eCLIP_ENCODE"
-config <- read_yaml("inputs_for_report_test/eCLIP_ENCODE/config_test_eCLIP_ENC.yaml") %>% unlist()
+config <- read_yaml("inputs_for_report_test/eCLIP_ENCODE/config_test_eCLIP_ENC_absolute_paths.yaml") %>% unlist()
 
 success <- test_report(config, output_dir, snake_dir)
 if (!success) all_tests_passed <- FALSE
@@ -173,7 +173,7 @@ if (!success) all_tests_passed <- FALSE
 # test iCLIP 
 #----------------------
 output_dir <- "test_report_iCLIP"
-config <- read_yaml("inputs_for_report_test/iCLIP/config_test_iCLIP.yaml") %>% unlist()
+config <- read_yaml("inputs_for_report_test/iCLIP/config_test_iCLIP_absolute_paths.yaml") %>% unlist()
 
 success <- test_report(config, output_dir, snake_dir)
 if (!success) all_tests_passed <- FALSE
@@ -182,7 +182,7 @@ if (!success) all_tests_passed <- FALSE
 # test iCLIP multiplexed
 #----------------------
 output_dir <- "test_report_iCLIP_multiplexed"
-config <- read_yaml("inputs_for_report_test/iCLIP_multiplexed/config_test_iCLIP_multiplexed.yaml") %>% unlist()
+config <- read_yaml("inputs_for_report_test/iCLIP_multiplexed/config_test_iCLIP_multiplexed_absolute_paths.yaml") %>% unlist()
 
 success <- test_report(config, output_dir, snake_dir)
 if (!success) all_tests_passed <- FALSE

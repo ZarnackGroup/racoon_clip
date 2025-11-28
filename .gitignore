@@ -29,3 +29,4 @@ logs/*
 *.log
 Dockerfile.old
 Log.out
+*Report.html

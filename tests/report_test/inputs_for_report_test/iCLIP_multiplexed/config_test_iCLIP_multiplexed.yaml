@@ -2,7 +2,7 @@
 wdir: "test_report_iCLIP_multiplexed"
 
 # input
-infiles: "../../example_data/example_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz" # for multiple files after demultiplexing
+infiles: "example_data/example_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz" # for multiple files after demultiplexing
 
 
 #SAMPLES
@@ -12,13 +12,13 @@ samples: "test_iCLIP_s1.chr21 test_iCLIP_s2.chr21" # sample name needs to be ide
 experiment_type: "iCLIP2"
 demultiplex: "TRUE"
 # if no demultiplexing is done, is there still a barcode
-barcodes_fasta: "../../example_data/example_iCLIP_multiplexed/barcodes.fa"
+barcodes_fasta: "example_data/example_iCLIP_multiplexed/barcodes.fa"
 
 #adapter adapter_trimming
 adapter_trimming: True
-adapter_file: "../../example_data/example_iCLIP_multiplexed/adapter.fa"
+adapter_file: "example_data/example_iCLIP_multiplexed/adapter.fa"
 
 
-genome_fasta: "../../example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
-gtf: "../../example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
+genome_fasta: "example_data/example_annotation_human_chr21/test_annotation_chr21.fa" # has to be unzipped at the moment
+gtf: "example_data/example_annotation_human_chr21/test_annotation_chr21.gtf" # accepts fa and fa.gz
 read_length: 45

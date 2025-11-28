@@ -728,11 +728,19 @@ class RacoonTestSuite:
                                 value = config_data[key]
                                 if isinstance(value, str) and value.strip() and not os.path.isabs(value):
                                     if ' ' in value:  # Space-separated files
-                                        files = [os.path.join(racoon_clip_dir, f.lstrip('/')) if not os.path.isabs(f) else f for f in value.split()]
+                                        files = []
+                                        for f in value.split():
+                                            if not os.path.isabs(f):
+                                                # Join with racoon_clip_dir, then get absolute path to resolve any ../
+                                                abs_path = os.path.abspath(os.path.join(racoon_clip_dir, f))
+                                                files.append(abs_path)
+                                            else:
+                                                files.append(f)
                                         config_data[key] = ' '.join(files)
                                         print_colored(f"  Converted {key}: {value} -> {config_data[key]}")
                                     else:  # Single file
-                                        abs_path = os.path.join(racoon_clip_dir, value.lstrip('/'))
+                                        # Join with racoon_clip_dir, then get absolute path to resolve any ../
+                                        abs_path = os.path.abspath(os.path.join(racoon_clip_dir, value))
                                         config_data[key] = abs_path
                                         print_colored(f"  Converted {key}: {value} -> {abs_path}")
                         
@@ -752,7 +760,7 @@ class RacoonTestSuite:
                 continue
         
         # Path to the conda environment file
-        env_file = self.base_dir.parent / "racoon_clip" / "workflow" / "envs" / "racoon_R_v0.3.yml"
+        env_file = self.base_dir.parent / "racoon_clip" / "workflow" / "envs" / "racoon_R_v0.4.yml"
         if not env_file.exists():
             print_error(f"Conda environment file not found: {env_file}")
             return False
@@ -774,7 +782,7 @@ class RacoonTestSuite:
             return False
         
         # Check if the environment exists, create if it doesn't
-        env_name = "racoon_R_v0.3"
+        env_name = "racoon_R_v0.4"
         env_list_cmd = [conda_cmd, "env", "list"]
         success, output = self.run_command(env_list_cmd)
         
