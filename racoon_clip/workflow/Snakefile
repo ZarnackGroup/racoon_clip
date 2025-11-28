@@ -1,4 +1,4 @@
-F# eiCLIP_pipeline v6
+# racoon_clip snakemake workflow
 # author Melina Klostermann
 
 from pickle import TRUE
@@ -1698,7 +1698,24 @@ rule make_report:
         config["wdir"]+"/results/Report.html"
     params:
         wdir=config["wdir"],
-        config= config,
+        config= lambda wildcards: {
+            **{k: v for k, v in config.items() if k not in ["umi1_len", "umi2_len", "barcodeLength", "total_barcode_len", "trim3", "trim3_len", "encode", "miR", "demultiplex", "adapter_trimming", "quality_filter_barcodes", "deduplicate", "workflow_type"]},
+            # Override config parameters with actual values used by Snakemake
+            "umi1_len": get_barcode_experiment_info()["umi1_len"],
+            "umi2_len": get_barcode_experiment_info()["umi2_len"],
+            "barcodeLength": get_barcode_experiment_info()["barcodeLength"],
+            "total_barcode_len": get_barcode_experiment_info()["total_barcode_len"],
+            "trim3": TRIM3,
+            "trim3_len": get_barcode_experiment_info().get("trim3_len", config.get("trim3_len", "")),
+            "encode": ENCODE,
+            "miR": MIR,
+            # Add other computed boolean flags that might differ from config
+            "demultiplex": DEMUX,
+            "adapter_trimming": TRIM,
+            "quality_filter_barcodes": QUAL_BC,
+            "deduplicate": DEDUP,
+            "workflow_type": config["workflow_type"]
+        },
         snake_path= SNAKE_PATH
     log:
         config["wdir"]+"/results/tmp/make_report.log"
