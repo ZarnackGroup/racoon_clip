@@ -1722,7 +1722,7 @@ rule make_report:
     message: 
         "========================= \n Making racoon Report \n ================================ \n" 
     conda:
-        "envs/racoon_R_v0.3.yml"
+        "envs/racoon_R_v0.4.yml"
     script:
         "rules/make_report.R"
 

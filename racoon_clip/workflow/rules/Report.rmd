@@ -1293,7 +1293,7 @@ count_peak_lines <- function(peak_dir) {
   # Create a data frame with group names (from filenames without extension) and counts
   peak_summary <- data.frame(
     Group = gsub("\\.bed$", "", basename(names(peak_counts))),
-    Peaks = format(as.numeric(peak_counts), big.mark = ",", scientific = FALSE),
+    Peaks = as.numeric(peak_counts),
     stringsAsFactors = FALSE
   )
   
@@ -1315,7 +1315,11 @@ if (dir.exists(peaks_dir)) {
 
 ```{r peak_table_display, eval=peaks, results='asis'}
 if (dir.exists(peaks_dir)) {
-  print(kable(as.data.frame(peak_summary)) %>% kable_styling(bootstrap_options = "striped", full_width = TRUE))
+  # Create formatted version for display
+  peak_summary_display <- peak_summary
+  peak_summary_display$Peaks <- format(peak_summary$Peaks, big.mark = ",", scientific = FALSE)
+  
+  print(kable(as.data.frame(peak_summary_display), caption = "Number of peaks identified by Pureclip for each sample or group") %>% kable_styling(bootstrap_options = "striped", full_width = TRUE))
   
   # Also create a simple bar plot if there are peaks
   if (nrow(peak_summary) > 0 && any(peak_summary$Peaks > 0)) {
@@ -1330,7 +1334,7 @@ if (dir.exists(peaks_dir) && nrow(peak_summary) > 0 && any(peak_summary$Peaks > 
       geom_col(fill = racoon_colors["peaks"], alpha = 0.9, stat = "identity", color = "black") +
       geom_text(aes(label = scales::comma(Peaks)), 
                 hjust = -0.1, 
-                size = 3) +
+                size = 7) +
       theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
             axis.text.y = element_text(size = rel(0.9)),
             legend.title = element_blank()) +
@@ -1340,7 +1344,7 @@ if (dir.exists(peaks_dir) && nrow(peak_summary) > 0 && any(peak_summary$Peaks > 
       coord_flip() +
       scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.15)))
     print(p)
-    ggsave(filename = paste0(plots_dir, "/Peak_calling.pdf"), plot = p, width = 10, height = 6)
+    ggsave(filename = paste0(plots_dir, "/Peak_calling.pdf"), plot = p, width = 14, height = 8)
 } else if (dir.exists(peaks_dir)) {
   cat("Peak directory not found. Peaks may not have been called yet or the directory structure may be different. \n\n")
 }
