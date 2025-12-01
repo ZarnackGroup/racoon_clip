@@ -520,13 +520,14 @@ percentage_cols <- grep("_percentage$", names(fastqscreen_data), value = TRUE)
 genome_names_plot <- gsub("_percentage$", "", percentage_cols)
 
 # Create a long format data frame for plotting (tidyr and stringr already loaded via tidyverse)
-# Extract percentage data for each genome
+# Extract count data for each genome
+count_cols <- grep("_counts$", names(fastqscreen_data), value = TRUE)
 plot_data <- fastqscreen_data %>%
-  select(Sample, all_of(percentage_cols)) %>%
-  pivot_longer(cols = all_of(percentage_cols), 
+  select(Sample, all_of(count_cols)) %>%
+  pivot_longer(cols = all_of(count_cols), 
                names_to = "Genome", 
-               values_to = "Percentage") %>%
-  mutate(Genome = gsub("_percentage$", "", Genome))
+               values_to = "Count") %>%
+  mutate(Genome = gsub("_counts$", "", Genome))
 
 ```
 
@@ -536,31 +537,30 @@ kable(fastqscreen_report, caption = "Contamination screening results showing per
 ```
 
 
-```{r fastq_screen_plot, eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.txt")), dpi=100}
+```{r fastq_screen_plot, eval = fastq_screen_enabled && file.exists(paste0(dir,"/results/fastqscreen_multi/fastqscreen_multiqc_data/multiqc_fastq_screen.txt")), dpi=100, out.width="100%"}
 # Create stacked bar plot
 library(ggplot2)
 
-p <- ggplot(plot_data, aes(x = Sample, y = Percentage, fill = Genome)) +
+p <- ggplot(plot_data, aes(x = Sample, y = Count, fill = Genome)) +
   geom_bar(stat = "identity", position = "dodge", color = "black") +
-  geom_text(aes(label = ifelse(Percentage > 0, sprintf("%.1f", Percentage), "")), 
+  geom_text(aes(label = ifelse(Count > 0, scales::comma(Count), "")), 
             position = position_dodge(width = 0.9), 
             hjust = -0.1, 
-            size = 2.5) +
-  theme_minimal() +
+            size = 7) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
         axis.text.y = element_text(size = rel(0.9)),
         legend.position = "top",
         legend.title = element_blank()) +
   labs(x = "Sample",
-       y = "Mapping Percentage (%)",
+       y = "Number of Reads",
        fill = "Genome") +
   xlab("Sample") +
-  ylab("Mapping Percentage (%)") +
+  ylab("Number of Reads") +
   coord_flip() +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.15))) +
   scale_fill_viridis_d()
 print(p)
-ggsave(filename = paste0(plots_dir, "/FastQ_Screen.pdf"), plot = p, width = 10, height = 6)
+ggsave(filename = paste0(plots_dir, "/FastQ_Screen.pdf"), plot = p, width = 14, height = 8)
 ```
 
 
