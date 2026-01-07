@@ -1309,7 +1309,7 @@ if (dir.exists(peaks_dir)) {
 ```{r peak_calling_plot, eval=peaks, dpi=100}
 if (dir.exists(peaks_dir) && nrow(peak_summary) > 0 && any(peak_summary$Peaks > 0)) {
     p <- ggplot(peak_summary, aes(x = Group, y = Peaks)) +
-      geom_col(fill = unname(racoon_colors["peaks"], alpha = 0.9, stat = "identity", color = "black") +
+      geom_col(fill = unname(racoon_colors["peaks"]), alpha = 0.9, stat = "identity", color = "black") +
       geom_text(aes(label = scales::comma(Peaks)), 
                 hjust = -0.1, 
                 size = 7) +
