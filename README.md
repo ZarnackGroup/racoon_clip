@@ -32,19 +32,20 @@ To install the tool directly from GitHub the following are required:
 
 + mamba >= 1.3.1 and < 2.0.0
 + python = 3.9.0
++ pip < 25.3
 
 It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
 
 ```
 conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'
-conda create -n racoon_clip python=3.9.0 pip
+conda create -n racoon_clip python=3.9.0 pip=25.0
 conda activate racoon_clip
 ```
 
 or if you already have mamba installed:
 
 ```
-mamba create -n racoon_clip python=3.9.0 pip
+mamba create -n racoon_clip python=3.9.0 pip=25.0
 mamba activate racoon_clip
 ``` 
 
@@ -99,9 +100,9 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 - The group-wise whole aligned reads after duplicate removal in bam format. There will be one bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam where all samples are merged. They are located in the results/bam_merged/ folder.
 
-- The sample-wise single nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
+- The sample-wise single-nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
-- The group-wise single nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
+- The group-wise single-nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
 ## Please cite:
 Klostermann&Zarnack 2024:  [racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data](https://doi.org/10.1093/bioadv/vbae084)
