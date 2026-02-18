@@ -13,32 +13,23 @@ The performed steps are an optional quality filter, optional demultiplexing, ada
 ## Installation
 
 
-###  RECOMMENDED: use Docker Image
-
-If your system has Docker, Singularity or Apptainer installed, it is recommended to use the racoon_clip Docker Image:
-
-```
-docker pull melinak/racoon_clip:latest
-or
-apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
-or
-singularity pull racoon_clip.sif docker://melinak/racoon_clip:latest
-```
-
-
 ### from GitHub
 
 To install the tool directly from GitHub the following are required:
 
-+ mamba >= 1.3.1 and < 2.0.0
++ mamba < 2.0.0
 + python = 3.9.0
 + pip < 25.3
 
-It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
+It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example, install the prerequisites with conda:
 
 ```
-conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'
-conda create -n racoon_clip python=3.9.0 pip=25.0
+conda create -n racoon_clip \
+  --override-channels -c conda-forge \
+  mamba=1 \
+  'python_abi=*=*cp*' \
+  python=3.9.0 \
+  pip=25.0
 conda activate racoon_clip
 ```
 
@@ -74,10 +65,19 @@ racoon_clip -h
 racoon_clip test --light
 ```
 
+###  use Docker Image
+
+If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
+
+```
+docker pull melinak/racoon_clip:latest
+or
+apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
+```
 
 ## Documentation and Tutorial
 
-You can find a tutorial and all options and a details description of the performed steps in this [documentation](https://racoon-clip.readthedocs.io/en/latest/).
+You can find a tutorial, all customisation options and a detailed description of the performed steps in this [documentation](https://racoon-clip.readthedocs.io/en/latest/).
 
 
 ## Test data
