@@ -89,7 +89,11 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
                     if key in config_data and config_data[key]:
                         value = config_data[key]
                         if isinstance(value, str) and value.strip() and not os.path.isabs(value):
-                            if ' ' in value:  # Space-separated files
+                            if key == 'wdir':
+                                # For wdir, use user's current directory instead of racoon_clip_dir
+                                config_data[key] = os.path.join(current_dir, value.lstrip('./'))
+                                print(f"DEBUG: Converted {key}: {value} -> {config_data[key]}")
+                            elif ' ' in value:  # Space-separated files
                                 files = [os.path.join(racoon_clip_dir, f.lstrip('/')) if not os.path.isabs(f) else f for f in value.split()]
                                 config_data[key] = ' '.join(files)
                                 print(f"DEBUG: Converted {key}: {value} -> {config_data[key]}")
@@ -115,23 +119,19 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
         print(f"WARNING: Could not convert config paths: {e}")
         print("DEBUG: Using original config file")
     
-    # Try to ensure write permissions in racoon_clip_dir
-    working_dir = racoon_clip_dir
+    # Use current working directory instead of project root
+    working_dir = current_dir
     try:
-        # Try to make the directory writable
-        os.chmod(racoon_clip_dir, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
-        
-        # Test if we can write to racoon_clip_dir
-        test_file = os.path.join(racoon_clip_dir, "test_write_permission.tmp")
+        # Test if we can write to current directory
+        test_file = os.path.join(current_dir, "test_write_permission.tmp")
         with open(test_file, 'w') as f:
             f.write("test")
         os.remove(test_file)
-        print(f"Using project root directory: {racoon_clip_dir}")
+        print(f"Using current working directory: {current_dir}")
     except (PermissionError, OSError) as e:
-        # Fall back to current directory if we can't write to project root
+        # Use current directory if we can't write here
         working_dir = current_dir
-        print(f"Warning: Cannot write to {racoon_clip_dir} ({e})")
-        print(f"Falling back to: {current_dir}")
+        print(f"Using current working directory: {current_dir}")
     
     # Create racoon_clip log file in current directory (where we have write access)
     racoon_log_name = f"racoon_clip_{os.path.basename(config_file).replace('.yaml', '').replace('.yml', '')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
