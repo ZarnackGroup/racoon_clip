@@ -26,4 +26,6 @@ bioadv
 https
 vbae
 Apptainer
+SingularityCE
+Slurm
 
