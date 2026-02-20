@@ -807,7 +807,8 @@ class RacoonTestSuite:
         
         print_colored(f"Running R script in conda environment: {report_script}")
         
-        success, output = self.run_command(r_cmd, cwd=report_script.parent)
+        # Run R script from current working directory instead of report_test directory
+        success, output = self.run_command(r_cmd, cwd=Path.cwd())
         
         print_colored("\n" + "="*50)
         if success:
@@ -856,27 +857,26 @@ class RacoonTestSuite:
         return success
 
     def cleanup_results_folders(self):
-        """Remove all test result folders from expected_output directory after successful tests."""
+        """Remove all test result folders from current working directory after successful tests."""
         print_colored("\n=== Cleaning up test result folders ===")
 
-        # Check expected_output directory
-        expected_output_dir = self.base_dir / "expected_output"
+        # Use current working directory for cleanup
+        current_dir = Path.cwd()
         
-        if not expected_output_dir.exists():
-            print_warning(f"Expected output directory does not exist: {expected_output_dir}")
-            return
-            
-        # Look for all result directories within subdirectories of expected_output
+        # Look for test output directories in current working directory
+        test_output_patterns = ["out_*", "test_report_*", "racoon_clip_out", "test"]
         result_dirs_found = False
-        for results_dir in expected_output_dir.glob("*/results"):
-            result_dirs_found = True
-            try:
+        
+        for pattern in test_output_patterns:
+            for results_dir in current_dir.glob(pattern):
                 if results_dir.is_dir():
-                    print_colored(f"Removing results directory: {results_dir}")
-                    shutil.rmtree(results_dir)
-                    print_success(f"Removed: {results_dir}")
-            except Exception as e:
-                print_warning(f"Could not remove results directory {results_dir}: {e}")
+                    result_dirs_found = True
+                    try:
+                        print_colored(f"Removing results directory: {results_dir}")
+                        shutil.rmtree(results_dir)
+                        print_success(f"Removed: {results_dir}")
+                    except Exception as e:
+                        print_warning(f"Could not remove results directory {results_dir}: {e}")
         
         if not result_dirs_found:
             print_colored("No results directories found to clean up.")
@@ -886,7 +886,8 @@ class RacoonTestSuite:
     def cleanup_old_logs(self, base_dir):
         """Remove racoon_clip log files older than the current day."""
         current_date = datetime.datetime.now().strftime('%Y%m%d')
-        log_dir = base_dir / "logs"  # Assuming logs are stored in a 'logs' directory
+        # Use current working directory for log files instead of hardcoded logs subdirectory
+        log_dir = Path.cwd()
 
         if not log_dir.exists():
             print(f"DEBUG: Log directory does not exist: {log_dir}")

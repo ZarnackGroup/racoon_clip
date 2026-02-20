@@ -1,5 +1,5 @@
 # where to put results
-wdir: "tests/expected_output/out_iCLIP_multiplexed"
+wdir: "./test/out_iCLIP_multiplexed"
 
 # input
 infiles: "example_data/example_iCLIP_multiplexed/test_iCLIP_multi.chr21.fastq.gz" # for multiple files after demultiplexing

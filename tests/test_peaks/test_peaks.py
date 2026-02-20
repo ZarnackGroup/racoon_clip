@@ -56,7 +56,7 @@ def show_config_differences(original_config, temp_config, log_file=None):
                 log_f.write(error_msg + "\n")
 
 
-def create_absolute_paths_config(config_file, log_file=None):
+def create_absolute_paths_config(config_file, log_file=None, user_cwd=None):
     """
     Create a version of the config file with absolute paths.
     Returns the path to the temporary config file or None if failed.
@@ -93,8 +93,12 @@ def create_absolute_paths_config(config_file, log_file=None):
                 if key in config_data and config_data[key]:
                     value = config_data[key]
                     if isinstance(value, str) and value.strip() and not os.path.isabs(value):
+                        if key == 'wdir' and user_cwd:
+                            # For wdir, use user's current directory instead of racoon_clip_dir
+                            config_data[key] = os.path.join(user_cwd, value.lstrip('./'))
+                            print(f"Converted {key}: {value} -> {config_data[key]}")
                         # Handle space-separated file lists
-                        if ' ' in value:
+                        elif ' ' in value:
                             files = [os.path.join(racoon_clip_dir, f.lstrip('/')) if not os.path.isabs(f) else f for f in value.split()]
                             config_data[key] = ' '.join(files)
                             print(f"Converted {key}: {value} -> {config_data[key]}")
@@ -148,15 +152,17 @@ def create_absolute_paths_config(config_file, log_file=None):
 def test_peaks_execution(config_file, log_file=None, extra_args=None):
     """Test if racoon_clip peaks executes without errors."""
     
+    # Capture user's current working directory first
+    user_cwd = os.getcwd()
+    
     # First, create absolute paths version of config file
-    abs_config_file = create_absolute_paths_config(config_file, log_file)
+    abs_config_file = create_absolute_paths_config(config_file, log_file, user_cwd)
     if abs_config_file is None:
         print("Failed to create absolute paths config file")
         return False, None
     
-    # Set up working directory (same dir as the script for temp files)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    working_dir = script_dir
+    # Set up working directory (use current working directory for output files)
+    working_dir = os.getcwd()
     
     # Create a unique log name for racoon_clip
     racoon_log_name = f"racoon_clip_peaks_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
