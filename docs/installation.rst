@@ -3,21 +3,6 @@ Installation
 
 
 
-RECOMMENDED: use Docker Image
----------------------
-
-If your system has Docker, Singularity or Apptainer installed, it is recommended to use the racoon_clip Docker Image:
-
-.. code:: bash
-
-   docker pull melinak/racoon_clip:latest
-   or
-   apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
-   or
-   singularity pull racoon_clip.sif docker://melinak/racoon_clip:latest
-
-
-
 Install from GitHub
 ---------------------
 
@@ -36,8 +21,12 @@ It is recommended to install racoon_clip in a fresh conda/mamba environment. You
 
 .. code:: bash
   
-   conda install -n base --override-channels -c conda-forge mamba=1 'python_abi=*=*cp*'
-   conda create -n racoon_clip python=3.9.0 pip=25.0
+   conda create -n racoon_clip \
+  --override-channels -c conda-forge \
+  mamba=1 \
+  'python_abi=*=*cp*' \
+  python=3.9.0 \
+  pip=25.0
    conda activate racoon_clip
 
 
@@ -60,6 +49,20 @@ Then install racoon with pip.
    # (It should be somewhere like /anaconda/envs/racoon_clip/.)
 
    /anaconda/envs/racoon_clip/bin/pip install -e .
+
+
+Use Docker Image
+---------------------
+
+If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
+
+.. code:: bash
+
+   docker pull melinak/racoon_clip:latest
+   or
+   apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
+
+
 
 You can now check the installation by running the help option and then :ref:`quickstart <tutorial>` your analysis.
 
