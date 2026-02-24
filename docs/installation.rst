@@ -85,6 +85,7 @@ This runs the complete test suite including:
 
 Use Docker Image
 ---------------------
+.. _tutorial_container:
 
 If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
 
@@ -94,6 +95,7 @@ If your system has Docker or Apptainer installed, you can also use the racoon_cl
    or
    apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
 
-We provide also provide a quick explanation on how to :ref:`use racoon_clip inside a container <tutorial_container>`.
+We also provide a quick explanation on how to :ref:`use racoon_clip inside a container <tutorial_container>`.
+
 
 
