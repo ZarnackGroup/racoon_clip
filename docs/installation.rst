@@ -51,29 +51,16 @@ Then install racoon with pip.
    /anaconda/envs/racoon_clip/bin/pip install -e .
 
 
-Use Docker Image
----------------------
 
-If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
-
-.. code:: bash
-
-   docker pull melinak/racoon_clip:latest
-   or
-   apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
-
-
-
+Check Installation with Tests
+-----------------------------
 You can now check the installation by running the help option and then :ref:`quickstart <tutorial>` your analysis.
 
 .. code:: bash
 
    racoon_clip -h
 
-Check Installation with Tests
------------------------------
-
-racoon_clip provides built-in test commands to verify your installation:
+Furthermore, racoon_clip provides built-in test commands to verify your installation:
 
 **Light Test (Quick verification):**
 
@@ -96,5 +83,17 @@ This runs the complete test suite including:
 
 
 
+Use Docker Image
+---------------------
+
+If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
+
+.. code:: bash
+
+   docker pull melinak/racoon_clip:latest
+   or
+   apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
+
+We provide also provide a quick explanation on how to :ref:`use racoon_clip inside a container <tutorial_container>`.
 
 
