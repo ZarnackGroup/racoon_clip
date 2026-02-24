@@ -36,34 +36,29 @@ Start a racoon_clip container that mounts the racoon_clip_bindmount folder
         -v /path/to/racoon_clip_bindmount:/racoon_clip_bindmount \
         <racoon_clip_image>
 
-Note
-----
+.. Note::
 
-The ``-v`` flag in Docker or ``--bind`` in Apptainer performs the
-binding of a mounted directory. The syntax is::
+    The ``-v`` flag in Docker or ``--bind`` in Apptainer performs the
+    binding of a mounted directory. The syntax is:: ``folder/on/your/system:/folder/in/the/container``
 
-    folder/on/your/system:/folder/in/the/container
 
-If using a different version of ``racoon_clip`` than ``v.2.0.11`` as
-used here, adjust the name of the folder in the container to the
-correct version number.
 
-2. Check that ``racoon_clip`` works
+Check that ``racoon_clip`` works
 -----------------------------------
 
-a. Get the version number.
+Get the version number.
 
-In this protocol, we are using version ``v.2.0.11``::
+.. code:: commandline
 
     racoon_clip --version
 
-(Optional) Test ``racoon_clip``
+Test racoon_clip
+
+.. code:: commandline 
+
+    racoon_clip test --light
 
 This runs a quick test including basic functionality checks and should
-output the message::
+output the message: "All tests passed successfully!"
 
-    All tests passed successfully
 
-If not, see the troubleshooting section below::
-
-    racoon_clip test
