@@ -20,7 +20,7 @@ Pull a container image of racoon_clip
     docker pull <racoon_clip_image>
 
 
-Make folders for bind mounts.
+Make folders for bind mounts
 -----------------------------------
 These are the folders that will be bound to the container and pass all
 inputs and outputs between your system and the container
