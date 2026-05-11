@@ -306,7 +306,7 @@ cat(paste("No groups specified. We will combine all samples for you."))
 name_raw_fasta <- strsplit(as.character(config["infiles",]), "/") %>% unlist(.)
 l <- length(name_raw_fasta)
 name_raw_fasta <- name_raw_fasta[[l]] %>% unlist(.)
-name_raw_fasta <- gsub(".fastq.gz","", as.character(name_raw_fasta), fixed = T)  %>% unlist(.) %>% .[1]
+name_raw_fasta <- gsub("\\.fastq(\\.gz)?$", "", as.character(name_raw_fasta))  %>% unlist(.) %>% .[1]
 
 # Read FastQC data
 fastqc_data_file <- paste0(dir,"/results/fastqc/raw/", name_raw_fasta, "_fastqc/fastqc_data.txt")
@@ -388,7 +388,7 @@ Initial quality control of the raw sequencing file is performed with FastQC. Her
 name_raw_fasta <- strsplit(as.character(config["infiles",]), "/") %>% unlist(.)
 l <- length(name_raw_fasta)
 name_raw_fasta <- name_raw_fasta[[l]] %>% unlist(.)
-name_raw_fasta <- gsub(".fastq.gz","", as.character(name_raw_fasta), fixed = T)  %>% unlist(.) %>% .[1]
+name_raw_fasta <- gsub("\\.fastq(\\.gz)?$", "", as.character(name_raw_fasta))  %>% unlist(.) %>% .[1]
 
 # images
 include_graphics(paste0(dir,"/results/fastqc/raw/", name_raw_fasta, "_fastqc/Images/per_base_quality.png"))
