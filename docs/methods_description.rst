@@ -4,9 +4,13 @@ Detailed description of steps performed by racoon_clip
 .. contents::   
     :depth: 2
 
-Quality filtering 
+Quality control 
 ^^^^^^^^^^^^^^^^^^
-Sequencing reads are filtered for a Phred score >= 10 inside the unique molecular identifier (UMI) at positions 1-10 of each read to ensure reliable sample and duplicate assignment. The cutoff can be changed by specifying another value by the racoon_clip *minBaseQuality* option.
+Basic quality controls are performed several times throughout the workflow using FastQC (v0.12.1), MultiQC (v.1.31). Optionally, FastQ Screen (v0.15.3) can run using a custom FastQ Screen config file.
+
+Quality filtering (Optional)
+^^^^^^^^^^^^^^^^^^
+Sequencing reads can be filtered for a Phred score >= 10 inside the unique molecular identifier (UMI) at positions 1-10 of each read to ensure reliable sample and duplicate assignment. The cutoff can be changed by specifying another value by the racoon_clip *minBaseQuality* option.
 
 Demultiplexing, UMI & Adapter trimming
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -18,9 +22,9 @@ If demultiplexing is turned on, this is done with the FLEXBAR via the provided b
 
 At the same time, UMIs (and barcodes, if present) are trimmed from the 5’ end of the reads and stored in the read names using FLEXBAR options ``--umi-tags --barcode-trim-end LTAIL``. 
 
-For iCLIP3, or when the parameter --trim3 True is used, a number of nucleotides is trimmed of the 3'end of the reads (default 3). This is necessary for iCLIP3, which uses a second 3nt long UMI at the 3' end.
+For iCLIP3, or when the parameter **trim3** True is used, a number of nucleotides is trimmed of the 3'end of the reads (default 3) with FLEXBAR  ``--zip-output GZ -y 3 --min-read-length 15``. This is necessary for iCLIP3, which uses a second 3nt-long UMI at the 3' end.
 
-Reads that are shorter than 15 nt after trimming are discarded using the FLEXBAR option ``--min-read-length 15``. The cutoff can be changed by specifying another value by the racoon_clip *flexbar_minReadLength* option.
+Reads that are shorter than 15 nt after trimming are discarded using the FLEXBAR option ``--min-read-length 15``. The cutoff can be changed by specifying another value with the racoon_clip *flexbar_minReadLength* option.
 
 See also: `FLEXBAR—Flexible Barcode and Adapter Processing for Next-Generation Sequencing Platforms <https://www.mdpi.com/2079-7737/1/3/895>`_. 
 
