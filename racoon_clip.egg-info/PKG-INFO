@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: racoon_clip
-Version: 2.0.13
+Version: 2.0.14
 Summary: Snakemake-powered command-line tool to obtain single-nucleotide crosslinks from i/eCLIP data.
 Home-page: 
 Author: Melina Klostermann
