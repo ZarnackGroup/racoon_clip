@@ -81,75 +81,80 @@ else:
 print("samples")
 print(SAMPLES_FULL)
 
-# Auto-generate sample names from file paths, or use config if specified
-if "samples" in config and config["samples"]:
-    # Use user-specified sample names
-    SAMPLES = config["samples"].split()
-    
-    # Auto-generate sample names to compare against user-specified names
-    auto_generated_samples = []
-    for file_path in SAMPLES_FULL:
-        # Extract filename without directory and extensions
-        basename = os.path.basename(file_path)
-        # Remove common file extensions
-        sample_name = basename
-        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
-            if sample_name.endswith(ext):
-                sample_name = sample_name[:-len(ext)]
-                break
-        auto_generated_samples.append(sample_name)
-    
+# Compute DEMUX early so we can skip file-name validation for multiplexed input
+DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
+
+if DEMUX:
+    # Multiplexed input: one file contains all samples; sample names are the
+    # post-demultiplexing names specified by the user, not file basenames.
+    if "samples" in config and config["samples"]:
+        SAMPLES = config["samples"].split()
+    else:
+        raise ValueError(
+            "ERROR: 'samples' must be specified in the config when demultiplex=True."
+            "List the expected sample names that match the headers in your barcodes_fasta."
+        )
+    # No per-sample file mapping for multiplexed input
+    SAMPLE_TO_FILE = {}
+    _name_to_file = {}
+    print("Multiplexed mode — sample names (post-demux):")
+    print(SAMPLES)
 else:
-    # Auto-generate sample names from file paths
-    SAMPLES = []
+    # Non-multiplexed input: each sample has its own input file.
+    # Build a name->file mapping (order-independent) and validate.
+    _name_to_file = {}
     for file_path in SAMPLES_FULL:
-        # Extract filename without directory and extensions
         basename = os.path.basename(file_path)
-        # Remove common file extensions
         sample_name = basename
         for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
             if sample_name.endswith(ext):
                 sample_name = sample_name[:-len(ext)]
                 break
-        SAMPLES.append(sample_name)
-    
-    print("INFO: Auto-generated sample names from input files:")
-    for file_path, sample_name in zip(SAMPLES_FULL, SAMPLES):
-        print(f"  {file_path} -> {sample_name}")
+        _name_to_file[sample_name] = file_path
 
-print("Final samples:")
-print(SAMPLES)
+    if "samples" in config and config["samples"]:
+        SAMPLES = config["samples"].split()
+    else:
+        SAMPLES = list(_name_to_file.keys())
+        print("INFO: Auto-generated sample names from input files:")
+        for sample_name, file_path in _name_to_file.items():
+            print(f"  {file_path} -> {sample_name}")
 
-# Create mapping from sample names to full file paths
-SAMPLE_TO_FILE = dict(zip(SAMPLES, SAMPLES_FULL))
-print("Sample to file mapping:")
-for sample, file_path in SAMPLE_TO_FILE.items():
-    print(f"  {sample} -> {file_path}")
+    print("Final samples:")
+    print(SAMPLES)
+
+    # Catch unknown sample names immediately with a clear error
+    missing = [s for s in SAMPLES if s not in _name_to_file]
+    if missing:
+        raise ValueError(
+            f"ERROR: The following sample names from config 'samples' have no matching input file:\n"
+            + "\n".join(f"  '{s}'" for s in missing)
+            + f"\n  Available names (from input files): {sorted(_name_to_file.keys())}"
+        )
+    SAMPLE_TO_FILE = {sample: _name_to_file[sample] for sample in SAMPLES}
+
+    # Sanity check: each sample name must match the basename of its mapped file
+    for sample, file_path in SAMPLE_TO_FILE.items():
+        basename = os.path.basename(file_path)
+        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
+            if basename.endswith(ext):
+                basename = basename[:-len(ext)]
+                break
+        if sample != basename:
+            raise ValueError(
+                f"ERROR: Sample name '{sample}' does not match the basename of its assigned file.\n"
+                f"  Assigned file : {file_path}\n"
+                f"  Expected name : '{basename}'\n"
+                f"  This means a sample name is mapped to the wrong file. "
+                f"Ensure that sample names in 'samples' match the basenames of the input files exactly."
+            )
+
+    print("Sample to file mapping:")
+    for sample, file_path in SAMPLE_TO_FILE.items():
+        print(f"  {sample} -> {file_path}")
 
 # Keep INPATH for backward compatibility (assumes files in same directory)
 INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
-DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
-
-# Validate sample names against file names if samples were user-specified and demux is False
-if "samples" in config and config["samples"] and DEMUX == False:
-    # Re-create auto_generated_samples for validation
-    auto_generated_samples = []
-    for file_path in SAMPLES_FULL:
-        basename = os.path.basename(file_path)
-        sample_name = basename
-        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
-            if sample_name.endswith(ext):
-                sample_name = sample_name[:-len(ext)]
-                break
-        auto_generated_samples.append(sample_name)
-    
-    # Verify that user-specified names match auto-generated names
-    if set(SAMPLES) != set(auto_generated_samples):
-        raise ValueError("User-specified sample names do not match auto-generated names from file paths.")
-        print("Auto-generated names:", auto_generated_samples)
-        print("User-specified names:", SAMPLES)
-        raise ValueError("Sample names must match the base names of the input files (without path and extensions)")
-
 QUAL_BC=(config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
 #ENCODE=config["encode"] == "True"
@@ -846,40 +851,54 @@ rule process_headers_demux:
 ###-----------------------------------------
 # Adaptor trimming for non multiplexed files
 
+# Returns the shared barcodes FASTA as a Snakemake input when one is provided,
+# or an empty list when no barcode file is configured (UMI-only experiments).
+def get_barcode_source(wildcards):
+    if config["barcodes_fasta"]:
+        return config["barcodes_fasta"]
+    return []
 
-rule write_barcode_file:
-    input: 
-    output: 
-        chkpnt = touch(config["wdir"]+"/results/tmp/.barcode.chkpnt"),
-        barcode = config["wdir"]+"/results/demultiplex/barcode.fa"
+
+rule write_sample_barcode_file:
+# Creates a per-sample barcode FASTA containing only the barcode for that sample.
+# This allows flexbar to be run independently per sample, which correctly handles
+# cases where barcodes are not unique across samples.
+# When a barcodes_fasta is provided it is taken as a proper Snakemake input so
+# the dependency is tracked; when absent the old N-only barcode generation is used.
+    input:
+        barcode_source = get_barcode_source
+    output:
+        barcode = config["wdir"]+"/results/demultiplex/barcode_{sample}.fa"
     params:
         dir = expand("{wdir}/results/demultiplex/", wdir=WDIR),
-        barcode=config["barcodes_fasta"],
-        barcodeLength=get_barcode_experiment_info()["total_barcode_len"],
-        sample=SAMPLES,
-        dir_script= SNAKE_PATH
-    message: 
-        "========================= \n Initialise barcodes + UMIs \n ================================ \n" 
- # Explanation: for encode data or data without bacrode and UMI no barcode file is needed. In both cases do nothing.
- #  if barcodes exist the user should specify them in a fa file. In this case copy the user input barcode fiel to the right location.
- # If there is only a UMI but no barcode, write a barcode file consisting of Ns in the length of the UMI
+        barcodeLength = get_barcode_experiment_info()["total_barcode_len"],
+        dir_script = SNAKE_PATH
+    message:
+        "========================= \n Writing per-sample barcode file for {wildcards.sample} \n ================================ \n"
     shell:
         """
-        if [[ "{params.barcodeLength}" == 0 ]]
-        then
+        mkdir -p {params.dir}
+        if [[ "{params.barcodeLength}" == 0 ]]; then
             touch {output.barcode}
+        elif [[ -z "{input.barcode_source}" ]]; then
+            # No barcode file provided: write a UMI-only barcode (all Ns) named after the sample
+            chmod +x {params.dir_script}/workflow/scripts/rep_char.sh
+            bc=`{params.dir_script}/workflow/scripts/rep_char.sh {params.barcodeLength} "N"`
+            printf ">%s\n%s\n" "{wildcards.sample}" "$bc" > {output.barcode}
         else
-            mkdir -p {params.dir} && \
-            chmod -R +x {params.dir} && \
-            cd {params.dir} && \
-            bc_file={params.barcode} && \
-            if [[ -z "$bc_file" ]] 
-            then
-                chmod +x {params.dir_script}/workflow/scripts/rep_char.sh
-                bc=`{params.dir_script}/workflow/scripts/rep_char.sh {params.barcodeLength} "N"`
-                printf ">"bc"\n $bc \n"  >> "{output.barcode}"
-            else 
-                cp {params.barcode} {output.barcode}
+            # Barcode file provided: extract only this sample's entry
+            awk -v sample="{wildcards.sample}" '
+                /^>/ {{
+                    split(substr($0,2), parts, " ")
+                    found = (parts[1] == sample)
+                    if (found) print
+                    next
+                }}
+                found {{ print }}
+            ' {input.barcode_source} > {output.barcode}
+            if [[ ! -s {output.barcode} ]]; then
+                echo "ERROR: No barcode entry found for sample '{wildcards.sample}' in {input.barcode_source}" >&2
+                exit 1
             fi
         fi
         """
@@ -889,9 +908,11 @@ rule write_barcode_file:
 rule adapter_trimming_flexbar_single_end:
 # uses flexbar to cut of adapters on the right
 # and UMIs on the left, for Encode data other solution needed because UMI not in anymore!
+# Each sample uses its own per-sample barcode file so non-unique barcodes across
+# samples are handled correctly.
     input:
         fasta = get_files_for_trim_SE,
-        chkpnt_barcode = config["wdir"]+"/results/tmp/.barcode.chkpnt"
+        barcode = config["wdir"]+"/results/demultiplex/barcode_{sample}.fa"
         
     output:
          file= config["wdir"]+"/results/demultiplex/trimmed_{sample}.fastq.gz"
@@ -903,19 +924,18 @@ rule adapter_trimming_flexbar_single_end:
         barcodeLength=get_barcode_experiment_info()["total_barcode_len"],
         sample="{sample}",
         adapterCycles=config["adapter_cycles"],
-        barcode = config["wdir"]+"/results/demultiplex/barcode.fa",
     threads: workflow.cores  # allows
     conda:
         "envs/racoon_main_v0.4.yml"
     message: 
-        "========================= \n Adapter trimming for {wildcards.sample} \n ================================ \n barcodes and UMIs are also trimmed off, if present \n provided barcodes: {params.barcode} \n provided adapters: {params.adapter}"  
+        "========================= \n Adapter trimming for {wildcards.sample} \n ================================ \n barcodes and UMIs are also trimmed off, if present \n provided barcodes: {input.barcode} \n provided adapters: {params.adapter}"  
     shell:
         """
         if [[ "{params.barcodeLength}" != 0 ]]; then
             flexbar -r {input.fasta} \
             --zip-output GZ \
             --threads {threads} \
-            --barcodes {params.barcode} \
+            --barcodes {input.barcode} \
             --barcode-unassigned \
             --barcode-trim-end LTAIL \
             --barcode-error-rate 0 \
@@ -927,12 +947,10 @@ rule adapter_trimming_flexbar_single_end:
             --min-read-length {params.minReadLength} \
             --umi-tags \
             -t {params.filename} && \
-            cd {params.dir} 
+            cd {params.dir}
+            # With a per-sample barcode file the matching output is always named after the sample
             if [[ -f "trimmed_{params.sample}_barcode_{params.sample}.fastq.gz" ]]; then
-                mv "trimmed_{params.sample}_barcode_{params.sample}.fastq.gz" "trimmed_{params.sample}.fastq.gz" 
-            fi
-            if [[ -f "trimmed_{params.sample}_barcode_bc.fastq.gz" ]]; then
-                mv "trimmed_{params.sample}_barcode_bc.fastq.gz" "trimmed_{params.sample}.fastq.gz" 
+                mv "trimmed_{params.sample}_barcode_{params.sample}.fastq.gz" "trimmed_{params.sample}.fastq.gz"
             fi
         else
             flexbar -r {input.fasta} \
