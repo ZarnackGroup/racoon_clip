@@ -30,3 +30,5 @@ logs/*
 Dockerfile.old
 Log.out
 *Report.html
+*.gtf
+*.fa

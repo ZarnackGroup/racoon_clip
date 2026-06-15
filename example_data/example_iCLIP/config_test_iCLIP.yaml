@@ -6,7 +6,7 @@ infiles: "example_data/example_iCLIP/test_iCLIP_s1.chr21.fastq example_data/exam
 
 
 #SAMPLES
-samples: "test_iCLIP_s1.chr21 test_iCLIP_s2.chr21" # sample name needs to be identical for read 1 and 2 of same sample
+samples: "test_iCLIP_s2.chr21 test_iCLIP_s1.chr21" # sample name needs to be identical for read 1 and 2 of same sample
 
 
 experiment_type: "iCLIP2"

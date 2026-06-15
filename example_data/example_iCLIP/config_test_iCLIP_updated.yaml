@@ -29,7 +29,7 @@ outReadsUnmapped: Fastx
 outSJfilterReads: Unique
 quality_filter_barcodes: 'True'
 read_length: 45
-samples: test_iCLIP_s1.chr21 test_iCLIP_s2.chr21
+samples: test_iCLIP_s2.chr21 test_iCLIP_s1.chr21
 seq_format: -Q33
 snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
 star_index: ''
