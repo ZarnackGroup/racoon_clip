@@ -17,7 +17,7 @@ You can get the link to the zip file of the newest version from `the GitHub rele
 
 
 
-It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example install the prerequisites with conda:
+It is recommended to install racoon_clip in a fresh conda/mamba environment. You can install the prerequisites with conda:
 
 .. code:: bash
   
@@ -30,13 +30,14 @@ It is recommended to install racoon_clip in a fresh conda/mamba environment. You
    conda activate racoon_clip
 
 
-or if you already have mamba installed:
+or if you have mamba (version 1) installed:
 
 .. code:: bash
 
    mamba create -n racoon_clip python=3.9.0 pip=25.0
    mamba activate racoon_clip
 
+**Note:** Mamba versions >1 have compatibility issues with snkaemake. If you have a mamba version >1 installed, use the conda create command from above; this will make this specific conda environment use mamba version 1.
 
 Then install racoon with pip.
 
@@ -68,7 +69,7 @@ Furthermore, racoon_clip provides built-in test commands to verify your installa
 
    racoon_clip test --light
 
-This runs a quick test doing basic functionality checks
+This runs a quick test, doing basic functionality checks
 
 **Full Test (Comprehensive verification):**
 
