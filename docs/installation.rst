@@ -37,7 +37,7 @@ or if you have mamba (version 1) installed:
    mamba create -n racoon_clip python=3.9.0 pip=25.0
    mamba activate racoon_clip
 
-**Note:** Mamba versions >1 have compatibility issues with snkaemake. If you have a mamba version >1 installed, use the conda create command from above; this will make this specific conda environment use mamba version 1.
+**Note:** Mamba versions >1 have compatibility issues with snakemake. If you have a mamba version >1 installed, use the conda create command from above; this will make this specific conda environment use mamba version 1.
 
 Then install racoon with pip.
 
