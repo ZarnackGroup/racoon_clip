@@ -82,6 +82,8 @@ This runs the complete test suite including:
 - All tests from the light test
 - Full workflow execution tests with example data
 
+**Note:** Errors stating problems with "libmamba" usually point to mamba either being not installed or being installed with a version >1.
+
 
 
 Use Docker Image
