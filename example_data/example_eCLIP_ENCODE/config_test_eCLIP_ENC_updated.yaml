@@ -1,5 +1,5 @@
 adapter_cycles: 2
-adapter_file: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow/params.dir/adapter.fa
+adapter_file: /home/mek24iv/developement/racoon_devel/racoon_clip/racoon_clip/workflow/params.dir/adapter.fa
 adapter_trimming: true
 barcodeLength: 0
 barcodes_fasta: ''
@@ -31,7 +31,7 @@ quality_filter_barcodes: false
 read_length: 45
 samples: test_eCLIP_ENC_s1.chr21 test_eCLIP_ENC_s2.chr21
 seq_format: -Q33
-snakebase: /home/mek24iv/racoon_devel/racoon_clip/racoon_clip/workflow
+snakebase: /home/mek24iv/developement/racoon_devel/racoon_clip/racoon_clip/workflow
 star_index: ''
 total_barcode_len: 0
 trim3: 'False'
