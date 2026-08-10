@@ -21,10 +21,9 @@ tests/test_dag/old/*
 tests/.test/*
 tests/expected_output/*/results/*
 example_data/*/*_absolute_paths.yaml
-example_data/*/*_absolute_paths*.yaml
+example_data/*/*_updated.yaml
 tests/report_test/*/results/*
 tests/report_test/inputs_for_report_test/*/*_absolute_paths.yaml
-example_data/
 logs/*
 *.log
 Dockerfile.old
@@ -32,5 +31,8 @@ Log.out
 *Report.html
 *.gtf
 *.fa
-/home/mek24iv/development/racoon_devel/racoon_clip/example_data/example_mir_eCLIP/get_example_seqs.sh
-/home/mek24iv/development/racoon_devel/racoon_clip/example_data/example_annotation_mouse_chr19/make_example_annotation.sh
+example_data/example_mir_eCLIP/get_example_seqs.sh
+example_data/example_annotation_mouse_chr19/make_example_annotation.sh
+example_data/example_annotation_*/*_idx/*
+example_data/example_annotation_*/*idx.chpnt
+example_data/example_fastqscreen/*_absolute_paths.config
