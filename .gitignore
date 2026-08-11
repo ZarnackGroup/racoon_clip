@@ -36,3 +36,4 @@ example_data/example_annotation_mouse_chr19/make_example_annotation.sh
 example_data/example_annotation_*/*_idx/*
 example_data/example_annotation_*/*idx.chpnt
 example_data/example_fastqscreen/*_absolute_paths.config
+.devcontainer/*
