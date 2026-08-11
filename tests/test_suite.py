@@ -81,7 +81,8 @@ class RacoonTestSuite:
             "example_data/example_iCLIP/config_test_iCLIP.yaml",
             ("example_data/example_iCLIP_multiplexed/"
              "config_test_iCLIP_multiplexed.yaml"),
-            "example_data/example_iCLIP3/config_test_iCLIP3.yaml"
+            "example_data/example_iCLIP3/config_test_iCLIP3.yaml",
+            "example_data/example_mir_eCLIP/config_test_mir_eCLIP.yaml"
         ]
 
     def run_command(self, cmd: List[str],
@@ -425,7 +426,11 @@ class RacoonTestSuite:
             ("example_data/example_iCLIP3/"
              "config_test_iCLIP3_updated.yaml",
              "tests/expected_output/out_iCLIP3/"
-             "config_test_iCLIP3_expected.yaml")
+             "config_test_iCLIP3_expected.yaml"),
+            ("example_data/example_mir_eCLIP/"
+             "config_test_mir_eCLIP_updated.yaml",
+             "tests/expected_output/out_mir_eCLIP/"
+             "config_test_mir_eCLIP_expected.yaml")
         ]
         
         passed = 0

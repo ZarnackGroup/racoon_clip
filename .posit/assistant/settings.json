@@ -1,0 +1,10 @@
+{
+  "sandbox": {
+    "enabled": false
+  },
+  "permission": {
+    "edit": {
+      "*.yaml": "allow"
+    }
+  }
+}
