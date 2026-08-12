@@ -39,4 +39,5 @@ example_data/example_annotation_*/*idx.chpnt
 example_data/example_fastqscreen/*_absolute_paths.config
 .devcontainer/*
 example_data/*/*.fai
+test/*
 

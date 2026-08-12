@@ -1934,8 +1934,8 @@ rule split_by_miR_alignment:
         "envs/racoon_samtools.yml"
     shell:
         """
-        # sam flags: 0 == aligned, 4 == not aligned
-        samtools view -f 0 -b {input.miR_sam} > {output.chimeric} && \
+        # Exclude records carrying the SAM unmapped flag (0x4).
+        samtools view -F 4 -b {input.miR_sam} > {output.chimeric} && \
         samtools view -f 4 {input.miR_sam} | awk -v FS='\t' -v OFS='\t' '{{ print $1 > "{params.filename_non_chimeric}/{wildcards.sample}.alignMir.non_chimeric.list" }}' 
         """
 
@@ -2378,4 +2378,3 @@ if MIR == True:
             """
             $CONDA_PREFIX/lib/R/bin/Rscript {params.snake_path}/workflow/rules/make_report_mir.R {params.wdir} {params.snake_path} "$CONDA_PREFIX" {params.config}
             """
-

@@ -164,7 +164,7 @@ The short reads are then aligned to the miR annotation using bowtie2 with the fo
 
 ## Obtaining separate fastq files of chimeric and non-chimeric reads
 
-The reads in the obtained .sam file are then split into chimeric reads and non-chimeric reads by the sam-FLAG with samtools view -f 0 for chimeric reads and samtools view -f 4 for non-chimeric (unaligned) reads. 
+The reads in the obtained .sam file are then split into chimeric and non-chimeric reads using the SAM flag: `samtools view -F 4` excludes unmapped reads and retains the chimeric reads aligned to the miRNA annotation, while `samtools view -f 4` retains the non-chimeric (unaligned) reads.
 
 The read IDs of the unaligned reads are used to extract the non-chimeric reads from the quality filtered and trimmed fastq files with seqkit grep -n. The fastq files of the non-chimeric reads are then sorted with seqkit sort -n and afterwards aligned to the genome annotation as described in the main report.
 
