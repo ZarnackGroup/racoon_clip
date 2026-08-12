@@ -51,7 +51,7 @@ Here is an example config file:
     
     # Chimeric miR
     mir_genome_fasta: "path/to/miR-genome.fasta" # for example from miRbase
-    mir_starts_allowed: "0 1 2 3 4"
+    mir_starts_allowed: "1 2 3 4"
 
 
 What are the output files?
