@@ -13,11 +13,11 @@ set -euo pipefail
 # example_data/example_mir_eCLIP/), regardless of the directory this
 # script is submitted/run from, so the resulting fasta sits alongside
 # the example mir-eCLIP fastq files it is used with.
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="/home/mek24iv/development/racoon_devel/racoon_clip/example_data/example_mir_eCLIP"
 
-wget -O "${script_dir}/mature.fa" https://mirbase.org/download_version_files/21/mature.fa
-
+wget -O "${script_dir}/mature_mirs.fa" https://mirbase.org/download_version_files/21/mature.fa
+chmod +x "${script_dir}/mature_mirs.fa"
 # Keep only mouse (mmu-) entries, matching the mouse chr19 annotation
 # used in the example config.
-awk '/^>/{keep=($0 ~ /^>mmu-/)} keep' "${script_dir}/mature.fa" \
+awk '/^>/{keep=($0 ~ /^>mmu-/)} keep' "${script_dir}/mature_mirs.fa" \
   > "${script_dir}/mirBase_mm10_miRNAs_mature_sequence_genes.fasta"

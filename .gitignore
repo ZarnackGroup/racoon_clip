@@ -20,10 +20,11 @@ tests/test_installation_from_git/.test/*
 tests/test_dag/old/*
 tests/.test/*
 tests/expected_output/*/results/*
-example_data/*/*_absolute_paths.yaml
+example_data/*/*_absolute_paths*.yaml
 example_data/*/*_updated.yaml
+tests/expected_output/*/*_absolute_paths*.yaml
 tests/report_test/*/results/*
-tests/report_test/inputs_for_report_test/*/*_absolute_paths.yaml
+tests/report_test/inputs_for_report_test/*/*_absolute_paths*.yaml
 logs/*
 *.log
 Dockerfile.old
@@ -37,3 +38,5 @@ example_data/example_annotation_*/*_idx/*
 example_data/example_annotation_*/*idx.chpnt
 example_data/example_fastqscreen/*_absolute_paths.config
 .devcontainer/*
+example_data/*/*.fai
+

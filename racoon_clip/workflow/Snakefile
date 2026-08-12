@@ -2127,8 +2127,8 @@ rule merge_trimmed:
 rule align_chimeric:
     input:
         reads=config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz",
-        index_chkpnt= re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx.chpnt",
-        index=re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx" 
+        index_chkpnt=get_star_index_chpnt(),
+        index=get_star_index()
     output:
         bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam"
     params:
@@ -2287,8 +2287,8 @@ rule get_crosslinks_chimeric:
 
 rule turn_chimeric_crosslinks_to_bw:
     input:
-        bed_shift_for_bw_p=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.for_bw.plus.bed.bed",
-        bed_shift_for_bw_m=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.for_bw.minus.bed.bed",
+        bed_shift_for_bw_p=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.for_bw.plus.bed",
+        bed_shift_for_bw_m=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.for_bw.minus.bed",
     output:
         bw_minus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw",
         bw_plus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.plus.bw",
@@ -2324,7 +2324,7 @@ checkpoint merge_crosslink_bw_chimeric:
         genome_fasta=config["genome_fasta"],
         wdir=config["wdir"]
     conda:
-        "envs/racoon_ucsc_v0.4.yml"
+        "envs/racoon_ucsc_v0.3.yml"
     shell:
         """
         ### merge plus files per group
@@ -2352,22 +2352,30 @@ checkpoint merge_crosslink_bw_chimeric:
 
 # .. report miRs
 
-rule make_report_miR:
-    input:
-        chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/chimeric_bowtie_stats.txt",
-        non_chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/non_chimeric_bowtie_stats.txt"
-    output:
-        config["wdir"]+"/results/Report_miR.html"
-    params:
-        wdir=config["wdir"],
-        config= config,
-        snake_path= SNAKE_PATH
-    conda:
-        "envs/racoon_R_v0.4.yml"
-    shell:
-        """
-        $CONDA_PREFIX/lib/R/bin/Rscript {params.snake_path}/workflow/rules/make_report_mir.R {params.wdir} {params.snake_path} "$CONDA_PREFIX" {params.config}
-        """
-
-
+if MIR == True:
+    rule make_report_miR:
+        input:
+            chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/chimeric_bowtie_stats.txt",
+            non_chimeric_stats = config["wdir"]+"/results/mir_analysis/aligned_mir/non_chimeric_bowtie_stats.txt",
+            qc_stats = config["wdir"]+"/results/tmp/.fastqc_stats_chkpnt",
+            dedup_logs = expand(
+                config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.log",
+                sample=SAMPLES
+            ),
+            crosslink_bws = expand(
+                config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw",
+                sample=SAMPLES
+            )
+        output:
+            config["wdir"]+"/results/Report_miR.html"
+        params:
+            wdir=config["wdir"],
+            config= config,
+            snake_path= SNAKE_PATH
+        conda:
+            "envs/racoon_R_miRmodule_v0.2.yml"
+        shell:
+            """
+            $CONDA_PREFIX/lib/R/bin/Rscript {params.snake_path}/workflow/rules/make_report_mir.R {params.wdir} {params.snake_path} "$CONDA_PREFIX" {params.config}
+            """
 

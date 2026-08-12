@@ -56,7 +56,7 @@ def show_config_differences(original_config, temp_config, log_file=None):
                 log_f.write(error_msg + "\n")
 
 
-def create_absolute_paths_config(config_file, log_file=None, user_cwd=None):
+def create_absolute_paths_config(config_file, log_file=None, user_cwd=None, verbose=False):
     """
     Create a version of the config file with absolute paths.
     Returns the path to the temporary config file or None if failed.
@@ -66,21 +66,20 @@ def create_absolute_paths_config(config_file, log_file=None, user_cwd=None):
         tests_dir = os.path.dirname(script_dir)  # Go up from test_peaks to tests
         racoon_clip_dir = os.path.dirname(tests_dir)  # Go up from tests to racoon_clip
         
-        print(f"Script directory: {script_dir}")
-        print(f"Tests directory: {tests_dir}")
-        print(f"Racoon_clip directory: {racoon_clip_dir}")
+        if verbose:
+            print(f"Script directory: {script_dir}")
+            print(f"Tests directory: {tests_dir}")
+            print(f"Racoon_clip directory: {racoon_clip_dir}")
         
         # Generate output filename
         config_basename = os.path.splitext(os.path.basename(config_file))[0]
         abs_config_name = f"{config_basename}_absolute_paths.yaml"
         abs_config_path = os.path.join(os.path.dirname(config_file), abs_config_name)
         
-        # If absolute paths config already exists, use it
-        if os.path.exists(abs_config_path):
-            print(f"Absolute paths config already exists: {abs_config_path}")
-            return abs_config_path
-            
-        print(f"Creating absolute paths config: {abs_config_path}")
+        # Always (re)create the absolute-paths config to avoid using stale files
+        # from older runs (e.g. wrong root path typos).
+        if verbose:
+            print(f"Creating absolute paths config: {abs_config_path}")
         
         if YAML_AVAILABLE:
             # Read config file with PyYAML
@@ -88,7 +87,7 @@ def create_absolute_paths_config(config_file, log_file=None, user_cwd=None):
                 config_data = yaml.safe_load(f)
             
             # Convert relative paths to absolute paths
-            path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'star_index']
+            path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'mir_genome_fasta', 'star_index']
             for key in path_keys:
                 if key in config_data and config_data[key]:
                     value = config_data[key]
@@ -96,17 +95,20 @@ def create_absolute_paths_config(config_file, log_file=None, user_cwd=None):
                         if key == 'wdir' and user_cwd:
                             # For wdir, use user's current directory instead of racoon_clip_dir
                             config_data[key] = os.path.join(user_cwd, value.lstrip('./'))
-                            print(f"Converted {key}: {value} -> {config_data[key]}")
+                            if verbose:
+                                print(f"Converted {key}: {value} -> {config_data[key]}")
                         # Handle space-separated file lists
                         elif ' ' in value:
                             files = [os.path.join(racoon_clip_dir, f.lstrip('/')) if not os.path.isabs(f) else f for f in value.split()]
                             config_data[key] = ' '.join(files)
-                            print(f"Converted {key}: {value} -> {config_data[key]}")
+                            if verbose:
+                                print(f"Converted {key}: {value} -> {config_data[key]}")
                         else:
-                            # Single file
-                            abs_path = os.path.join(racoon_clip_dir, value.lstrip('/'))
+                            # Single file / pattern
+                            abs_path = os.path.abspath(os.path.join(racoon_clip_dir, value))
                             config_data[key] = abs_path
-                            print(f"Converted {key}: {value} -> {abs_path}")
+                            if verbose:
+                                print(f"Converted {key}: {value} -> {abs_path}")
             
             # Write the modified config
             with open(abs_config_path, 'w') as f:
@@ -115,28 +117,86 @@ def create_absolute_paths_config(config_file, log_file=None, user_cwd=None):
             # Fallback: text-based processing
             with open(config_file, 'r') as f:
                 lines = f.readlines()
-            
+
+            path_keys = [
+                'wdir:',
+                'infiles:',
+                'experiment_group_file:',
+                'barcodes_fasta:',
+                'adapter_file:',
+                'gtf:',
+                'genome_fasta:',
+                'mir_genome_fasta:',
+                'star_index:',
+            ]
+
             modified_lines = []
             for line in lines:
                 modified_line = line
-                # Look for common path keys
-                for key in ['wdir:', 'infiles:', 'experiment_group_file:', 'barcodes_fasta:', 'adapter_file:', 'gtf:', 'genome_fasta:', 'star_index:']:
+                for key in path_keys:
                     if line.strip().startswith(key):
                         parts = line.split(':', 1)
-                        if len(parts) == 2:
-                            value = parts[1].strip().strip('"').strip("'")
-                            if value and not os.path.isabs(value):
-                                abs_path = os.path.join(racoon_clip_dir, value.lstrip('/'))
-                                modified_line = f"{parts[0]}: {abs_path}\n"
-                                print(f"Converted {key} {value} -> {abs_path}")
+                        if len(parts) != 2:
+                            break
+
+                        value_and_comment = parts[1].rstrip('\n')
+                        value_part, comment_sep, comment_part = value_and_comment.partition('#')
+                        value_str = value_part.strip()
+
+                        if not value_str:
+                            break
+
+                        quote_char = ''
+                        if (
+                            len(value_str) >= 2
+                            and value_str[0] in ('"', "'")
+                            and value_str[-1] == value_str[0]
+                        ):
+                            quote_char = value_str[0]
+                            path_value = value_str[1:-1]
+                        else:
+                            path_value = value_str
+
+                        if key == 'wdir:' and user_cwd and not os.path.isabs(path_value):
+                            converted_path_value = os.path.abspath(
+                                os.path.join(user_cwd, path_value.lstrip('./'))
+                            )
+                        else:
+                            tokens = path_value.split()
+                            converted_tokens = []
+                            for token in tokens:
+                                if os.path.isabs(token):
+                                    converted_tokens.append(token)
+                                else:
+                                    converted_tokens.append(
+                                        os.path.abspath(os.path.join(racoon_clip_dir, token))
+                                    )
+                            converted_path_value = ' '.join(converted_tokens)
+
+                        if quote_char:
+                            converted_value_str = f"{quote_char}{converted_path_value}{quote_char}"
+                        else:
+                            converted_value_str = converted_path_value
+
+                        comment_suffix = ''
+                        if comment_sep:
+                            comment_suffix = f" {comment_sep}{comment_part}"
+
+                        modified_line = f"{parts[0]}: {converted_value_str}{comment_suffix}\n"
+                        if verbose:
+                            print(
+                                f"Converted {key} {path_value} -> {converted_path_value}"
+                            )
                         break
+
                 modified_lines.append(modified_line)
-            
+
             with open(abs_config_path, 'w') as f:
                 f.writelines(modified_lines)
         
-        # Show differences for debugging
-        show_config_differences(config_file, abs_config_path, log_file)
+        # Show differences for debugging only when requested
+        if verbose:
+            show_config_differences(config_file, abs_config_path, log_file)
         
         return abs_config_path
         

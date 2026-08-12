@@ -36,7 +36,7 @@ from test_crosslinks import test_run_execution
 
 # Import PEAKS testing functionality
 sys.path.append(str(Path(__file__).parent / "test_peaks"))
-from test_peaks import test_peaks_execution
+from test_peaks import test_peaks_execution, create_absolute_paths_config
 
 # Import FASTQSCREEN testing functionality
 sys.path.append(str(Path(__file__).parent / "test_fastqscreen"))
@@ -184,8 +184,29 @@ class RacoonTestSuite:
             print_error(f"Config file not found: {config_file}")
             return False
 
+        # Use absolute-path config for DAG generation to avoid './' path warnings
+        dag_config = str(config_path)
+        abs_config = create_absolute_paths_config(
+            str(config_path),
+            user_cwd=str(Path.cwd()),
+            verbose=False,
+        )
+        if abs_config:
+            dag_config = abs_config
+
         # Use the imported test_dag function
-        return test_dag(str(config_path))
+        success = test_dag(dag_config)
+
+        # Print conversion details only on failure
+        if not success:
+            print_warning("DAG failed; showing absolute-path config conversion details")
+            create_absolute_paths_config(
+                str(config_path),
+                user_cwd=str(Path.cwd()),
+                verbose=True,
+            )
+
+        return success
 
     def test_crosslinks_execution(self, config_file: str, extra_args=None) -> bool:
         """Test crosslinks execution for a single config file"""
@@ -407,28 +428,30 @@ class RacoonTestSuite:
     def test_config_files(self) -> bool:
         """Test configuration files against expected outputs"""
         print_colored("=== Testing Configuration Files ===")        
-        # Define the config file mappings
+        # Map each packaged config to its expected merged configuration. DAG
+        # generation materializes the packaged config as *_absolute_paths.yaml,
+        # and the CLI writes the merged *_absolute_paths_updated.yaml beside it.
         config_mappings = [
             ("example_data/example_eCLIP_ENCODE/"
-             "config_test_eCLIP_ENC_updated.yaml",
+             "config_test_eCLIP_ENC.yaml",
              "tests/expected_output/out_eCLIP_ENCODE/"
              "config_test_eCLIP_ENC_expected.yaml"),
-            ("example_data/example_eCLIP/config_test_eCLIP_updated.yaml",
+            ("example_data/example_eCLIP/config_test_eCLIP.yaml",
              "tests/expected_output/out_eCLIP/"
              "config_test_eCLIP_expected.yaml"),
-            ("example_data/example_iCLIP/config_test_iCLIP_updated.yaml",
+            ("example_data/example_iCLIP/config_test_iCLIP.yaml",
              "tests/expected_output/out_iCLIP/"
              "config_test_iCLIP_expected.yaml"),
             ("example_data/example_iCLIP_multiplexed/"
-             "config_test_iCLIP_multiplexed_updated.yaml",
+             "config_test_iCLIP_multiplexed.yaml",
              "tests/expected_output/out_iCLIP_multiplexed/"
              "config_test_iCLIP_multiplexed_expected.yaml"),
             ("example_data/example_iCLIP3/"
-             "config_test_iCLIP3_updated.yaml",
+             "config_test_iCLIP3.yaml",
              "tests/expected_output/out_iCLIP3/"
              "config_test_iCLIP3_expected.yaml"),
             ("example_data/example_mir_eCLIP/"
-             "config_test_mir_eCLIP_updated.yaml",
+             "config_test_mir_eCLIP.yaml",
              "tests/expected_output/out_mir_eCLIP/"
              "config_test_mir_eCLIP_expected.yaml")
         ]
@@ -437,11 +460,17 @@ class RacoonTestSuite:
         failed = 0
         failed_tests = []
         
-        for actual_config, expected_config in config_mappings:
-            actual_path = self.base_dir.parent / actual_config
-            expected_path = self.base_dir.parent / expected_config
-            
-            config_name = Path(actual_config).name
+        for source_config, expected_config in config_mappings:
+            source_path = self.base_dir.parent / source_config
+            absolute_config_path = source_path.with_name(
+                f"{source_path.stem}_absolute_paths.yaml"
+            )
+            actual_path = absolute_config_path.with_name(
+                f"{absolute_config_path.stem}_updated.yaml"
+            )
+            expected_source_path = self.base_dir.parent / expected_config
+
+            config_name = actual_path.name
             print_colored(f"Testing config: {config_name}")
             
             if not actual_path.exists():
@@ -450,15 +479,30 @@ class RacoonTestSuite:
                 failed_tests.append(config_name)
                 continue
                 
-            if not expected_path.exists():
-                print_error(f"Expected config file not found: {expected_path}")
+            if not expected_source_path.exists():
+                print_error(
+                    f"Expected config file not found: {expected_source_path}"
+                )
                 failed += 1
                 failed_tests.append(config_name)
                 continue
-            
+
+            converted_expected = create_absolute_paths_config(
+                str(expected_source_path),
+                user_cwd=str(Path.cwd()),
+            )
+            if not converted_expected:
+                print_error(
+                    "Could not create the absolute-path expected config: "
+                    f"{expected_source_path}"
+                )
+                failed += 1
+                failed_tests.append(config_name)
+                continue
+
             try:
                 # Use the test_config function from test_config module
-                result = test_config(str(actual_path), str(expected_path),
+                result = test_config(str(actual_path), converted_expected,
                                      show_diff=True)
                 
                 if result:
@@ -624,6 +668,95 @@ class RacoonTestSuite:
             
         return success
 
+    def test_mir(self, extra_args=None) -> bool:
+        """Mir-only test: DAG, config, and crosslinks tests for the miR-eCLIP config only"""
+        print_colored("🧪 Running Mir Test Suite")
+        print_colored("="*50)
+
+        if extra_args:
+            print_colored(f"Extra arguments for snakemake: {extra_args}")
+
+        mir_config = "example_data/example_mir_eCLIP/config_test_mir_eCLIP.yaml"
+        failed_tests = []
+
+        # Materialize the packaged config with absolute paths. The CLI then
+        # merges it with the defaults and writes *_absolute_paths_updated.yaml.
+        mir_config_path = self.base_dir.parent / mir_config
+        abs_mir_config = create_absolute_paths_config(
+            str(mir_config_path),
+            user_cwd=str(Path.cwd()),
+        )
+        dag_success = False
+        if abs_mir_config:
+            dag_success = test_dag(abs_mir_config)
+        else:
+            print_error("Could not create the absolute-path mir-eCLIP config")
+        if not dag_success:
+            failed_tests.append("DAG test")
+
+        # Compare the CLI-updated config with the expected merged config after
+        # applying the same portable-to-absolute path conversion to it.
+        expected_config = (
+            self.base_dir.parent / "tests/expected_output/out_mir_eCLIP/"
+            "config_test_mir_eCLIP_expected.yaml"
+        )
+        actual_path = None
+        if abs_mir_config:
+            abs_mir_path = Path(abs_mir_config)
+            actual_path = abs_mir_path.with_name(
+                f"{abs_mir_path.stem}_updated.yaml"
+            )
+        expected_path = None
+        if expected_config.exists():
+            converted_expected = create_absolute_paths_config(
+                str(expected_config),
+                user_cwd=str(Path.cwd()),
+            )
+            if converted_expected:
+                expected_path = Path(converted_expected)
+
+        config_success = False
+        if actual_path is None or not actual_path.exists():
+            print_error(f"Actual config file not found: {actual_path}")
+        elif expected_path is None or not expected_path.exists():
+            print_error(f"Expected config file not found: {expected_path}")
+        else:
+            try:
+                config_success = test_config(str(actual_path), str(expected_path),
+                                              show_diff=True)
+                if config_success:
+                    print_success("Config test passed: config_test_mir_eCLIP_updated.yaml")
+                else:
+                    print_error("Config test failed: config_test_mir_eCLIP_updated.yaml")
+            except Exception as e:
+                print_error(f"Error testing config config_test_mir_eCLIP_updated.yaml: {e}")
+
+        if not config_success:
+            failed_tests.append("Config test")
+
+        # Crosslinks test (only if DAG and config tests pass)
+        crosslinks_success = False
+        if dag_success and config_success:
+            crosslinks_success = self.test_crosslinks_execution(mir_config, extra_args=extra_args)
+            if not crosslinks_success:
+                failed_tests.append("Crosslinks test")
+        else:
+            print_colored("\n⚠️ Skipping crosslinks test due to DAG or config test failures")
+
+        success = dag_success and config_success and crosslinks_success
+
+        print_colored("\n" + "="*50)
+        if success:
+            print_success("🎉 Mir test passed!")
+        else:
+            print_error("❌ Mir test failed!")
+            if failed_tests:
+                print_error("\nFailed test categories:")
+                for test_name in failed_tests:
+                    print_error(f"  ✗ {test_name}")
+
+        return success
+
     def test_peaks(self, extra_args=None) -> bool:
         """Peaks only test: Only run peaks execution tests"""
         print_colored("🧪 Running Peaks Test Suite")
@@ -727,7 +860,7 @@ class RacoonTestSuite:
                         config_data = yaml.safe_load(f)
                         
                         # Convert paths (same logic as in test_crosslinks.py)
-                        path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta']
+                        path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'mir_genome_fasta']
                         for key in path_keys:
                             if key in config_data and config_data[key]:
                                 value = config_data[key]
@@ -887,6 +1020,42 @@ class RacoonTestSuite:
             print_colored("No results directories found to clean up.")
             
         print_colored("=== Cleanup completed ===\n")
+
+    def cleanup_generated_configs(self) -> bool:
+        """Remove configuration files generated by a successful test run."""
+        print_colored("\n=== Cleaning up generated config files ===")
+
+        repo_dir = self.base_dir.parent
+        generated_config_patterns = [
+            "example_data/*/*_absolute_paths*.yaml",
+            "example_data/*/*_updated.yaml",
+            "tests/expected_output/*/*_absolute_paths*.yaml",
+            "tests/report_test/inputs_for_report_test/*/*_absolute_paths*.yaml",
+            "example_data/example_fastqscreen/*_absolute_paths.config",
+        ]
+        generated_configs = {
+            path
+            for pattern in generated_config_patterns
+            for path in repo_dir.glob(pattern)
+            if path.is_file()
+        }
+
+        cleanup_success = True
+        for config_file in sorted(generated_configs):
+            try:
+                config_file.unlink()
+                print_success(f"Removed: {config_file}")
+            except Exception as e:
+                cleanup_success = False
+                print_warning(
+                    f"Could not remove generated config {config_file}: {e}"
+                )
+
+        if not generated_configs:
+            print_colored("No generated config files found.")
+
+        print_colored("=== Generated config cleanup completed ===\n")
+        return cleanup_success
             
     def cleanup_old_logs(self, base_dir):
         """Remove racoon_clip log files older than the current day."""
@@ -911,7 +1080,7 @@ def main():
     parser = argparse.ArgumentParser(description="Racoon CLIP test suite")
     parser.add_argument(
         "test_type", 
-        choices=["test_light", "test", "test_peaks", "test_fastqscreen", "devel_test", "dev_report", "test_report"],
+        choices=["test_light", "test", "test_mir", "test_peaks", "test_fastqscreen", "devel_test", "dev_report", "test_report"],
         help="Type of test to run"
     )
     parser.add_argument(
@@ -928,6 +1097,8 @@ def main():
         success = suite.test_light()
     elif args.test_type == "test":
         success = suite.test()
+    elif args.test_type == "test_mir":
+        success = suite.test_mir()
     elif args.test_type == "test_peaks":
         success = suite.test_peaks()
     elif args.test_type == "test_fastqscreen":
@@ -943,6 +1114,11 @@ def main():
         print_error(f"Unknown test type: {args.test_type}")
         return 1
     
+    # Generated configs are transient and are removed after every successful
+    # test, even when result-folder cleanup is disabled.
+    if success:
+        success = suite.cleanup_generated_configs()
+
     # Clean up test results unless --no_clean flag is set or running report test
     if success and not args.no_clean and args.test_type != "test_report":
         suite.cleanup_results_folders()

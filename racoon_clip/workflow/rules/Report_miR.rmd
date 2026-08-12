@@ -49,7 +49,6 @@ library(GenomicRanges)
 library(rtracklayer)
 
 
-
 ```
 
 # Configurations {.tabset}
@@ -201,7 +200,10 @@ These are the chimeric crosslinks, that were retrieved from each sample:
 ####################
 # Input reads aufter QC
 ###################
-fastqc_report_filtered <- read_delim(paste0(dir,"/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt"), delim="\t")
+fastqc_path_primary <- paste0(dir, "/results/fastqc/samples_after_demultiplexing_or_trimming/multiqc_data/multiqc_fastqc.txt")
+fastqc_path_fallback <- paste0(dir, "/results/fastqc/separate_samples/multiqc_data/multiqc_fastqc.txt")
+fastqc_path <- if (file.exists(fastqc_path_primary)) fastqc_path_primary else fastqc_path_fallback
+fastqc_report_filtered <- read_delim(fastqc_path, delim="\t")
 
 fastqc_report_filtered <- fastqc_report_filtered %>% arrange(Sample)
 
@@ -271,18 +273,30 @@ dedup_out_2 <- dedup_out_2 %>% rowwise(.) %>%
 ###################
 # Summary table
 ################
-table <- cbind(fastqc_report_filtered[,c("Total Sequences")],
-               star_mir_out2, 
-               dedup_out_2[, c("Duplication", "Crosslink events (without PCR duplicates)", "Crosslinked nucleotides")])
+fastqc_tbl <- fastqc_report_filtered %>%
+  select(Sample, `Total Sequences`)
 
-table$reads_with_miR_perc <- ( as.numeric(table$reads_with_miR) / as.numeric(table$`Total Sequences`)) *100
+star_tbl <- star_mir_out2 %>%
+  select(Sample, reads_with_miR, aligned_to_genome_perc, aligned_to_genome_n)
 
-table <- table[,c("Total Sequences", "reads_with_miR_perc", "reads_with_miR", "aligned_to_genome_perc", "aligned_to_genome_n", "Duplication", "Crosslink events (without PCR duplicates)", "Crosslinked nucleotides" )]
+dedup_tbl <- dedup_out_2 %>%
+  select(Sample, Duplication, `Crosslink events (without PCR duplicates)`, `Crosslinked nucleotides`)
 
-rownames(table) <- dedup_out_2$Sample
-colnames(table) <- c("Total Sequences after QC", "Reads with miR [%]", "Reads with miR [n]", "Aligned to genome [%]", "Aligned to genome [n]", "Duplication [%]", "Crosslink events (without PCR duplicates)", "Crosslinked nucleotides" )
-  
-kable(table, format.args = list(big.mark = ",")) 
+table <- fastqc_tbl %>%
+  full_join(star_tbl, by = "Sample") %>%
+  full_join(dedup_tbl, by = "Sample") %>%
+  mutate(reads_with_miR_perc = (as.numeric(reads_with_miR) / as.numeric(`Total Sequences`)) * 100) %>%
+  arrange(Sample)
+
+table_out <- table %>%
+  select(Sample, `Total Sequences`, reads_with_miR_perc, reads_with_miR, aligned_to_genome_perc, aligned_to_genome_n, Duplication, `Crosslink events (without PCR duplicates)`, `Crosslinked nucleotides`)
+
+rownames(table_out) <- table_out$Sample
+table_out$Sample <- NULL
+
+colnames(table_out) <- c("Total Sequences after QC", "Reads with miR [%]", "Reads with miR [n]", "Aligned to genome [%]", "Aligned to genome [n]", "Duplication [%]", "Crosslink events (without PCR duplicates)", "Crosslinked nucleotides")
+
+kable(table_out, format.args = list(big.mark = ",")) 
 ```
 
 # Detected miRs per sample

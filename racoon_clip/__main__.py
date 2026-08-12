@@ -617,17 +617,18 @@ def citation(**kwargs):
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
 @click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE and iCLIP configs)')
+@click.option('--mir', is_flag=True, help='Run Mir test suite (miR-eCLIP config only)')
 @click.option('--fastqscreen', is_flag=True, help='Run fastqscreen test suite')
 @click.option('--no-clean', is_flag=True, help='Do not remove test result folders after successful tests')
 @click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
-def test(light, devel, report, peaks, fastqscreen, no_clean, extra_args):
+def test(light, devel, report, peaks, mir, fastqscreen, no_clean, extra_args):
     """Run racoon_clip test suite
     
     By default runs full test suite (DAG tests, config tests, crosslinks tests, peaks tests, 
     and fastqscreen tests).
     Use --light for minimal testing, --devel for comprehensive testing including installation,
-    --report for report generation testing, --peaks for peaks testing only, or --fastqscreen for
-    fastqscreen testing only.
+    --report for report generation testing, --peaks for peaks testing only, --mir for miR-eCLIP
+    testing only, or --fastqscreen for fastqscreen testing only.
     
     Peaks testing includes both eCLIP ENCODE and iCLIP config files.
     Use --extra-args to pass additional arguments to the underlying snakemake commands.
@@ -639,7 +640,7 @@ def test(light, devel, report, peaks, fastqscreen, no_clean, extra_args):
     suite = RacoonTestSuite()
     
     # Check for conflicting flags
-    flags_set = sum([light, devel, report, peaks, fastqscreen])
+    flags_set = sum([light, devel, report, peaks, mir, fastqscreen])
     if flags_set > 1:
         click.echo("Error: Cannot specify multiple test type flags simultaneously")
         sys.exit(1)
@@ -652,6 +653,8 @@ def test(light, devel, report, peaks, fastqscreen, no_clean, extra_args):
         # Don't clean up after report test - reports need to be inspected
     elif peaks:
         success = suite.test_peaks(extra_args=extra_args)
+    elif mir:
+        success = suite.test_mir(extra_args=extra_args)
     elif fastqscreen:
         success = suite.test_fastqscreen(extra_args=extra_args)
     else:

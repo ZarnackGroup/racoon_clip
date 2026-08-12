@@ -136,7 +136,7 @@ def test_fastqscreen_execution(config_file, log_file=None, extra_args=None):
                 print("DEBUG: Using YAML mode for conversion")
                 
                 # Convert paths
-                path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'fastqScreen_config']
+                path_keys = ['wdir', 'infiles', 'experiment_group_file', 'barcodes_fasta', 'adapter_file', 'gtf', 'genome_fasta', 'mir_genome_fasta', 'fastqScreen_config']
                 for key in path_keys:
                     if key in config_data and config_data[key]:
                         value = config_data[key]
@@ -149,8 +149,10 @@ def test_fastqscreen_execution(config_file, log_file=None, extra_args=None):
                                 files = [os.path.join(racoon_clip_dir, f.lstrip('/')) if not os.path.isabs(f) else f for f in value.split()]
                                 config_data[key] = ' '.join(files)
                                 print(f"DEBUG: Converted {key}: {value} -> {config_data[key]}")
-                            else:  # Single file
-                                abs_path = os.path.join(racoon_clip_dir, value.lstrip('/'))
+                            else:  # Single file / pattern
+                                # Resolve relative paths against repo root and normalize
+                                # so glob patterns like *.fastq still work.
+                                abs_path = os.path.abspath(os.path.join(racoon_clip_dir, value))
                                 config_data[key] = abs_path
                                 print(f"DEBUG: Converted {key}: {value} -> {abs_path}")
                 
@@ -165,10 +167,81 @@ def test_fastqscreen_execution(config_file, log_file=None, extra_args=None):
                     yaml.dump(config_data, abs_f, default_flow_style=False, sort_keys=False)
             else:
                 print("DEBUG: Using text mode for conversion")
-                content = f.read()
-                # Simple text replacement for when yaml is not available
+                lines = f.readlines()
+                path_keys = [
+                    'wdir:',
+                    'infiles:',
+                    'experiment_group_file:',
+                    'barcodes_fasta:',
+                    'adapter_file:',
+                    'gtf:',
+                    'genome_fasta:',
+                    'mir_genome_fasta:',
+                    'fastqScreen_config:',
+                ]
+
+                converted_lines = []
+                for line in lines:
+                    new_line = line
+                    for key in path_keys:
+                        if line.strip().startswith(key):
+                            parts = line.split(':', 1)
+                            if len(parts) != 2:
+                                break
+
+                            value_and_comment = parts[1].rstrip('\n')
+                            value_part, comment_sep, comment_part = value_and_comment.partition('#')
+                            value_str = value_part.strip()
+                            if not value_str:
+                                break
+
+                            quote_char = ''
+                            if (
+                                len(value_str) >= 2
+                                and value_str[0] in ('"', "'")
+                                and value_str[-1] == value_str[0]
+                            ):
+                                quote_char = value_str[0]
+                                path_value = value_str[1:-1]
+                            else:
+                                path_value = value_str
+
+                            if key == 'wdir:' and not os.path.isabs(path_value):
+                                converted_path_value = os.path.abspath(
+                                    os.path.join(current_dir, path_value.lstrip('./'))
+                                )
+                            else:
+                                tokens = path_value.split()
+                                converted_tokens = []
+                                for token in tokens:
+                                    if os.path.isabs(token):
+                                        converted_tokens.append(token)
+                                    else:
+                                        converted_tokens.append(
+                                            os.path.abspath(
+                                                os.path.join(racoon_clip_dir, token)
+                                            )
+                                        )
+                                converted_path_value = ' '.join(converted_tokens)
+
+                            if quote_char:
+                                converted_value_str = (
+                                    f"{quote_char}{converted_path_value}{quote_char}"
+                                )
+                            else:
+                                converted_value_str = converted_path_value
+
+                            comment_suffix = ''
+                            if comment_sep:
+                                comment_suffix = f" {comment_sep}{comment_part}"
+
+                            new_line = f"{parts[0]}: {converted_value_str}{comment_suffix}\n"
+                            break
+
+                    converted_lines.append(new_line)
+
                 with open(abs_config_file, 'w') as abs_f:
-                    abs_f.write(content)  # Fallback: use original if yaml not available
+                    abs_f.writelines(converted_lines)
         
         print(f"DEBUG: Created absolute paths config: {abs_config_file}")
         config_file = abs_config_file  # Use the converted config file
