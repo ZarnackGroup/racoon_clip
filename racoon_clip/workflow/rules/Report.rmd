@@ -1,6 +1,6 @@
 ---
 title: "racoon_clip processing report"
-author: "Melina Klostermann"
+author: "racoon_clip by Melina Klostermann"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:

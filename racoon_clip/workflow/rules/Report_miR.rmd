@@ -1,18 +1,32 @@
 ---
 title: 'Characterisation of chimeric reads from mir-eCLIP'
-author: "Melina"
+author: "racoon_clip by Melina Klostermann"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  BiocStyle::html_document:
+  html_document:
     toc_float: TRUE
     toc: TRUE
     number_sections: yes
     fig_caption: yes
+    cache: no
+
 params:
   config: "config"
   output_dir: "output_dir" 
   snake_dir: "snake_dir"
 ---
+
+<style>
+body {
+  font-size: 16px;
+}
+table {
+  width: 100%;
+}
+table tbody tr:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+</style>
 
 ```{r setup, include=FALSE}
 require("knitr")
@@ -31,7 +45,7 @@ new_lib_path <- "/path/to/new/library"
 .libPaths(c(new_lib_path, current_lib_paths))
 
 # require("knitr")
-# knitr::opts_chunk$set(warning=FALSE, message=FALSE, cache=T, cache.lazy = FALSE,  dpi= 20, fig.width = 20, fig.height = 10, out.width="100%") 
+# knitr::opts_chunk$set(warning=FALSE, message=FALSE, cache=T, cache.lazy = FALSE,  dpi= 20, fig.width = 20, fig.height = 10, out.width="100%")
 # tidy.opts=list(width.cutoff=80,tidy=TRUE, echo=FALSE)
 # 
 # source("/Users/melinaklostermann/Documents/projects/R_general_functions/theme_paper.R")
@@ -83,7 +97,7 @@ rownames(add) <- rownames(config_default)[n]
 
 
 config <- rbind(config, add)
-kable(config)
+# The complete configuration is intentionally not printed; settings are grouped below.
 
 dir <- config["wdir",]
 dir <- as.character(dir)
@@ -92,17 +106,17 @@ dir <- as.character(dir)
 
 ## Input files {-}
 ```{r}
-k = config[c("infile", "barcodes_fasta", "gtf", "genome_fasta", "mir_genome_fasta"), ] %>% as.data.frame()
-rownames(k) = c("infile", "barcodes_fasta", "gtf", "genome_fasta", "mir_genome_fasta")
+k = config[c("infiles", "barcodes_fasta", "gtf", "genome_fasta", "mir_genome_fasta"), ] %>% as.data.frame()
+rownames(k) = c("infiles", "barcodes_fasta", "gtf", "genome_fasta", "mir_genome_fasta")
 kable(k)  
 ```
 
 ## Optional steps {-}
 ```{r}
-k = config[c("demuliplexing", "adapter_cycles", "quality_filter_barcodes"), ] %>%
+k = config[c("demultiplex", "adapter_cycles", "quality_filter_barcodes"), ] %>%
   as.data.frame()
-rownames(k) = c("demuliplexing", "adapter_cycles", "quality_filter_barcodes")
-kable(k) 
+rownames(k) = c("demultiplex", "adapter_cycles", "quality_filter_barcodes")
+kable(k)
 ```
 
 ## Barcode settings {-}
@@ -115,28 +129,35 @@ kable(k)
 
 ## Read filter {-}
 ```{r}
-k = config[c("flexbar_minReadLength"), ] %>%
+k = config[c("min_read_length"), ] %>%
   as.data.frame()
-rownames(k) = c("flexbar_minReadLength")
+rownames(k) = c("min_read_length")
 kable(k)  
 ```
 
 ## Alignment setting (STAR) {-}
 ```{r}
-k = config[c("sjdbOverhang", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "alignEndsType",
+k = config[c("read_length", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "moreSTARParameters",
                "outReadsUnmapped",  "outSJfilterReads"), ] %>%
   as.data.frame()
-rownames(k) = c("sjdbOverhang", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "alignEndsType",
+rownames(k) = c("read_length", "outFilterMismatchNoverReadLmax", "outFilterMismatchNmax", "outFilterMultimapNmax", "moreSTARParameters",
                "outReadsUnmapped",  "outSJfilterReads")
-kable(k) 
+kable(k)
 
+```
+
+## miRNA settings {-}
+```{r}
+k = config[c("mir_genome_fasta", "mir_starts_allowed"), , drop = FALSE]
+rownames(k) = c("mir_genome_fasta", "mir_starts_allowed")
+kable(k, caption = "miRNA reference and allowed alignment starts")
 ```
 
 ## Experimental groups {-}
 ```{r}
 if (file.exists(config["experiment_group_file",])) {
   # If the file exists, read it
-  groups <- read.table(config["experiment_group_file,"])
+groups <- read.table(config["experiment_group_file",])
   colnames(groups) <- c("Group", "Sample")
   kable(groups)  # or do whatever you need with the 'groups' data
 } else {
@@ -150,7 +171,7 @@ if (file.exists(config["experiment_group_file",])) {
 
 # Overview of steps performed
 
-![](miRpipe-Figure_v2.png)
+<img src="miRpipe-Figure_v2.png" width="50%">
 
 
 First quality filtering and adapter trimming is performed on the raw data. A description of these steps can be found in the main report.
@@ -205,7 +226,9 @@ fastqc_path_fallback <- paste0(dir, "/results/fastqc/separate_samples/multiqc_da
 fastqc_path <- if (file.exists(fastqc_path_primary)) fastqc_path_primary else fastqc_path_fallback
 fastqc_report_filtered <- read_delim(fastqc_path, delim="\t")
 
-fastqc_report_filtered <- fastqc_report_filtered %>% arrange(Sample)
+fastqc_report_filtered <- fastqc_report_filtered %>%
+  mutate(Sample = str_remove(Sample, fixed(".alignMir.non_chimeric.sort"))) %>%
+  arrange(Sample)
 
 # fastqc_report_filtered <- fastqc_report_filtered[,c(1,5)] %>%
 #   arrange(Sample)
@@ -254,13 +277,13 @@ dedup_out <-  list.files(path = paste0(dir,"/results/mir_analysis/aligned_chimer
         mutate(type = measure[[1]],
                number = measure[[length(measure)]]) %>%
        .[(nrow(.)-5):(nrow(.)-2),]
-      ) 
+      )
 
 dedup_out_names <-  list.files(path = paste0(dir,"/results/mir_analysis/aligned_chimeric_bam"), pattern = "*out.duprm.log$", recursive = TRUE) %>%
   stringr::str_remove(pattern = "chimeric_", . ) %>%
   stringr::str_remove(pattern = ".Aligned.sortedByCoord.out.duprm.log", . )
 
-dedup_out_2 <- map_dfc(dedup_out, ~.x$number) 
+dedup_out_2 <- map_dfc(dedup_out, ~.x$number)
 
 dedup_out_2 <- t(dedup_out_2) %>% as.data.frame() %>%
   mutate(Sample = dedup_out_names) %>% arrange(Sample)
@@ -274,7 +297,7 @@ dedup_out_2 <- dedup_out_2 %>% rowwise(.) %>%
 # Summary table
 ################
 fastqc_tbl <- fastqc_report_filtered %>%
-  select(Sample, `Total Sequences`)
+  select(Sample, non_chimeric_after_qc = `Total Sequences`)
 
 star_tbl <- star_mir_out2 %>%
   select(Sample, reads_with_miR, aligned_to_genome_perc, aligned_to_genome_n)
@@ -282,10 +305,13 @@ star_tbl <- star_mir_out2 %>%
 dedup_tbl <- dedup_out_2 %>%
   select(Sample, Duplication, `Crosslink events (without PCR duplicates)`, `Crosslinked nucleotides`)
 
-table <- fastqc_tbl %>%
-  full_join(star_tbl, by = "Sample") %>%
-  full_join(dedup_tbl, by = "Sample") %>%
-  mutate(reads_with_miR_perc = (as.numeric(reads_with_miR) / as.numeric(`Total Sequences`)) * 100) %>%
+table <- star_tbl %>%
+  left_join(fastqc_tbl, by = "Sample") %>%
+  left_join(dedup_tbl, by = "Sample") %>%
+  mutate(
+    `Total Sequences` = as.numeric(non_chimeric_after_qc) + as.numeric(reads_with_miR),
+    reads_with_miR_perc = sprintf("%.2f%%", as.numeric(reads_with_miR) / `Total Sequences` * 100)
+  ) %>%
   arrange(Sample)
 
 table_out <- table %>%
@@ -296,7 +322,7 @@ table_out$Sample <- NULL
 
 colnames(table_out) <- c("Total Sequences after QC", "Reads with miR [%]", "Reads with miR [n]", "Aligned to genome [%]", "Aligned to genome [n]", "Duplication [%]", "Crosslink events (without PCR duplicates)", "Crosslinked nucleotides")
 
-kable(table_out, format.args = list(big.mark = ",")) 
+kable(table_out, caption = "Chimeric read and crosslink summary per sample", format.args = list(big.mark = ","))
 ```
 
 # Detected miRs per sample
@@ -311,11 +337,11 @@ mir_crosslinks <- list.files(paste0(dir,"/results/mir_analysis/crosslinks"),
 sample_names <- list.files(paste0(dir,"/results/mir_analysis/crosslinks"), 
                              pattern = ".Aligned.sortedByCoord.out.duprm.shifted.1nt.*.bed", recursive = TRUE) %>%
   stringr::str_remove(pattern = "chimeric_", . ) %>%
-  stringr::str_remove(pattern = ".Aligned.sortedByCoord.out.duprm.shifted.1nt.*.bed", . ) 
+  stringr::str_remove(pattern = ".Aligned.sortedByCoord.out.duprm.shifted.1nt.*.bed", . )
 
 names(mir_crosslinks) <- sample_names
 
-head(mir_crosslinks)
+# Suppress printing the imported GRanges objects.
 
 # clean files
 mir_crosslinks <- map(mir_crosslinks, ~ as.data.frame(.x) %>%
@@ -335,6 +361,7 @@ Chimeric reads will belong to several miRs. Here you can see the number of diffe
 ```{r}
 # summarise number of miRs per sample
 detected_mirs <- map(mir_crosslinks, ~.x %>% 
+                       filter(`Name` != "DNA") %>%
                        group_by(`Name`) %>% 
                        summarise(n = sum(Score), .groups= "keep") )
 
@@ -345,7 +372,7 @@ n_mirs <- map_dbl(detected_mirs, ~ nrow(.x))
 
 table_detected_mirs <- data.frame(sample = unlist(sample_names), n_miRs = n_mirs)
 
-kable(table_detected_mirs)  
+kable(table_detected_mirs, caption = "Number of distinct miRNAs detected per sample")
 
 
 ```
@@ -356,22 +383,22 @@ The plots show the most frequently detected miRs (top 10) in each sample and the
 
 ```{r, results='asis', out.width="100%"}
 detected_mirs <- map(mir_crosslinks, ~.x %>% 
+                       filter(`Name` != "DNA") %>%
                        group_by(`Name`) %>% 
                        summarise(n = sum(Score), .groups= "keep") )
 
 detected_mirs <- map(detected_mirs, ~arrange(.x, desc(n)))
-                     
-detected_mirs_top_10 <- map(detected_mirs, ~.x[1:10,] %>%
-                              arrange(., n))
 
+detected_mirs_top_10 <- map(detected_mirs, ~.x %>%
+                              slice_head(n = 10) %>%
+                              arrange(n))
 
 for(i in 1:length(sample_names)){
-  
-  cat("\n###", sample_names[[i]], "{-}\n") 
+  cat("\n###", sample_names[[i]], "{-}\n")
   p <- ggplot(detected_mirs_top_10[[i]], aes(x = factor(Name, levels = Name), y = n))+
     geom_col()+
     coord_flip()+
-     xlab("")
+    xlab("")
   print(p)
   cat(" \n")
 }
@@ -402,7 +429,7 @@ plot_list <- map(detected_mirs_top_10,
 
 for(i in 1:length(plot_list)){
   
-  cat("\n###", sample_names[[i]], "{-}\n") 
+  cat("\n###", sample_names[[i]], "{-}\n")
   print(plot_list[[i]])
   cat(" \n")
 }

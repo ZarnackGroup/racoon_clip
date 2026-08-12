@@ -1846,11 +1846,13 @@ rule fastq_screen_multi:
 # mir annotation is indexed with bowtie2
 
 rule make_miR_index:
+    input:
+        miR_genome=config["mir_genome_fasta"]
     params:
-        miR_genome=config["mir_genome_fasta"],
         folder=config["wdir"]+"/results/tmp/mir_index"
     output:
-        touch(config["wdir"]+"/results/.miR_index.chkpnt")
+        fasta=config["wdir"]+"/results/tmp/mir_index/mir_reference.dna.fasta",
+        chkpnt=touch(config["wdir"]+"/results/.miR_index.chkpnt")
     conda:
         "envs/racoon_bowtie2_v0.2.yml"
     threads: workflow.cores * 0.5 # so it can run parallel to deduplication and bam sorting
@@ -1858,7 +1860,13 @@ rule make_miR_index:
         """
         mkdir -p {params.folder} && \
         chmod +x -R {params.folder} && \
-        bowtie2-build {params.miR_genome} {params.folder}/mir_index
+        if awk '!/^>/ && /[Uu]/ {{found=1}} END {{exit !found}}' {input.miR_genome}; then
+            echo "Converting U to T in miRNA sequences for Bowtie2 indexing." >&2
+            awk '/^>/ {{print; next}} {{gsub(/U/, "T"); gsub(/u/, "t"); print}}' {input.miR_genome} > {output.fasta}
+        else
+            cp {input.miR_genome} {output.fasta}
+        fi && \
+        bowtie2-build {output.fasta} {params.folder}/mir_index
         """
 
 
@@ -2252,29 +2260,43 @@ rule get_crosslinks_chimeric:
         "envs/racoon_main_v0.4.yml"
     shell:
         """
+        mkdir -p {params.crosslink_folder} {params.tmp_folder}
+
         #### Convert all read locations to intervals in bed file format using BEDTools
-        bedtools bamtobed -i {input.bam} > {output.bed} \
-        \
+        bedtools bamtobed -i {input.bam} > {output.bed}
+
+        if [ ! -s {output.bed} ]; then
+            echo "ERROR: I could not find a chimeric read. Please check your parameters or use a different experiment type." >&2
+            exit 1
+        fi
+
         #### Shift intervals depending on the strand by 1 bp upstream using BEDTools
-        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai | sort -k1,1 -k2,2n -k3,3n > {output.bed_shift} \
-        \
+        bedtools shift -m 1 -p -1 -i {output.bed} -g {params.genome_fasta}.fai |
+            sort -k1,1 -k2,2n -k3,3n > {output.bed_shift}
+
         #### shorten name to miR name
-        awk -v FS='\t' -v OFS='\t' '{{sub(/_(.*)/, "", $4) ; print }}' {output.bed_shift} > {output.bed_shift_named} \
-        \
-        #### split plus and miuns strand
-        awk -v FS='\t' -v OFS='\t' '{{ print $1,$2,$3,$4,$5,$6 > "{params.file_prefix_tmp}"$6".bed" }}' {output.bed_shift_named}
-        mkdir -p {params.crosslink_folder}
-        chmod +x {params.crosslink_folder}
-        chmod +x {params.tmp_folder}
-        mv {params.file_prefix_tmp}+.bed {params.file_prefix_tmp}plus.bed
-        mv {params.file_prefix_tmp}-.bed {params.file_prefix_tmp}minus.bed
-        \
+        awk -v FS='\t' -v OFS='\t' '{{sub(/_(.*)/, "", $4); print}}' {output.bed_shift} > {output.bed_shift_named}
+
+        #### Split plus and minus strands, creating both files even if empty
+        awk -v FS='\t' -v OFS='\t' '$6 == "+" {{print}}' {output.bed_shift_named} > {params.file_prefix_tmp}plus.bed
+        awk -v FS='\t' -v OFS='\t' '$6 == "-" {{print}}' {output.bed_shift_named} > {params.file_prefix_tmp}minus.bed
+
+        if [ ! -s {params.file_prefix_tmp}plus.bed ]; then
+            echo "ERROR: I found chimeric reads for sample {wildcards.sample}, but none mapped to the plus strand." >&2
+            echo "Please check your parameters or use a different experiment type." >&2
+            exit 1
+        fi
+
+        if [ ! -s {params.file_prefix_tmp}minus.bed ]; then
+            echo "ERROR: I found chimeric reads for sample {wildcards.sample}, but none mapped to the minus strand." >&2
+            echo "Please check your parameters or use a different experiment type." >&2
+            exit 1
+        fi
+
         #### keep only 5' end
         awk -v FS='\t' -v OFS='\t' '{{$3 = $2+1; $5 = "1"; print}}' {params.file_prefix_tmp}plus.bed > {params.file_prefix}1nt.plus.bed
         awk -v FS='\t' -v OFS='\t' '{{$3 = $2+1; $5 = "1"; print}}' {params.file_prefix_tmp}minus.bed > {params.file_prefix}1nt.minus.bed
-        chmod +x {params.file_prefix}1nt.plus.bed
-        chmod +x {params.file_prefix}1nt.minus.bed  
-        \
+
         #### remove names again for bigwig file
         awk -v FS='\t' -v OFS='\t' '{{print $1,$2,$3,$5}}' "{params.file_prefix}"1nt.plus.bed | bedtools sort | bedtools merge -d -1 -c 4 -o sum  > {output.bed_shift_for_bw_p}
         awk -v FS='\t' -v OFS='\t' '{{print $1,$2,$3,$5}}' "{params.file_prefix}"1nt.minus.bed | bedtools sort | bedtools merge -d -1 -c 4 -o sum > {output.bed_shift_for_bw_m}
