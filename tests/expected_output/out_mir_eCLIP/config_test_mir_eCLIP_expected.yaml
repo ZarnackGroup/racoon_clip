@@ -21,6 +21,7 @@ minBaseQuality: 10
 min_read_length: 15
 mir_genome_fasta: example_data/example_mir_eCLIP/mirBase_mm10_miRNAs_mature_sequence_genes.fasta
 mir_starts_allowed: 1 2 3 4
+mir_5prime_missing_allowed: 0 1 2 3
 morePureclipParameters: ''
 moreSTARParameters: ''
 outFilterMismatchNmax: 999

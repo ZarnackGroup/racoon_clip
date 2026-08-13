@@ -170,7 +170,6 @@ if FASTQ_SCREEN:
         raise ValueError(f"ERROR: FastQ Screen configuration file not found: {config['fastqScreen_config']}")
 TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] == True or config["experiment_type"] == "iCLIP3"
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
-MIR_starts=config["mir_starts_allowed"].split()
 STAR_INDEX=config["star_index"] if config["star_index"] != "" else None
 PEAKS=config["workflow_type"] == "peaks" 
 # Validate reference files
@@ -556,7 +555,7 @@ if MIR == True:
     myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam.bai",  wdir=WDIR, sample = SAMPLES))
     # COMMENTED OUT - No longer generating .sort.bam files as they're unnecessary
     # myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",  wdir=WDIR, sample = SAMPLES))
-    myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw", wdir=WDIR,  sample = SAMPLES ))
+    myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw", wdir=WDIR,  sample = SAMPLES ))
     myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bw", groups=GROUPS, wdir=WDIR))
     myoutput.append(config["wdir"]+"/results/Report_miR.html")
    
@@ -1915,6 +1914,7 @@ rule align_miR:
         -L 10 \
         -i S,1,0.50 \
         -k 20 \
+        --norc \
         --trim5 2 \
         -S {output.sam} \
         --quiet \
@@ -2018,113 +2018,35 @@ rule non_chimeric_fastq:
         """
 
 #############################
-# split aligned miRs by miR start position
+# trim canonical miRNAs from chimeric reads
 #############################
-## not all mirR in the 24nt fragment start at the first nt, many start at the 2. or 3. nt
-## it is important to threat them differently because the first nucleotide in the protein coding RNA will be at position 22 after the start of the miR not after the read start
-## therfore reads are split by read start in two steps (two rules)
-
-## 1) a list is made for each possible read start containing the read IDs with the given read start
-## 1.1) a second list stored the name of the miR the read was aligned to
-
-rule split_by_mapping_start:
+## Infer the canonical miRNA start from Bowtie2 trim5, leading CIGAR soft
+## clipping, and the reference start. Trim after the full canonical length of
+## the aligned miRNA, accounting for insertions and deletions in the CIGAR.
+rule trim_canonical_mir:
     input:
-        miR_bam = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.chimeric.bam",
-        chkpnt = config["wdir"]+"/results/tmp/{sample}/.{sample}.split_alignmir.chpnt"
+        sam=config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.alignMir.sam",
+        fastq=get_demult_trim_reads_for_mir,
+        mir_fasta=config["mir_genome_fasta"]
     output:
-        ckpnt=touch(config["wdir"]+"/results/tmp/{sample}/.{sample}.split_mir.chpnt")
+        config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz"
     params:
-        #miR_sam_sort = config["wdir"]+"/results/mir_analysis/aligned_mir/{sample}.sort.sam"
-        filename=config["wdir"]+"/results/tmp/mir_split/{sample}",
-        # list=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
-        # miR_names=config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt"
-    conda:
-        "envs/racoon_samtools.yml"
-    shell:
-        """
-        mkdir -p {params.filename} && \
-        chmod +X {params.filename} && \
-        # split unaligned reads by position of first mapping
-        samtools view {input.miR_bam} | awk -v FS='\t' -v OFS='\t' '{{ print $1 > "{params.filename}/{wildcards.sample}_startnt"$4".list" }}' && \
-        samtools view {input.miR_bam} | awk  -v FS='\t' -v OFS='\t' '{{ print $1, $3"_"$1 > "{params.filename}/{wildcards.sample}_startnt"$4".mirNames.txt" }}'
-        """
-
-
-
-## 2) the long chimeric (previously unaligned) reads are split into serveral files by the start position of the miR
-rule chimeric_split:
-    input:
-        chkpnt = config["wdir"]+"/results/tmp/{sample}/.{sample}.split_mir.chpnt",
-        fastq = get_demult_trim_reads_for_mir
-    output:
-        fastq = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.fastq"),
-        fastq_named = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.named.fastq"),
-        fastq_sort = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.named.sort.fastq")
-    params:
-        filename = config["wdir"]+"/results/tmp/mir_split/{sample}/",
-        outdir= config["wdir"]+"/results/tmp/mir_split/{sample}/",
-        lists = config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.list",
-        miR_names = config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.mirNames.txt",
-    threads:1
-    resources:
-        mem_mb = 40000 # TODO does this work
-    conda:
-        "envs/racoon_seqkit_v0.2.yml"
-    shell:
-        """
-        if [ -f {params.lists} ]
-        then
-            seqkit grep -n --quiet -f {params.lists} {input.fastq} > {output.fastq} && \
-            echo {output.fastq} | head && \
-            seqkit replace -p '(.+)' -r "{{kv}}" -k {params.miR_names} {output.fastq} -o {output.fastq_named} && \
-            seqkit sort -n {output.fastq_named} > {output.fastq_sort}
-        fi
-        """
-        # here an empthy output is generated if the file with a certain start position does not exist
-        # this will not cause problems because late files of all start positions are merged again
-
-###########################
-# cut mirR from the chimeric reads
-###########################
-## The star position of the miR +21 nt i cut of the chimeric read to obtain the first nt of the protein coding miRNAs
-## (mir length = 22nt =  1 (start position) + 21))
-
-rule chimeric_trim:
-    input: 
-        split_reads = config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.named.sort.fastq"
-    output:
-        trim_reads = touch(config["wdir"]+"/results/tmp/mir_split/{sample}/{sample}_startnt{start}.sort.trim.fastq.gz"),
-    params:
-        filename= config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/split_by_mir_start/{sample}/"
+        script=SNAKE_PATH+"/workflow/scripts/trim_mir_from_chimeric_reads.py",
+        starts=config["mir_starts_allowed"],
+        missing=config["mir_5prime_missing_allowed"]
+    threads: 1
     conda:
         "envs/racoon_main_v0.4.yml"
     shell:
         """
-        if [ -s {input.split_reads} ]
-        then
-            echo {wildcards.start} && \
-            start=$(( {wildcards.start} + 21 )) && \
-            echo $start && \
-            fastx_trimmer -f $start -i {input.split_reads} -o {output.trim_reads} -z
-        fi
-        """
-
-##########################
-# trimmed fastq files of chimeric reads are merged again
-###########################
-rule merge_trimmed:
-    input:
-        #config["wdir"]+"/results/tmp/mir_split/{sample}"
-        expand(config["wdir"]+"/results/tmp/mir_split/{{sample}}/{{sample}}_startnt{start}.sort.trim.fastq.gz", start = MIR_starts)
-    output:
-        config["wdir"]+"/results/mir_analysis/unaligned_target_RNAs/merged_fastq/{sample}.chim.trim.fastq.gz"
-    params:
-        starts=MIR_starts,
-        path=config["wdir"]+"/results/tmp/mir_split/{sample}/"
-    threads: 1
-    shell:
-        """
-        cat {input} > {output}
+        python {params.script} \
+            --sam {input.sam} \
+            --fastq {input.fastq} \
+            --mir-fasta {input.mir_fasta} \
+            --output {output} \
+            --mir-starts-allowed '{params.starts}' \
+            --mir-5prime-missing-allowed '{params.missing}' \
+            --trim5 2
         """
 
 
@@ -2254,7 +2176,7 @@ rule get_crosslinks_chimeric:
         dir_groups= config['wdir']+ "/results/groups/",
         crosslink_folder = config['wdir']+"/results/mir_analysis/crosslinks/",
         tmp_folder = config["wdir"]+"/results/tmp/chimeric/",
-        file_prefix=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.",
+        file_prefix=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.named.",
         file_prefix_tmp=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted."
     conda:
         "envs/racoon_main_v0.4.yml"
@@ -2295,7 +2217,7 @@ rule get_crosslinks_chimeric:
 
         #### keep only 5' end
         awk -v FS='\t' -v OFS='\t' '{{$3 = $2+1; $5 = "1"; print}}' {params.file_prefix_tmp}plus.bed > {params.file_prefix}1nt.plus.bed
-        awk -v FS='\t' -v OFS='\t' '{{$3 = $2+1; $5 = "1"; print}}' {params.file_prefix_tmp}minus.bed > {params.file_prefix}1nt.minus.bed
+        awk -v FS='\t' -v OFS='\t' '{{$2 = $3-1; $5 = "1"; print}}' {params.file_prefix_tmp}minus.bed > {params.file_prefix}1nt.minus.bed
 
         #### remove names again for bigwig file
         awk -v FS='\t' -v OFS='\t' '{{print $1,$2,$3,$5}}' "{params.file_prefix}"1nt.plus.bed | bedtools sort | bedtools merge -d -1 -c 4 -o sum  > {output.bed_shift_for_bw_p}
@@ -2312,8 +2234,8 @@ rule turn_chimeric_crosslinks_to_bw:
         bed_shift_for_bw_p=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.for_bw.plus.bed",
         bed_shift_for_bw_m=config["wdir"]+"/results/tmp/chimeric/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.for_bw.minus.bed",
     output:
-        bw_minus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw",
-        bw_plus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.plus.bw",
+        bw_minus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw",
+        bw_plus=config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.plus.bw",
     params:
         genome_fasta=config["genome_fasta"],
     conda:
@@ -2334,12 +2256,12 @@ rule turn_chimeric_crosslinks_to_bw:
 checkpoint merge_crosslink_bw_chimeric:
     input:
         groups = config["wdir"]+"/results/tmp/groups/{groups}.txt",
-        bws = expand(config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw", sample = SAMPLES )
+        bws = expand(config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw", sample = SAMPLES )
     output:
-        bed_p=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.plus.bedGraph",
-        bed_m=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bedGraph",
-        bed_p_sort=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.sort.plus.bedGraph",
-        bed_m_sort=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.sort.minus.bedGraph",
+        bed_p=config['wdir']+"/results/tmp/mir_analysis/crosslinks_merged/chimeric_{groups}.plus.bedGraph",
+        bed_m=config['wdir']+"/results/tmp/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bedGraph",
+        bed_p_sort=config['wdir']+"/results/tmp/mir_analysis/crosslinks_merged/chimeric_{groups}.sort.plus.bedGraph",
+        bed_m_sort=config['wdir']+"/results/tmp/mir_analysis/crosslinks_merged/chimeric_{groups}.sort.minus.bedGraph",
         bw_p=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.plus.bw",
         bw_m=config['wdir']+"/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bw"
     params:
@@ -2350,7 +2272,7 @@ checkpoint merge_crosslink_bw_chimeric:
     shell:
         """
         ### merge plus files per group
-        s="$(awk '{{ print "{params.wdir}/results/mir_analysis/crosslinks/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.named.1nt.plus.bw"}}' {input.groups} )" && \
+        s="$(awk '{{ print "{params.wdir}/results/mir_analysis/crosslinks/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.shifted.1nt.plus.bw"}}' {input.groups} )" && \
         echo $s && \
         chmod +x $s && \
         bigWigMerge $s {output.bed_p}  && \
@@ -2358,7 +2280,7 @@ checkpoint merge_crosslink_bw_chimeric:
         bedGraphToBigWig {output.bed_p_sort} {params.genome_fasta}.fai {output.bw_p}
         \
         ### merge minus files per group
-        r="$(awk '{{ print "{params.wdir}/results/mir_analysis/crosslinks/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw"}}' {input.groups} )" && \
+        r="$(awk '{{ print "{params.wdir}/results/mir_analysis/crosslinks/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw"}}' {input.groups} )" && \
         echo $r && \
         chmod +x $r && \
         bigWigMerge $r {output.bed_m} && \
@@ -2385,7 +2307,7 @@ if MIR == True:
                 sample=SAMPLES
             ),
             crosslink_bws = expand(
-                config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.named.1nt.minus.bw",
+                config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw",
                 sample=SAMPLES
             )
         output:

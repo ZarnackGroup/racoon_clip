@@ -608,8 +608,22 @@ class RacoonTestSuite:
             
         return success
 
+    def test_mir_trim(self) -> bool:
+        """Run the synthetic unit tests for canonical miRNA trimming."""
+        print_colored("\n=== Testing canonical miRNA trimming ===")
+        success, output = self.run_command(
+            [sys.executable, "-m", "unittest", "tests.test_mir_trim", "-v"],
+            cwd=self.base_dir.parent,
+        )
+        if success:
+            print_success("Canonical miRNA trimming tests passed")
+        else:
+            print_error("Canonical miRNA trimming tests failed")
+            print_error(output)
+        return success
+
     def test(self, extra_args=None) -> bool:
-        """Full test: DAG tests, config tests, crosslinks tests, peaks tests, and fastqscreen tests (conditional)"""
+        """Full test: unit, DAG, config, and conditional execution tests."""
         print_colored("🧪 Running Full Test Suite")
         print_colored("="*50)
         
@@ -619,6 +633,11 @@ class RacoonTestSuite:
         
         # Track failed tests with details
         failed_tests = {}
+
+        # Test the canonical miRNA coordinate and trimming logic.
+        mir_trim_success = self.test_mir_trim()
+        if not mir_trim_success:
+            failed_tests["miRNA trimming unit tests"] = []
         
         # Test DAGs first
         dag_success = self.test_all_dags()
@@ -630,8 +649,8 @@ class RacoonTestSuite:
         if not config_success:
             failed_tests["Config file tests"] = []
         
-        # Only run the execution tests (crosslinks, peaks, and fastqscreen) if DAG and config tests pass
-        if dag_success and config_success:
+        # Only run execution tests if the lightweight checks pass.
+        if mir_trim_success and dag_success and config_success:
             crosslinks_success, crosslinks_failed = self.test_all_crosslinks(extra_args=extra_args)
             if not crosslinks_success:
                 failed_tests["Crosslinks execution tests"] = crosslinks_failed
@@ -649,7 +668,7 @@ class RacoonTestSuite:
             
             success = crosslinks_success and peaks_success and fastqscreen_success
         else:
-            print_colored("\n⚠️ Skipping execution tests due to DAG or config test failures")
+            print_colored("\n⚠️ Skipping execution tests due to unit, DAG, or config test failures")
             success = False
         
         print_colored("\n" + "="*50)
@@ -678,6 +697,10 @@ class RacoonTestSuite:
 
         mir_config = "example_data/example_mir_eCLIP/config_test_mir_eCLIP.yaml"
         failed_tests = []
+
+        mir_trim_success = self.test_mir_trim()
+        if not mir_trim_success:
+            failed_tests.append("miRNA trimming unit tests")
 
         # Materialize the packaged config with absolute paths. The CLI then
         # merges it with the defaults and writes *_absolute_paths_updated.yaml.
@@ -734,16 +757,19 @@ class RacoonTestSuite:
         if not config_success:
             failed_tests.append("Config test")
 
-        # Crosslinks test (only if DAG and config tests pass)
+        # Crosslinks test (only if unit, DAG, and config tests pass)
         crosslinks_success = False
-        if dag_success and config_success:
+        if mir_trim_success and dag_success and config_success:
             crosslinks_success = self.test_crosslinks_execution(mir_config, extra_args=extra_args)
             if not crosslinks_success:
                 failed_tests.append("Crosslinks test")
         else:
-            print_colored("\n⚠️ Skipping crosslinks test due to DAG or config test failures")
+            print_colored("\n⚠️ Skipping crosslinks test due to unit, DAG, or config test failures")
 
-        success = dag_success and config_success and crosslinks_success
+        success = (
+            mir_trim_success and dag_success and config_success
+            and crosslinks_success
+        )
 
         print_colored("\n" + "="*50)
         if success:

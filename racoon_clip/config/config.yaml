@@ -49,6 +49,11 @@ moreSTARParameters: ""
 # deduplicate
 deduplicate: True
 
+# miReCLIP
+mir_genome_fasta: ""
+mir_starts_allowed: "1 2 3 4"
+mir_5prime_missing_allowed: "0 1 2 3"
+
 # FastQ Screen
 fastqScreen: False
 fastqScreen_config: ""

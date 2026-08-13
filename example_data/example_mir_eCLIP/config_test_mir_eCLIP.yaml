@@ -28,3 +28,4 @@ read_length: 45
 # (downloads mature miRNA sequences from miRBase and filters to mouse mmu- entries).
 mir_genome_fasta: "example_data/example_mir_eCLIP/mirBase_mm10_miRNAs_mature_sequence_genes.fasta"
 mir_starts_allowed: "1 2 3 4"
+mir_5prime_missing_allowed: 0 1 2 3

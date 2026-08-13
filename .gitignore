@@ -41,3 +41,4 @@ example_data/example_fastqscreen/*_absolute_paths.config
 example_data/*/*.fai
 test/*
 
+__pycache__/

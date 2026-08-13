@@ -22,7 +22,7 @@ How to analyse miR-eCLIP data with racoon_clip
 
 racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the steps performed). For this, the experiment type "miReCLIP" should be specified and a fasta file of all microRNAs must be provided (mir_genome_fasta).
 
-In addition, one can allow different start positions for the miRNA in the chimeric reads, as we have observed that sometimes there are a few extra nucleotides between the end of the adapter and the miR start (mir_starts_allowed). 
+In addition, one can allow different inferred start positions for the canonical miRNA in the processed reads (mir_starts_allowed). The number of accepted missing nucleotides from the canonical miRNA 5' end is controlled separately with mir_5prime_missing_allowed.
 
 All other parameters are the same as the normal racoon_clip parameters. 
 Here is an example config file:
@@ -52,6 +52,7 @@ Here is an example config file:
     # Chimeric miR
     mir_genome_fasta: "path/to/miR-genome.fasta" # for example from miRbase
     mir_starts_allowed: "1 2 3 4"
+    mir_5prime_missing_allowed: "0 1 2 3"
 
 
 What are the output files?
@@ -79,21 +80,19 @@ First quality filtering and adapter trimming is performed on the raw data. A des
 
 miR alignment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Filtered and trimmed reads are shortend to the first (5’) 24nt with fastx_trimmer -l 24 (from FASTX-Toolkit). For chimeric reads, these 24nt include the 21nt long miRNA. This is done to increase the alignability of the reads, as the long reads have sometimes caused problems when aligning to the annotation of the mature miRNA, which contains only short sequences.
+Filtered and trimmed reads are shortend to the first (5’) 24nt with fastx_trimmer -l 24 (from FASTX-Toolkit). For chimeric reads, these 24 nt include the mature miRNA sequence. This is done to increase the alignability of the reads, as the long reads have sometimes caused problems when aligning to the annotation of the mature miRNA, which contains only short sequences.
 
-The short reads are then aligned to the miR annotation using bowtie2 with the following settings: –local -D 20 -R 3 -L 10 -i S,1,0.50 -k 20 –trim5 2. Before building an index of the miR genome using bowtie2-build.
+The short reads are then aligned to the miR annotation using bowtie2 with the following settings: –local -D 20 -R 3 -L 10 -i S,1,0.50 -k 20 –norc –trim5 2. Before building an index of the miR genome using bowtie2-build.
 
 Obtaining separate fastq files of chimeric and non-chimeric reads
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The reads in the obtained .sam file are then split into chimeric reads and non-chimeric reads by the sam-FLAG with samtools view -f 0 for chimeric reads and samtools view -f 4 for non-chimeric (unaligned) reads.
+The reads in the obtained .sam file are then split into chimeric reads and non-chimeric reads by the sam-FLAG with samtools view -F 4 for chimeric reads and samtools view -f 4 for non-chimeric (unaligned) reads.
 
 The read IDs of the unaligned reads are used to extract the non-chimeric reads from the quality filtered and trimmed fastq files with seqkit grep -n. The fastq files of the non-chimeric reads are then sorted with seqkit sort -n and afterwards aligned to the genome annotation as described in the main report.
 
-The chimeric reads are further split by the position of their mapping start (4th column in the sam file). It is important to consider the mapping start, as not all miRs start at the first nucleotide of the read, but the crosslink position should be exactly 21nt after the first nucleotide of the miR. Awk on the sam files is used to make a list of read IDs for each mapping start, then the reads are extracted from the quality filtered and trimmed fastq files according to the mapping start with seqkit grep -n. In addition, the name of the miR (column 3 of the sam file) is extracted as a separate list with awk and added to the beginning of the read_id in the fastq files with seqkit replace -p ‘(.+)’ -r “{{kv}}”.
+For each mapped read, racoon_clip infers where the canonical miRNA begins in the processed read. The calculation accounts for Bowtie2's two trimmed 5' bases, leading soft clipping in the CIGAR string, and the alignment start on the miRNA reference. mir_starts_allowed filters these inferred read positions.
 
-For each mapping start position, the long reads in the fastq files are trimmed with fastx-trimmer so that the first nt (5’) corresponds to the position where reverse transcription stopped, which is 1nt upstream of the UV crosslink.
-
-After trimming, the fastq files of the chimeric reads are reassembled using cat. By default, reads with a mir start position of 1, 2, 3 or 4 are included and mapping starts at later positions are discarded. This can be changed (see configurations above).
+The target-RNA start is calculated from the full canonical length of the aligned miRNA sequence in mir_genome_fasta. The mir_5prime_missing_allowed parameter controls how many missing bases from the canonical miRNA 5' end are accepted. Insertions and deletions are projected through the CIGAR string. The miRNA name is added to the read ID and the canonical miRNA portion is removed before genomic alignment.
 
 Alignment of chimeric reads to genome annotation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -105,7 +104,7 @@ Chimeric reads are deduplicated in the same way as non-chimeric reads with umi_t
 
 Obtaining chimeric crosslinks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5’ direction) with bedtools shift -m 1 -p -1, because the UV crosslink should be positioned 1nt before the stop of the non-miR part of the read. Then the read ID (which now also contains the miR name) is truncated to the miR name using awk, the bed file is split into plus and minus strand and the reads are reduced to 1nt crosslinks again using awk.
+The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5’ direction) with bedtools shift -m 1 -p -1, because the UV crosslink should be positioned 1nt before the stop of the non-miR part of the read. Then the read ID (which now also contains the miR name) is truncated to the miR name using awk, the BED file is split by strand, and the strand-aware 5' end is reduced to a one-nucleotide crosslink using the left edge on the plus strand and the right edge on the minus strand.
 
 To allow visualisation in a genome browser, the 1nt crosslink bed file is then also converted into a .bigWig file using bedGraphToBigWig. These bigWig files are then merged with bigWigMerge by the experiment groups specified by the user.
 
