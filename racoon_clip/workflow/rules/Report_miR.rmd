@@ -156,17 +156,36 @@ kable(k, caption = "miRNA reference, inferred starts, and allowed missing 5' bas
 
 ## Experimental groups {-}
 ```{r}
-if (file.exists(config["experiment_group_file",])) {
-  # If the file exists, read it
-groups <- read.table(config["experiment_group_file",])
+sample_names <- strsplit(trimws(as.character(config["samples",])), "\\s+")[[1]]
+group_file <- as.character(config["experiment_group_file",])
+has_group_file <- (
+  length(group_file) == 1 && !is.na(group_file) &&
+  nzchar(group_file) && file.exists(group_file)
+)
+
+if (has_group_file) {
+  groups <- read.table(group_file, stringsAsFactors = FALSE)
   colnames(groups) <- c("Group", "Sample")
-  kable(groups)  # or do whatever you need with the 'groups' data
+  unassigned_samples <- setdiff(sample_names, groups$Sample)
+  if (length(unassigned_samples) > 0) {
+    groups <- rbind(
+      groups,
+      data.frame(
+        Group = unassigned_samples,
+        Sample = unassigned_samples,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
 } else {
-  # If the file does not exist, write a message
-  cat("No groups specified. All samples were merged and named all_samples. \n")
+  groups <- data.frame(
+    Group = rep("all_samples", length(sample_names)),
+    Sample = sample_names,
+    stringsAsFactors = FALSE
+  )
 }
 
-
+kable(groups, caption = "Experimental groups used for merging and peak calling")
 
 ```
 
@@ -207,7 +226,7 @@ Chimeric reads are deduplicated in the same way as non-chimeric reads with umi_t
 
 The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1, because the UV crosslink should be positioned 1nt before the stop of the non-miR part of the read. Then the read ID (which now also contains the miR name) is truncated to the miR name using awk, the BED file is split by strand, and the strand-aware 5' end is reduced to a one-nucleotide crosslink using the left edge on the plus strand and the right edge on the minus strand.
 
-To allow visualisation in a genome browser, the 1nt crosslink bed file is then also converted into a .bigWig file using bedGraphToBigWig. These bigWig files are then merged with bigWigMerge by the experiment groups specified by the user.
+To allow visualisation in a genome browser, the 1nt crosslink bed file is then also converted into a .bigWig file using bedGraphToBigWig. These bigWig files are then combined by experimental group; singleton groups reuse the sample bigWig directly.
 
 # Chimeric crosslinks obtained
 
@@ -439,10 +458,33 @@ for(i in 1:length(plot_list)){
 
 ```{r mir_peak_calling_header, eval=peaks, results='asis'}
 cat("# Peak calling\n\n")
-cat("PureCLIP peaks were called on BAM files containing both chimeric and non-chimeric reads, merged using the configured experimental groups.\n\n")
+cat("PureCLIP peaks were called on group-level BAM files containing both chimeric and non-chimeric reads.\n\n")
 ```
 
 ```{r mir_peak_calling_summary, eval=peaks}
+read_pureclip_result <- function(peak_file) {
+  group <- sub("\\.bed$", "", sub("^pureclip_sites_", "", basename(peak_file)))
+  status_file <- file.path(dirname(peak_file), paste0("pureclip_status_", group, ".txt"))
+  status <- "completed"
+  status_message <- "PureCLIP completed successfully."
+
+  if (file.exists(status_file)) {
+    status_lines <- readLines(status_file, warn = FALSE)
+    status_value <- sub("^Status\\t", "", grep("^Status\\t", status_lines, value = TRUE))
+    message_value <- sub("^Message\\t", "", grep("^Message\\t", status_lines, value = TRUE))
+    if (length(status_value) > 0) status <- status_value[[1]]
+    if (length(message_value) > 0) status_message <- message_value[[1]]
+  }
+
+  data.frame(
+    Group = group,
+    Peaks = length(readLines(peak_file, warn = FALSE)),
+    Status = gsub("_", " ", status),
+    Message = status_message,
+    stringsAsFactors = FALSE
+  )
+}
+
 peaks_dir <- paste0(dir, "/results/mir_analysis/peaks")
 peak_files <- list.files(
   peaks_dir,
@@ -450,15 +492,15 @@ peak_files <- list.files(
   full.names = TRUE
 )
 
-peak_summary <- data.frame(
-  Group = stringr::str_remove(
-    stringr::str_remove(basename(peak_files), "^pureclip_sites_"),
-    "\\.bed$"
-  ),
-  Peaks = vapply(peak_files, function(path) length(readLines(path)), integer(1)),
-  stringsAsFactors = FALSE
-) %>%
-  arrange(Group)
+if (length(peak_files) > 0) {
+  peak_summary <- do.call(rbind, lapply(peak_files, read_pureclip_result)) %>%
+    arrange(Group)
+} else {
+  peak_summary <- data.frame(
+    Group = character(), Peaks = integer(), Status = character(),
+    Message = character(), stringsAsFactors = FALSE
+  )
+}
 
 peak_summary_display <- peak_summary
 peak_summary_display$Peaks <- format(
@@ -469,12 +511,13 @@ peak_summary_display$Peaks <- format(
 
 kable(
   peak_summary_display,
-  caption = "PureCLIP peaks from combined chimeric and non-chimeric reads"
+  caption = "PureCLIP peak-calling results from combined chimeric and non-chimeric reads"
 )
+
 ```
 
 ```{r mir_peak_calling_plot, eval=peaks, dpi=100, fig.width=10, fig.height=6}
-if (nrow(peak_summary) > 0) {
+if (nrow(peak_summary) > 0 && any(peak_summary$Peaks > 0)) {
   ggplot(peak_summary, aes(x = Group, y = Peaks)) +
     geom_col(fill = "#3C8DBC", alpha = 0.9, color = "black") +
     geom_text(

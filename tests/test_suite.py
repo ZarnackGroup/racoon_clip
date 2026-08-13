@@ -42,6 +42,14 @@ from test_peaks import test_peaks_execution, create_absolute_paths_config
 sys.path.append(str(Path(__file__).parent / "test_fastqscreen"))
 from test_fastqscreen import test_fastqscreen_execution
 
+# Import group handling test functionality
+from test_groups.group_execution import (
+    cleanup_generated_group_inputs,
+    create_group_scenario_configs,
+    create_mixed_group_config,
+    expected_group_outputs,
+)
+
 
 # Color definitions for output
 class Colors:
@@ -622,6 +630,129 @@ class RacoonTestSuite:
             print_error(output)
         return success
 
+    def test_group_resolution(self) -> bool:
+        """Run the synthetic tests for all supported group layouts."""
+        print_colored("\n=== Testing group resolution ===")
+        success, output = self.run_command(
+            [
+                sys.executable,
+                "-m",
+                "unittest",
+                "tests.test_groups.test_groups",
+                "-v",
+            ],
+            cwd=self.base_dir.parent,
+        )
+        if success:
+            print_success("Group resolution tests passed")
+        else:
+            print_error("Group resolution tests failed")
+            print_error(output)
+        return success
+
+    def test_groups(self, extra_args=None) -> bool:
+        """Test mixed group peak workflows for eCLIP and miReCLIP."""
+        print_colored("🧪 Running Group Handling Test Suite")
+        print_colored("="*50)
+
+        if not self.test_group_resolution():
+            return False
+
+        repo_dir = self.base_dir.parent
+        cases = [
+            (
+                "eCLIP",
+                "example_data/example_eCLIP/config_test_eCLIP.yaml",
+                "out_groups_eCLIP",
+                False,
+            ),
+            (
+                "miReCLIP",
+                "example_data/example_mir_eCLIP/config_test_mir_eCLIP.yaml",
+                "out_groups_mir_eCLIP",
+                True,
+            ),
+        ]
+
+        generated_dirs = []
+        failed_tests = []
+        for label, base_config, output_name, mir in cases:
+            generated_dir, config_path, groups = create_mixed_group_config(
+                repo_dir,
+                base_config,
+                output_name,
+            )
+            generated_dirs.append(generated_dir)
+
+            dag_success = True
+            unassigned_execution = None
+            for scenario, scenario_config, scenario_groups in create_group_scenario_configs(
+                generated_dir,
+                config_path,
+            ):
+                print_colored(f"\nTesting {scenario} group DAG for {label}")
+                if not self.test_dag(str(scenario_config)):
+                    dag_success = False
+                    failed_tests.append(f"{label}: {scenario} DAG")
+                if scenario == "unassigned":
+                    unassigned_execution = (scenario_config, scenario_groups)
+
+            if not dag_success:
+                print_warning(
+                    f"Skipping mixed {label} execution because a group DAG failed"
+                )
+                continue
+
+            execution_cases = [
+                ("mixed", config_path, groups),
+                ("unassigned", *unassigned_execution),
+            ]
+            for execution_name, execution_config, execution_groups in execution_cases:
+                print_colored(
+                    f"\nTesting {execution_name} groups for {label}"
+                )
+                success = self.test_peaks_execution(
+                    str(execution_config),
+                    extra_args=extra_args,
+                )
+                if not success:
+                    failed_tests.append(
+                        f"{label}: {execution_name} execution"
+                    )
+                    continue
+
+                output_dir = Path.cwd() / "test" / output_name
+                missing = [
+                    output_path
+                    for output_path in expected_group_outputs(
+                        output_dir,
+                        execution_groups,
+                        mir=mir,
+                    )
+                    if not output_path.is_file()
+                ]
+                if missing:
+                    print_error(f"Missing group outputs for {label}:")
+                    for output_path in missing:
+                        print_error(f"  - {output_path}")
+                    failed_tests.append(
+                        f"{label}: {execution_name} outputs"
+                    )
+
+        success = not failed_tests
+        if success:
+            cleanup_generated_group_inputs(generated_dirs)
+            print_success("🎉 Group handling tests passed!")
+        else:
+            print_error("❌ Group handling tests failed:")
+            for label in failed_tests:
+                print_error(f"  - {label}")
+            print_colored("Generated group configs were preserved for debugging:")
+            for generated_dir in generated_dirs:
+                print_colored(f"  - {generated_dir}")
+
+        return success
+
     def test(self, extra_args=None) -> bool:
         """Full test: unit, DAG, config, and conditional execution tests."""
         print_colored("🧪 Running Full Test Suite")
@@ -665,8 +796,15 @@ class RacoonTestSuite:
             fastqscreen_success = self.test_fastqscreen_execution(fastqscreen_config, extra_args=extra_args)
             if not fastqscreen_success:
                 failed_tests["FastqScreen execution test"] = [Path(fastqscreen_config).name]
+
+            groups_success = self.test_groups(extra_args=extra_args)
+            if not groups_success:
+                failed_tests["Group handling tests"] = []
             
-            success = crosslinks_success and peaks_success and fastqscreen_success
+            success = (
+                crosslinks_success and peaks_success and fastqscreen_success
+                and groups_success
+            )
         else:
             print_colored("\n⚠️ Skipping execution tests due to unit, DAG, or config test failures")
             success = False
@@ -1120,7 +1258,7 @@ def main():
     parser = argparse.ArgumentParser(description="Racoon CLIP test suite")
     parser.add_argument(
         "test_type", 
-        choices=["test_light", "test", "test_mir", "test_peaks", "test_fastqscreen", "devel_test", "dev_report", "test_report"],
+        choices=["test_light", "test", "test_mir", "test_peaks", "test_groups", "test_fastqscreen", "devel_test", "dev_report", "test_report"],
         help="Type of test to run"
     )
     parser.add_argument(
@@ -1141,6 +1279,8 @@ def main():
         success = suite.test_mir()
     elif args.test_type == "test_peaks":
         success = suite.test_peaks()
+    elif args.test_type == "test_groups":
+        success = suite.test_groups()
     elif args.test_type == "test_fastqscreen":
         success = suite.test_fastqscreen()
     elif args.test_type == "devel_test":
