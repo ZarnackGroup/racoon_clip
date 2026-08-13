@@ -557,6 +557,11 @@ if MIR == True:
     # myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.sort.bam",  wdir=WDIR, sample = SAMPLES))
     myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw", wdir=WDIR,  sample = SAMPLES ))
     myoutput.append(expand("{wdir}/results/mir_analysis/crosslinks_merged/chimeric_{groups}.minus.bw", groups=GROUPS, wdir=WDIR))
+    if PEAKS == True:
+        myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_bam_merged/{groups}.sort.bam", groups=GROUPS, wdir=WDIR))
+        myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam", groups=GROUPS, wdir=WDIR))
+        myoutput.append(expand("{wdir}/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam.bai", groups=GROUPS, wdir=WDIR))
+        myoutput.append(expand("{wdir}/results/mir_analysis/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR))
     myoutput.append(config["wdir"]+"/results/Report_miR.html")
    
 
@@ -1385,6 +1390,8 @@ checkpoint merge_bam:
         bam = expand(get_bam_dedup(), sample = SAMPLES)
     output:
         bam_merge = config['wdir']+"/results/tmp/{groups}.bam"
+    wildcard_constraints:
+        groups="[^/]+"
     params: 
         wdir = config['wdir'],
         dedup=DEDUP
@@ -2139,6 +2146,105 @@ rule deduplication_chimeric:
         """
 
 
+
+checkpoint merge_chimeric_bam:
+    input:
+        groups=config["wdir"]+"/results/tmp/groups/{groups}.txt",
+        bams=expand(
+            config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.bam",
+            sample=SAMPLES
+        )
+    output:
+        config["wdir"]+"/results/tmp/mir_analysis/aligned_chimeric_bam_merged/{groups}.bam"
+    params:
+        wdir=config["wdir"]
+    threads: 1
+    conda:
+        "envs/racoon_samtools.yml"
+    message:
+        "========================= \n Merging chimeric BAM files of group {wildcards.groups} \n ================================ \n"
+    shell:
+        """
+        s="$(awk '{{ print "{params.wdir}/results/mir_analysis/aligned_chimeric_bam/chimeric_" $2 ".Aligned.sortedByCoord.out.duprm.bam"}}' {input.groups})"
+        samtools merge -f {output} $s
+        """
+
+
+rule sort_merged_chimeric_bam:
+    input:
+        config["wdir"]+"/results/tmp/mir_analysis/aligned_chimeric_bam_merged/{groups}.bam"
+    output:
+        config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam_merged/{groups}.sort.bam"
+    threads: 1
+    conda:
+        "envs/racoon_samtools.yml"
+    shell:
+        "samtools sort {input} -o {output}"
+
+
+rule merge_chimeric_and_non_chimeric_bam:
+    input:
+        chimeric=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam_merged/{groups}.sort.bam",
+        non_chimeric=config["wdir"]+"/results/bam_merged/{groups}.sort.bam"
+    output:
+        config["wdir"]+"/results/tmp/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.bam"
+    threads: 1
+    conda:
+        "envs/racoon_samtools.yml"
+    shell:
+        "samtools merge -f {output} {input.chimeric} {input.non_chimeric}"
+
+
+rule sort_merged_chimeric_and_non_chimeric_bam:
+    input:
+        config["wdir"]+"/results/tmp/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.bam"
+    output:
+        config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam"
+    threads: 1
+    conda:
+        "envs/racoon_samtools.yml"
+    shell:
+        "samtools sort {input} -o {output}"
+
+
+rule index_merged_chimeric_and_non_chimeric_bam:
+    input:
+        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam"
+    output:
+        idx=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam.bai"
+    threads: 1
+    conda:
+        "envs/racoon_samtools.yml"
+    shell:
+        "samtools index {input.bam} {output.idx}"
+
+
+rule pc_peak_calling_mir:
+    input:
+        bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam",
+        bai=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam.bai"
+    output:
+        config["wdir"]+"/results/mir_analysis/peaks/pureclip_sites_{groups}.bed"
+    params:
+        fasta=config["genome_fasta"],
+        morePureclipParameters=config["morePureclipParameters"]
+    threads: max(workflow.cores - 2, 1)
+    resources:
+        mem_mb=lambda wildcards, attempt: [180000, 200000, 250000][min(attempt - 1, 2)]
+    conda:
+        "envs/racoon_pureclip.yml"
+    message:
+        "========================= \n Pureclip peak calling on combined chimeric and non-chimeric group {wildcards.groups} \n this may take several days ================================ \n"
+    shell:
+        """
+        pureclip -i {input.bam} \
+        --bai {input.bai} \
+        -g {params.fasta} \
+        -o {output} \
+        -nt {threads} \
+        {params.morePureclipParameters}
+        """
+
 # COMMENTED OUT - sort_bams_chimeric rule is unnecessary for bamtobed
 # rule sort_bams_chimeric:
 #     input:
@@ -2309,6 +2415,12 @@ if MIR == True:
             crosslink_bws = expand(
                 config["wdir"]+"/results/mir_analysis/crosslinks/chimeric_{sample}.Aligned.sortedByCoord.out.duprm.shifted.1nt.minus.bw",
                 sample=SAMPLES
+            ),
+            combined_peaks = (
+                expand(
+                    config["wdir"]+"/results/mir_analysis/peaks/pureclip_sites_{groups}.bed",
+                    groups=GROUPS
+                ) if PEAKS else []
             )
         output:
             config["wdir"]+"/results/Report_miR.html"

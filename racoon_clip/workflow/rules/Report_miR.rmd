@@ -101,6 +101,7 @@ config <- rbind(config, add)
 
 dir <- config["wdir",]
 dir <- as.character(dir)
+peaks <- identical(as.character(config["workflow_type", ]), "peaks")
 ```
 
 
@@ -435,6 +436,63 @@ for(i in 1:length(plot_list)){
 
 ```
 ##{-}
+
+```{r mir_peak_calling_header, eval=peaks, results='asis'}
+cat("# Peak calling\n\n")
+cat("PureCLIP peaks were called on BAM files containing both chimeric and non-chimeric reads, merged using the configured experimental groups.\n\n")
+```
+
+```{r mir_peak_calling_summary, eval=peaks}
+peaks_dir <- paste0(dir, "/results/mir_analysis/peaks")
+peak_files <- list.files(
+  peaks_dir,
+  pattern = "^pureclip_sites_.*\\.bed$",
+  full.names = TRUE
+)
+
+peak_summary <- data.frame(
+  Group = stringr::str_remove(
+    stringr::str_remove(basename(peak_files), "^pureclip_sites_"),
+    "\\.bed$"
+  ),
+  Peaks = vapply(peak_files, function(path) length(readLines(path)), integer(1)),
+  stringsAsFactors = FALSE
+) %>%
+  arrange(Group)
+
+peak_summary_display <- peak_summary
+peak_summary_display$Peaks <- format(
+  peak_summary_display$Peaks,
+  big.mark = ",",
+  scientific = FALSE
+)
+
+kable(
+  peak_summary_display,
+  caption = "PureCLIP peaks from combined chimeric and non-chimeric reads"
+)
+```
+
+```{r mir_peak_calling_plot, eval=peaks, dpi=100, fig.width=10, fig.height=6}
+if (nrow(peak_summary) > 0) {
+  ggplot(peak_summary, aes(x = Group, y = Peaks)) +
+    geom_col(fill = "#3C8DBC", alpha = 0.9, color = "black") +
+    geom_text(
+      aes(label = scales::comma(Peaks)),
+      hjust = -0.1,
+      size = 5
+    ) +
+    coord_flip() +
+    scale_y_continuous(
+      labels = scales::comma,
+      expand = expansion(mult = c(0, 0.15))
+    ) +
+    labs(
+      x = "Sample group",
+      y = "Number of peaks"
+    )
+}
+```
 
 # Session info
 

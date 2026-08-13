@@ -688,7 +688,7 @@ class RacoonTestSuite:
         return success
 
     def test_mir(self, extra_args=None) -> bool:
-        """Mir-only test: DAG, config, and crosslinks tests for the miR-eCLIP config only"""
+        """Run miR unit, DAG, config, crosslinks, and peak execution tests."""
         print_colored("🧪 Running Mir Test Suite")
         print_colored("="*50)
 
@@ -766,9 +766,23 @@ class RacoonTestSuite:
         else:
             print_colored("\n⚠️ Skipping crosslinks test due to unit, DAG, or config test failures")
 
+        # Run the peaks command on the same miR example after crosslinks pass.
+        peaks_success = False
+        if mir_trim_success and dag_success and config_success and crosslinks_success:
+            peaks_success = self.test_peaks_execution(
+                mir_config,
+                extra_args=extra_args,
+            )
+            if not peaks_success:
+                failed_tests.append("Peak calling test")
+        else:
+            print_colored(
+                "\n⚠️ Skipping peak calling test due to an earlier miR test failure"
+            )
+
         success = (
             mir_trim_success and dag_success and config_success
-            and crosslinks_success
+            and crosslinks_success and peaks_success
         )
 
         print_colored("\n" + "="*50)

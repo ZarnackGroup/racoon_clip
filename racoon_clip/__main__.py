@@ -628,7 +628,7 @@ def citation(**kwargs):
 @click.option('--devel', is_flag=True, help='Run development test suite (all tests including installation)')
 @click.option('--report', is_flag=True, help='Run report generation test suite')
 @click.option('--peaks', is_flag=True, help='Run peaks test suite (eCLIP ENCODE and iCLIP configs)')
-@click.option('--mir', is_flag=True, help='Run Mir test suite (miR-eCLIP config only)')
+@click.option('--mir', is_flag=True, help='Run miR-eCLIP crosslinks and peaks tests')
 @click.option('--fastqscreen', is_flag=True, help='Run fastqscreen test suite')
 @click.option('--no-clean', is_flag=True, help='Do not remove test result folders after successful tests')
 @click.option('--extra-args', help='Additional arguments to pass to snakemake (e.g., "--profile myprofile --dry-run")')
