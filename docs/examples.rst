@@ -9,13 +9,13 @@ Install racoon_clip as described :ref:`here <installation>`.
 
 Full list of yaml file options
 ------------------------------
-Setting up racoon_clip works via providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters, that should be used in default, do not need to be specified in the config.yaml file. You can find an explanation of all parameters :ref:`here <all_options>`.
+Setting up racoon_clip works by providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters that should be used with default settings do not need to be specified in the config.yaml file. You can find an explanation of all parameters :ref:`here <all_options>`.
 
 Here is a walk-through for some minimal examples.
 
 Get an annotation
 ------------------
-First, download a human genome assembly (as fasta) and genome annotation (as gtf). You can for example get them from `GENCODE <https://www.gencodegenes.org/human/>`_ or from `ENSEMBL <http://www.ensembl.org/index.html>`_.
+First, download a human genome assembly (as FASTA) and genome annotation (as gtf). You can, for example, get them from `GENCODE <https://www.gencodegenes.org/human/>`_ or from `ENSEMBL <http://www.ensembl.org/index.html>`_.
 
 .. code:: bash
 
@@ -28,7 +28,21 @@ First, download a human genome assembly (as fasta) and genome annotation (as gtf
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example, that you want to test. There are 5 examples, one for iCLIP, one for iCLIP3, one for eCLIP, one for eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ and one for a multiplexed iCLIP (where racoon_clip needs to perform demultiplexing). In this tutorial, the iCLIP data set is shown exemplarily, but you can run this tutorial with each of these examples.
+Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example that you want to test. There are 6 examples: 
+
+- iCLIP
+
+- iCLIP3
+
+- eCLIP
+
+- eCLIP downloaded from `ENCODE <https://www.encodeproject.org/>`_ 
+
+- multiplexed iCLIP (where racoon_clip needs to perform demultiplexing)
+
+- miReCLIP
+
+In this tutorial, the iCLIP dataset is shown exemplarily, but you can run this tutorial with each of these examples.
 
 Go to the folder with the examples
 
@@ -42,9 +56,9 @@ You should now see the following files in the folder:
 
 - **test_iCLIP_s1.chr21.fastq, test_iCLIP_s2.chr21.fastq**: Two samples with raw reads of an iCLIP experiment.
 
-- **adapter.fa**: A fasta file containing the adapters used in the experiment. These will be trimmed off.
+- **adapter.fa**: A FASTA file containing the adapters used in the experiment. These will be trimmed off.
 
-- **barcodes.fasta**: A fasta file containing the barcodes containing the experimental barcode and the UMI of each sample.
+- **barcodes.fasta**: A FASTA file containing the barcodes containing the experimental barcode and the UMI of each sample.
  
 .. code:: bash
 
@@ -55,7 +69,7 @@ You should now see the following files in the folder:
   > >min_example_iCLIP_s2
   > NNNGGCGNN
 
-- **groups.txt**:  A file specifying experiment groups. The group file has one line per sample. This line consists of first the group name and then the sample name. 
+- **groups.txt**:  A file specifying experiment groups. The group file has one line per sample. This line consists of the group name first and then the sample name. 
 
 .. code:: bash
 
@@ -64,13 +78,13 @@ You should now see the following files in the folder:
   > min_example_iCLIP min_example_iCLIP_s1
   > min_example_iCLIP min_example_iCLIP_s2
 
-You can see that both samples belong to the group min_example_iCLIP. This example has only one group, the group.txt is not necessary. It is still shown here as an example. 
+You can see that both samples belong to the group min_example_iCLIP. This example has only one group; the group.txt is not necessary. It is still shown here as an example. 
 
-- **config_test_iCLIP.yaml**: The config file for racoon_clip. Inside the config file you need to adjust the path to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your machine.
+- **config_test_iCLIP.yaml**: The config file for racoon_clip. Inside the config file, you need to adjust the path to the sample fastq files, the adapter.fa, the barcode.fasta, the group.txt and the annotation files, so they point to the right position on your machine.
 
 .. Note::
 
-  All paths need to be specified as absolute paths. Relative paths` (for example starting with ~) are not allowed.
+  All paths need to be specified as absolute paths. Relative paths` (for example, starting with ~ or .) are not allowed.
 
 This is how the config file config_min_example_iCLIP.yaml looks like: 
 
@@ -116,14 +130,14 @@ As long as you are in the racoon_clip/example_data directory you can use the con
 
 .. Note::
 
-  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at the read 1 (eCLIP is paired-end usually), but racoon_clip only uses the read 2, which contains the crosslink site. For the adapters, the default adapters from racoon_clip can be used for this example.
+  The eCLIP examples do not need the specification of a barcode_fasta and adapter_file. The barcodes in eCLIP are positioned at read 1 (eCLIP is usually paired-end), but racoon_clip only uses read 2, which contains the crosslink site. For the adapters, the default adapters from racoon_clip can be used for this example.
 
 Selecting optional steps
 ------------------------
 
-The following steps can be turned on and off as needed in the config file. (For the tutorial you can use the default options.)
+The following steps can be turned on and off as needed in the config file. (For the tutorial, you can use the default options.)
 
-+ **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. The filter is applied on the combined region of UMI and barcode in iCLIP data or only UMI in eCLIP data and automatically turned off for experiment_type:"eCLIP_ENCODE".
++ **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. The filter is applied on the combined region of UMI and barcode in iCLIP data or only UMI in eCLIP data and automatically turned off for experiment_types "eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI".
 + **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done. (See also example_data/example_iCLIP_multiplexed)
 + **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
 + **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
@@ -202,7 +216,7 @@ For the other minimal examples, you would use "eCLIP" or "eCLIP_ENCODE" as exper
   --genome_fasta "<path/to/genome.fasta>"
   --read-length 45
 
-For the multiplexed example you also need to specify ``--demultiplex True``. 
+For the multiplexed example, you also need to specify ``--demultiplex True``. 
 In addition, this example shows how to merge samples by groups with ``--experiment-groups`` and ``--experiment-group-file``.
 
 .. code:: bash
@@ -227,9 +241,9 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 - **a summary of the performed steps** called Report.html.
 
-- **The sample-wise whole aligned reads after duplicate removal in bam format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding bam.bai files.
+- **The sample-wise whole aligned reads after duplicate removal in BAM format**. You can find them in the folder results/aligned/<sample_name>.Aligned.sortedByCoord.out.duprm.bam together with the corresponding bam.bai files.
 
-- **The group-wise whole aligned reads after duplicate removal in bam format.** There will be one bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam where all samples are merged. They are located in the results/bam_merged/ folder.
+- **The group-wise whole aligned reads after duplicate removal in BAM format.** There will be one bam file for each group you specified in the group.txt file. If no group is specified, you get a file called all.bam where all samples are merged. They are located in the results/bam_merged/ folder.
 
 - **The sample-wise single nucleotide crosslink files in bw format.**: The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
