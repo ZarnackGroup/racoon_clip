@@ -148,7 +148,7 @@ Please also have a look at `options <all_options>` for how to provide barcode, U
     quality_filter_barcodes:True/False
     demultiplex:False/True
     adapter_trimming:True/False
-    deduplicate:deduplicate
+    deduplicate:True/False
 
 Selecting experimental type
 ---------------------------
