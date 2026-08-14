@@ -180,9 +180,9 @@ Using a standard barcode setup
 
 Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. To account for all of them and also allow other experimental setups, racoon_clip uses a barcode consisting of umi1+experimental_barcode+umi2. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
+If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. To account for all of them and also allow other experimental setups, racoon_clip uses a barcode consisting of umi1+experimental_barcode+umi2. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to set up your barcode+UMI architecture manually:
 
-- **barcodeLength** (int): length of the complete barcode (UMI 1 + experimental barcode + UMI 2) 
+- **barcodeLength** (int): length of the experimental barcode 
 
 - **umi1_len** (int): length of UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode, set to 0. 
 
@@ -196,16 +196,16 @@ For example, manually defining an iCLIP or eCLIP setup would look like this:
 .. code-block:: python
 
    # iCLIP
-   barcodeLength: 9
+   barcodeLength: 4
    umi1_len: 3
    umi2_len: 2
-   total_barcode_len: 4
+   total_barcode_len: 9
 
    # eCLIP
-   barcodeLength: 10 (5)
+   barcodeLength: 0
    umi1_len: 10 (5)
    umi2_len: 0
-   total_barcode_len: 0
+   total_barcode_len: 10 (5)
 
 
 Using manual barcode setup for ENCODE (or ENCODE-like) data
