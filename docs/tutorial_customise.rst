@@ -28,18 +28,18 @@ Here is a config file listing all default options. This tutorial will walk you t
     # barcodes
     barcodeLength: "" # if already demux = umi1_len
     minBaseQuality: 10
-    umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
+    umi1_len: "" # antisense of used barcodes --> this is the 3' UMI of the original barcode
     umi2_len: 0
     total_barcode_len: 0
     encode: False
     
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "miReCLIP","noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
     
     barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
     quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
     
     # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no barcode filtering will be done
+    demultiplex: False # Whether demultiplexing still has to be done; if FALSE, total_barcode_len should be 0, and no barcode filtering will be done
     min_read_length: 15
     
     # adapter trimming
@@ -67,7 +67,7 @@ Here is a config file listing all default options. This tutorial will walk you t
     # deduplicate
     deduplicate: True
 
-All these options can also be specified in the command line instead of the config file. For the command line parameters check out
+All these options can also be specified in the command line instead of the config file. For the command-line parameters, check out
 
 .. code:: bash
 
@@ -83,7 +83,7 @@ These parameters should be passed in the command line.
 - ``--log``: *default "racoon_clip.log"*; Name of log file.
 
 
-Preset and custom options Barcodes and UMIs 
+Preset and custom options: Barcodes and UMIs 
 ---------------------------------
 
 Different experimental approaches (iCLIP, iCLIP2, iCLIP3, eCLIP, seCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. The following schematic shows the most common barcode setups. 
@@ -96,44 +96,44 @@ Different experimental approaches (iCLIP, iCLIP2, iCLIP3, eCLIP, seCLIP) will us
 
 - **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 
 
-- **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
+- **eCLIP from ENCODE:** UMI of 10nt (or 5nt) at the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
 .. image:: ../experiment_types_schema.png
    :width: 600
     Most common barcode setups.
 
 
-If your experiment used one of these setups, you can use the expereriment_type parameter:
+If your experiment used one of these setups, you can use the experiment_type parameter:
 
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If your experiment uses one of the supported barcode setups, you can use the parameter **experiment_type**.
-Specify one of the following: "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI".0
+Specify one of the following: "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "miReCLIP", "noBarcode_noUMI".
 
-When experiment_type is specified, the parameters barcodeLength, umi1_len, umi2_len, total_barcode_len and encode will be ignored. 
+When experiment_type is specified, the parameters barcodeLength, umi1_len, umi2_len, total_barcode_len, and encode will be ignored. 
 
 .. Note::
 
-   There is a special type eCLIP_ENCODE, because ENCODE provided data has the UMI information no longer in the read, but appended to the end of the read names.
+   There are special types "eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI" because ENCODE data no longer has UMI information in the reads, but instead appends it to the     end of the read names. If unsure if the data has a 5nt or 10nt UMI, check the read headers (for example, with head encode_sample.fastq)
 
 Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If your data does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to "other". In order to allow other experimental setups racoon_clip uses a barcode set-up consisting of **umi1 + experimental_barcode + umi2**. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode&UMI architecture:
+If your data does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to "other". In order to allow other experimental setups, racoon_clip uses a barcode setup consisting of **umi1 + experimental_barcode + umi2**. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode&UMI architecture:
 
 - **barcodeLength** (int): length of barcode 
 
-- **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode set to 0. 
+- **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode, set to 0. 
 
--  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
+-  **umi2_len** (int): length of UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode, set to 0. 
 
 
-- **total_barcode_len** (int): total length of the experimental barcode region that is read including UMIs and random barcodes. Set to 0 if no barcode filtering should be done. 
+- **total_barcode_len** (int): total length of the experimental barcode region that is read, including UMIs and random barcodes. Set to 0 if no barcode filtering should be done. 
 
 - **quality_filter_barcodes** if false or exp_barcode_len is 0, no barcode filtering will be done. 
 
 
 
-For example, manually defining an iCLIP or eCLIP setup manually would look like this:
+For example, manually defining an iCLIP or eCLIP setup would look like this:
 
 .. code-block:: python
 
@@ -157,9 +157,9 @@ How to customise genome alignment
 
 Required input
 ^^^^^^^^^^^^^^^
-- **gtf** (path): .gft file of used genome annotation. Note, that the file needs to be unzipped. (Can be obtained for example from https://www.gencodegenes.org/human/.) 
+- **gtf** (path): .gft file of the used genome annotation. Note that the file needs to be unzipped. (Can be obtained for example, from https://www.gencodegenes.org/human/.) 
 
-- **genome_fasta** : .fasta file of used genome annotation. Unzipped or bgzip files are supported. 
+- **genome_fasta** : .fasta file of the used genome annotation. Unzipped or bgzip files are supported. 
 
 - **star_index** (path): *optional*; Path to a prebuilt STAR index directory. If provided, STAR will use this existing index instead of building a new one from genome_fasta and gtf. This can significantly speed up the alignment process for large genomes. If not specified or empty, STAR will build the index on-the-fly.
 
@@ -183,15 +183,15 @@ Multiple additional parameters can be passed for the alignment. For example, mul
 
 Furthermore, these parameters can fine-tune the stringency of the alignment:
 
-- **outFilterMismatchNoverReadLmax** (ratio): *default 0.04*; Ratio of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
+- **outFilterMismatchNoverReadLmax** (ratio): *default 0.04*; Ratio of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax, the more stringent setting will be applied. 
 
-- **outFilterMismatchNmax** (int): *default 999*; Number of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax the more stringent setting will be applied. 
+- **outFilterMismatchNmax** (int): *default 999*; Number of allowed mismatches during alignment. Of outFilterMismatchNoverReadLmax and outFilterMismatchNmax, the more stringent setting will be applied. 
 
 - **outSJfilterReads**: *default "Unique"*
 
 There is also an option to pass all other STAR parameters with:
 
-- **moreSTARParameters**: Here all other STAR parameters can be passed.
+- **moreSTARParameters**: Here, all other STAR parameters can be passed.
 
 Check the `STAR manual <https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf>`_ for a detailed description and all options.
 
@@ -209,7 +209,7 @@ To allow multimapping, you can add the following to the config file:
 How to run racoon_clip with Snakemake cluster execution
 --------------------------------------------
 
-As racoon_clip is based on the snakemake workflow management system, in general, all snakemake commandline options can be passed to racoon_clip. For a full list of options check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the cluster execution and cloud execution of racoon_clip. 
+As racoon_clip is based on the snakemake workflow management system, in general, all snakemake command-line options can be passed to racoon_clip. For a full list of options, check the :ref:`snakemake documentation <https://snakemake.readthedocs.io/en/stable/executing/cli.html>`. This applies also to the cluster execution and cloud execution of racoon_clip. 
 
 For example, racoon_clip can be executed with slurm clusters like this:
 
@@ -223,7 +223,7 @@ For example, racoon_clip can be executed with slurm clusters like this:
   --wait-for-files \
   --latency-wait 60
 
-Or for peaks calling:
+Or for peak calling:
 
 .. code:: bash
 
@@ -235,7 +235,7 @@ Or for peaks calling:
   --wait-for-files \
   --latency-wait 60
 
-Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, that could for example look like this: 
+Where <path/to/your/slurm/profile> should be a directory containing a config.yaml, which could for example, look like this: 
 
 .. code-block:: python
 
