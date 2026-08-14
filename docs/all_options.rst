@@ -16,13 +16,13 @@ You can specify all parameters and options of racoon either directly in the comm
    racoon_clip crosslinks --configfile <your_configfile> --cores <n_cores>
    racoon_clip peaks --configfile <your_configfile> --cores <n_cores>
 
-To make your own config file you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters, that should be used in default, do not need to be specified in the config.yaml file. Here is an example of a config.yaml file containing all default options:
+To make your own config file, you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters that should be used by default do not need to be specified in the config.yaml file. Here is an example of a config.yaml file containing all default options:
 
 
 .. code:: bash
     
     # where to put results
-    wdir: "." # no backslash in the end of the path
+    wdir: "." # no backslash at the end of the path
     # input
     infiles: "" # one undemultiplexed file or multiple demultiplexed files
     
@@ -34,18 +34,18 @@ To make your own config file you can start with an empty yaml file or copy one o
     # barcodes
     barcodeLength: "" # if already demux = umi1_len
     minBaseQuality: 10
-    umi1_len: "" # antisense of used barcodes --> this is the 3' umi of the original barcode
+    umi1_len: "" # antisense of used barcodes --> this is the 3' UMI of the original barcode
     umi2_len: 0
     total_barcode_len: 0
     encode: False
-    
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP", "eCLIP_ENCODE" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
+    noBarcode_noUMI"
+    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "miReCLIP", "noBarcode_noUMI" or "other" (if not "other" this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
     
     barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
     quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
     
     # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done, if FALSE total_barcode_len should be 0, no bacode filtering will be done
+    demultiplex: False # Whether demultiplexing still has to be done; if FALSE, total_barcode_len should be 0, no barcode filtering will be done
     min_read_length: 15
     
     # adapter trimming
@@ -79,7 +79,7 @@ In the command line every option can be specified by adding ``--`` in front and 
    racoon_clip crosslinks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
    racoon_clip peaks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
 
-You can also check for the commandline parameters with
+You can also check the command-line parameters with
 
 .. code:: commandline
 
@@ -111,14 +111,14 @@ Input files and output directory
 
 - **wdir** (path): *default "./racoon_clip_out"*; Path where results are written to. A folder “results” containing all output will be created. Be aware that if a folder “results” already exists in this directory, it will be overwritten.
 
-- **infiles** (path(s) to file(s)): One or multiple file paths to the fastq files of all samples. Multiple files should be provided in one string, separated by a space. When demultiplexing should be performed by racoon_clip, specify only one input fastq file of the multiplexed reads. Fasta files are not supported, as they will not allow any quality filtering.
+- **infiles** (path(s) to file(s)): One or multiple file paths to the fastq files of all samples. Multiple files should be provided in one string, separated by a space. When demultiplexing should be performed by racoon_clip, specify only one input fastq file of the multiplexed reads. FASTA files are not supported, as they will not allow any quality filtering.
 
 - **seq_format** ("-Q33"/"-Q64"): *default "-Q33"*; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a Sanger sequencer.
 
 Sample names & experiment groups
 ---------------------------------
 
-- **samples** (string): A list of all sample names. The names should be the same as the file names of the input files or in case of demultiplexing should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are names sample_1.fastq, and sample_2.fastq. 
+- **samples** (string): A list of all sample names. The names should be the same as the file names of the input files or in the case of demultiplexing, should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are named sample_1.fastq and sample_2.fastq. 
 - **experiment_groups** (string): In addition to sample-wise output, racoon_clip will output merged bam and bw files. Which samples are merged together is specified by the experiment groups. Example: "WT KO". If all samples belong to the same group, this can be left empty and racoon_clip will automatically merge all samples. The groups must correspond to the group names specified in the experiment_group_file. 
 
 - **experiment_group_file** (path to txt): *default " "*; A .txt file specifying which samples belong to which group. If all samples belong to the same condition, this can be left empty and racoon_clip will automatically merge all samples.
@@ -166,31 +166,32 @@ Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different leng
     Most common barcode setups.
 
 
-If your experiment used one of these setups, you can use the expereriment_type parameter:
+If your experiment used one of these setups, you can use the experiment_type parameter:
 
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **experiment_type** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/ "eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your experiment. 
+- **experiment_type** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"miReCLIP"
+/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your experiment. 
 
 .. Note::
 
-   There is a special type eCLIP_ENCODE, because ENCODE provided data has the UMI information no longer in the read, but appended to the end of the read names.
+   There are special types "eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI" because ENCODE data no longer has UMI information in the reads, but instead appends it to the end of the read names. If unsure if the data has a 5nt or 10nt UMI, check the read headers (for example, with head encode_sample.fastq)
 
 Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. In order to account for all of them and also allow other experimental setups racoon uses a barcode consisting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
+If your experiment does not follow one of these standard setups, you can define the setup manually and experiment_type defaults to other. To account for all of them and also allow other experimental setups racoon_clip uses a barcode consisting of umi1+experimental_barcode+umi2 is used. Parts of this barcode that do not exist in a particular data set can be set to length 0. These are the parameters to manually set up your barcode+UMI architecture:
 
 - **barcodeLength** (int): length of the complete barcode (UMI 1 + experimental barcode + UMI 2) 
 
-- **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode set to 0. 
+- **umi1_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 1 is the 3' UMI of the experimental barcode. If the UMI is only 5' of the experimental barcode, set to 0. 
 
--  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode set to 0. 
+-  **umi2_len** (int): length of the UMI 1. Note that the sequences of the barcodes will be antisense of the barcodes used in the experiment. Therefore, UMI 2 is the 5' UMI of the experimental barcode. If the UMI is only 3' of the experimental barcode, set to 0. 
 
-- **total_barcode_len** (int): total length of the experimental barcode region that is read including UMIs and random barcodes. Set to 0 if no barcode filtering should be done. 
+- **total_barcode_len** (int): total length of the experimental barcode region that is read, including UMIs and random barcodes. Set to 0 if no barcode filtering should be done. 
 
 
-For example, manually defining an iCLIP or eCLIP setup manually would look like this:
+For example, manually defining an iCLIP or eCLIP setup would look like this:
 
 .. code-block:: python
 
@@ -229,26 +230,26 @@ Quality filtering during barcode trimming:
 
 - **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. 
 
-- **minBaseQuality** (int): *default 10*; The minimum per base quality of the barcode region of each read. Reads below this threshold are filtered out. This only applies if quality_filter_barcodes is set to True. 
+- **minBaseQuality** (int): *default 10*; The minimum per-base quality of the barcode region of each read. Reads below this threshold are filtered out. This only applies if quality_filter_barcodes is set to True. 
 
 Adapters
 -----------------
 - **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
 
-- **adapter_file** (path): *default /params.dir/adapters.fa*; A fasta file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
+- **adapter_file** (path): *default /params.dir/adapters.fa*; A FASTA file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
 
 - **adapter_cycles** (int): *default 1*; How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP.
 
 Alignment to genome
 ---------------------------------
 
-- **gft** (path): .gft file of used genome annotation. Note, that the file needs to be unzipped. (Can be obtained for example from https://www.gencodegenes.org/human/.) 
+- **gft** (path): .gft file of the used genome annotation. Note that the file needs to be unzipped. (Can be obtained for example, from https://www.gencodegenes.org/human/.) 
 
-- **genome_fasta** : .fasta file of used genome annotation. Unzipped or bgzip files are supported. 
+- **genome_fasta** : .fasta file of the used genome annotation. Unzipped or bgzip files are supported. 
 
 - **star_index** (path): *optional*; Path to a prebuilt STAR index directory. If provided, STAR will use this existing index instead of building a new one from genome_fasta and gtf. This can significantly speed up the alignment process for large genomes. If not specified or empty, STAR will build the index on-the-fly.
 
-parameters  passed to STAR:
+Parameters  passed to STAR:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 (Check the `STAR manual <https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf>`_ for a detailed description.) 
 
@@ -280,7 +281,7 @@ These parameters should be passed in the command line.
 Cluster execution
 ^^^^^^^^^^^^^^^^^^
 
-- ``--profile``: The path to your cluster profile folder containing a config.yaml file that could for example look like this (For large datasets you might need to increase mem_mb and time.):
+- ``--profile``: The path to your cluster profile folder containing a config.yaml file that could for example, look like this (For large datasets you might need to increase mem_mb and time):
 
 .. code-block:: bash
     
