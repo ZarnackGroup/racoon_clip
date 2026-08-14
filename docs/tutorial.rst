@@ -11,7 +11,7 @@ How to run racoon_clip
 
 You can run racoon_clip with the following commands:
 
-.. code:: commandline
+.. code:: command line
 
    racoon_clip crosslinks --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
    racoon_clip peaks --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
@@ -43,7 +43,7 @@ A minimal config file would look like this:
 .. code:: python
     
     # where to put results
-    wdir: "output/path" # no backslash in the end of the path
+    wdir: "output/path" # no backslash at the end of the path
     # input
     infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one un-demultiplexed file or multiple demultiplexed files
     samples: "sample1 sample2"
@@ -53,8 +53,8 @@ A minimal config file would look like this:
     star_index: "" # optional prebuilt STAR index directory
     read_length: N 
 
-    # experiemnt type
-    experiment_type: "iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other" 
+    # experiment type
+    experiment_type: "iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"miReCLIP"/"noBarcode_noUMI"/"other" 
 
     # for the demultiplexing functionality or for data with experiment_type "iCLIP", "iCLIP2", or "iCLIP3"
     barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
@@ -63,7 +63,7 @@ A minimal config file would look like this:
     morePureclipParameters: "-iv 'chr1;chr2;chr3;'"
 
 
-What is my experiement_type?
+What is my experiment_type?
 --------------------------
 The experiment_type specifies the barcode and adapter setup in your data. You can choose from the following options, or use a custom setup.
 
@@ -73,11 +73,11 @@ The experiment_type specifies the barcode and adapter setup in your data. You ca
 
 - **iCLIP3**: UMI of 9nt (at the 5' end)
 
-- **eCLIP**: UMI of 10nt or 5nt in the beginning (5' end) of read2. This option can be used for both eCLIP and seCLIP. Specify "eCLIP_10ntUMI" or "eCLIP_10ntUMI". 
+- **eCLIP**: UMI of 10nt or 5nt in the beginning (5' end) of read2. This option can be used for both eCLIP and seCLIP. Specify "eCLIP_5ntUMI" or "eCLIP_10ntUMI". 
 
-- **eCLIP from ENCODE:** UMI of 10nt or 5nt in the beginning (5' end) of read2 is already trimmed off and stored in the read name. Specify "eCLIP_ENCODE_5ntUMI" or "eCLIP_ENCODE_10ntUMI".
+- **eCLIP from ENCODE:** UMI of 10nt or 5nt at the beginning (5' end) of read2 is already trimmed off and stored in the read name. Specify "eCLIP_ENCODE_5ntUMI" or "eCLIP_ENCODE_10ntUMI".
 
-- **UMI and barcode are already trimmed off**: If your data does not contain the UMI and barcode information anymore choose "noBarcode_noUMI" irrespective of what experiment the data is from. This is often the case for files downloaded from SRA.
+- **UMI and barcode are already trimmed off**: If your data does not contain the UMI and barcode information anymore, choose "noBarcode_noUMI" irrespective of what experiment the data is from. This is often the case for files downloaded from SRA.
 
 .. image:: ../experiment_types_schema.png
    :width: 600
@@ -123,9 +123,9 @@ Demultiplexing
 Demultiplexing is only possible for single-end read data (e.g iCLIP and iCLIP2, not eCLIP). Both the UMI and the barcode need to be positioned at the beginning of the read.
 
 - **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
-- **barcodes_fasta** (path to fasta): Path to fasta file of antisense sequences of the used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
+- **barcodes_fasta** (path to fasta): Path to the FASTA file of antisense sequences of the used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
-This is an example of a barcode fasta for an iCLIP experiment. It is important that the barcode names (after >) are exactly the same as the specified sample names and the names of the input read files. The UMIs are added as Ns.
+This is an example of a barcode FASTA for an iCLIP experiment. It is important that the barcode names (after >) are the same as the specified sample names and the names of the input read files. The UMIs are added as Ns.
 
 .. code-block:: text
 
@@ -147,19 +147,19 @@ Adapters
 ^^^^^^^^^^
 - **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
 
-- **adapter_file** (path): *default /params.dir/adapters.fa*; A fasta file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
+- **adapter_file** (path): *default /params.dir/adapters.fa*; A FASTA file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
 
 - **adapter_cycles** (int): *default 1*; How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP.
 
 Trimming at the 3' end
 ^^^^^^^^^^^^^^^
-- **trim3** (True/False): *default False*; Whether nucleotides should be trimmed of the 3' end of the reads. This is necessary for iCLIP3.
+- **trim3** (True/False): *default False*; Whether nucleotides should be trimmed from the 3' end of the reads. This is necessary for iCLIP3.
 - **trim3_len** (int): *default 3*; The number of nucleotides to be trimmed off.
 
 
 Deduplication
 ^^^^^^^^^^^^^^
-- **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended always to use deduplication unless no UMIs are present in the data.
+- **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
 
 
 
