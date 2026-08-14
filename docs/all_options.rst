@@ -172,7 +172,7 @@ Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **experiment_type** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"miReCLIP"
-/"noBarcode_noUMI"/"other"): *default: "other"*; The type of your experiment. 
+    /"noBarcode_noUMI"/"other"): *default: "other"*; The type of your experiment. 
 
 .. Note::
 
