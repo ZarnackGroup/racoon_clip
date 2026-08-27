@@ -5,6 +5,7 @@ import tempfile
 import stat
 import shutil
 from datetime import datetime
+from pathlib import Path
 
 # Try to import yaml, fall back to text processing if not available
 try:
@@ -309,6 +310,50 @@ def test_run_execution(config_file, log_file=None, extra_args=None):
                 log_f.write(error_msg + "\n")
         print(error_msg)
         return False, abs_config_file
+
+
+
+def read_config_value(config_path, key):
+    with open(config_path) as config_file:
+        for line in config_file:
+            if line.strip().startswith(f"{key}:"):
+                value = line.split(":", 1)[1].partition("#")[0].strip()
+                return value.strip("'\"")
+    raise ValueError(f"Missing {key!r} in {config_path}")
+
+
+def run_eclip_no_gtf_crosslink_case(config_file, extra_args=None):
+    """Run eCLIP crosslink calling without a GTF and verify STAR outputs."""
+    repo_dir = Path(__file__).resolve().parents[2]
+    config_path = Path(config_file)
+    if not config_path.is_absolute():
+        config_path = repo_dir / config_path
+
+    if read_config_value(config_path, "gtf"):
+        return False, "The no-GTF test config contains a GTF path"
+
+    success, _ = test_run_execution(str(config_path), extra_args=extra_args)
+    if not success:
+        return False, "racoon_clip crosslinks failed without a GTF"
+
+    output_dir = Path(read_config_value(config_path, "wdir"))
+    if not output_dir.is_absolute():
+        output_dir = Path.cwd() / str(output_dir).removeprefix("./")
+
+    missing_alignments = [
+        sample
+        for sample in read_config_value(config_path, "samples").split()
+        if not (
+            output_dir
+            / "results"
+            / "aligned"
+            / f"{sample}.Aligned.sortedByCoord.out.bam"
+        ).is_file()
+    ]
+    if missing_alignments:
+        return False, f"Missing STAR alignment output for: {', '.join(missing_alignments)}"
+
+    return True, str(output_dir)
 
 
 def cleanup_results_folder(config_file):

@@ -8,6 +8,8 @@ import os
 import sys
 import subprocess
 import argparse
+import json
+import re
 from pathlib import Path
 from typing import List, Tuple
 import shutil
@@ -32,11 +34,15 @@ from test_dag import test_dag
 
 # Import CROSSLINKS testing functionality
 sys.path.append(str(Path(__file__).parent / "test_crosslinks"))
-from test_crosslinks import test_run_execution
+from test_crosslinks import run_eclip_no_gtf_crosslink_case, test_run_execution
 
 # Import PEAKS testing functionality
 sys.path.append(str(Path(__file__).parent / "test_peaks"))
-from test_peaks import test_peaks_execution, create_absolute_paths_config
+from test_peaks import (
+    create_absolute_paths_config,
+    run_eclip_iupac_peak_cases,
+    test_peaks_execution,
+)
 
 # Import FASTQSCREEN testing functionality
 sys.path.append(str(Path(__file__).parent / "test_fastqscreen"))
@@ -78,6 +84,17 @@ def print_error(message: str) -> None:
 def print_warning(message: str) -> None:
     """Print warning message in yellow"""
     print(f"{Colors.YELLOW}⚠ {message}{Colors.NC}")
+
+
+def read_package_version(init_file: Path) -> str:
+    """Read the release version from racoon_clip/__init__.py."""
+    content = init_file.read_text()
+    version_match = re.search(
+        r'__version__\s*=\s*[\'\"]([^\'\"]+)[\'\"]', content
+    )
+    if not version_match:
+        raise ValueError(f"No __version__ assignment found in {init_file}")
+    return version_match.group(1)
 
 
 class RacoonTestSuite:
@@ -273,6 +290,17 @@ class RacoonTestSuite:
                 failed += 1
                 failed_tests.append(Path(config_file).name)
 
+        no_gtf_success, no_gtf_detail = run_eclip_no_gtf_crosslink_case(
+            "example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC_no_gtf.yaml",
+            extra_args=extra_args,
+        )
+        print_colored(f"\neCLIP crosslinks without GTF: {no_gtf_detail}")
+        if no_gtf_success:
+            passed += 1
+        else:
+            failed += 1
+            failed_tests.append("eCLIP crosslinks without GTF")
+
         print_colored("\nCrosslinks Test Summary:")
         print_colored(f"Passed: {passed}")
         print_colored(f"Failed: {failed}")
@@ -316,7 +344,7 @@ class RacoonTestSuite:
         return success
 
     def test_all_peaks(self, extra_args=None) -> tuple:
-        """Test peaks execution for eCLIP ENCODE and iCLIP config files. Returns (success, failed_tests)"""
+        """Test peak calling, including eCLIP genomes containing U or Y."""
         print_colored("=== Testing Peaks Execution ===")
 
         # Test both eCLIP ENCODE and iCLIP config files for peaks
@@ -336,6 +364,19 @@ class RacoonTestSuite:
             else:
                 failed += 1
                 failed_tests.append(Path(peaks_config).name)
+
+        iupac_results = run_eclip_iupac_peak_cases(
+            "example_data/example_eCLIP_ENCODE/config_test_eCLIP_ENC.yaml",
+            extra_args=extra_args,
+        )
+        for symbol, (success, detail) in iupac_results.items():
+            case_name = f"eCLIP genome containing {symbol}"
+            print_colored(f"\n{case_name}: {detail}")
+            if success:
+                passed += 1
+            else:
+                failed += 1
+                failed_tests.append(case_name)
 
         print_colored("\nPeaks Test Summary:")
         print_colored(f"Passed: {passed}")
@@ -360,28 +401,16 @@ class RacoonTestSuite:
             print_error(f"Installation test script not found: {test_script}")
             return False
 
-        # Get current version from __init__.py
+        # Use the package metadata as the single source of truth for the release tag.
+        init_file = self.base_dir.parent / "racoon_clip" / "__init__.py"
         try:
-            init_file = self.base_dir.parent / "racoon_clip" / "__init__.py"
-            print_colored(f"Looking for version in: {init_file}")
-            if init_file.exists():
-                with open(init_file, 'r') as f:
-                    content = f.read()
-                print_colored(f"__init__.py content preview: {content[:200]}...")
-                import re
-                version_match = re.search(r'__version__\s*=\s*[\'"]([^\'"]+)[\'"]', content)
-                if version_match:
-                    current_version = version_match.group(1)
-                    print_colored(f"✓ Successfully parsed version from __init__.py: {current_version}")
-                else:
-                    current_version = "1.3.0"
-                    print_colored(f"⚠ Could not parse version from __init__.py, using default: {current_version}")
-            else:
-                current_version = "1.3.0"
-                print_colored(f"⚠ __init__.py not found at {init_file}, using default version: {current_version}")
-        except Exception as e:
-            current_version = "1.3.0"
-            print_colored(f"⚠ Error reading version from __init__.py: {e}, using default: {current_version}")
+            current_version = read_package_version(init_file)
+        except (OSError, ValueError) as e:
+            print_error(f"Could not read package version from {init_file}: {e}")
+            return False
+        print_success(
+            f"Using version {current_version} from racoon_clip/__init__.py"
+        )
 
         # Make script executable
         os.chmod(test_script, 0o755)
@@ -1099,10 +1128,24 @@ class RacoonTestSuite:
         
         # Check if the environment exists, create if it doesn't
         env_name = "racoon_R_v0.4"
-        env_list_cmd = [conda_cmd, "env", "list"]
+        env_list_cmd = [conda_cmd, "env", "list", "--json"]
         success, output = self.run_command(env_list_cmd)
-        
-        if success and env_name not in output:
+
+        if not success:
+            print_error(f"Failed to list conda environments: {output}")
+            return False
+
+        try:
+            env_paths = json.loads(output).get("envs", [])
+        except (json.JSONDecodeError, AttributeError) as e:
+            print_error(f"Failed to parse conda environment list: {e}")
+            return False
+
+        matching_envs = [
+            path for path in env_paths if Path(path).name == env_name
+        ]
+
+        if not matching_envs:
             print_colored(f"Creating conda environment: {env_name}")
             create_env_cmd = [conda_cmd, "env", "create", "-f", str(env_file)]
             success, output = self.run_command(create_env_cmd)
@@ -1110,21 +1153,44 @@ class RacoonTestSuite:
                 print_error(f"Failed to create conda environment: {output}")
                 return False
             print_success(f"Created conda environment: {env_name}")
+
+            success, output = self.run_command(env_list_cmd)
+            if not success:
+                print_error(f"Failed to locate the new conda environment: {output}")
+                return False
+            try:
+                env_paths = json.loads(output).get("envs", [])
+            except (json.JSONDecodeError, AttributeError) as e:
+                print_error(f"Failed to parse conda environment list: {e}")
+                return False
+            matching_envs = [
+                path for path in env_paths if Path(path).name == env_name
+            ]
+            if not matching_envs:
+                print_error(
+                    f"Created {env_name}, but could not determine its path"
+                )
+                return False
         else:
-            print_colored(f"Conda environment {env_name} already exists")
-        
+            print_colored(
+                f"Conda environment {env_name} already exists: "
+                f"{matching_envs[0]}"
+            )
+
+        env_path = matching_envs[0]
+
         # Run the R script within the conda environment
         if conda_cmd == "mamba":
             # Use mamba run for better performance
-            r_cmd = ["mamba", "run", "-n", env_name, "Rscript", str(report_script)]
+            r_cmd = ["mamba", "run", "-p", env_path, "Rscript", str(report_script)]
         else:
             # Use conda run
-            r_cmd = ["conda", "run", "-n", env_name, "Rscript", str(report_script)]
+            r_cmd = ["conda", "run", "-p", env_path, "Rscript", str(report_script)]
         
         print_colored(f"Running R script in conda environment: {report_script}")
         
-        # Run R script from current working directory instead of report_test directory
-        success, output = self.run_command(r_cmd, cwd=Path.cwd())
+        # The R test resolves configs and output directories relative to its location.
+        success, output = self.run_command(r_cmd, cwd=report_script.parent)
         
         print_colored("\n" + "="*50)
         if success:
@@ -1262,7 +1328,9 @@ def main():
         help="Type of test to run"
     )
     parser.add_argument(
+        "--no-clean",
         "--no_clean",
+        dest="no_clean",
         action="store_true",
         help="Do not remove test result folders after successful tests"
     )
@@ -1299,11 +1367,11 @@ def main():
     if success:
         success = suite.cleanup_generated_configs()
 
-    # Clean up test results unless --no_clean flag is set or running report test
-    if success and not args.no_clean and args.test_type != "test_report":
+    # --no-clean always preserves result folders, including successful runs.
+    if args.no_clean:
+        print_colored("\n--no-clean flag set: Test result folders preserved")
+    elif success and args.test_type != "test_report":
         suite.cleanup_results_folders()
-    elif args.no_clean:
-        print_colored("\n--no_clean flag set: Test result folders preserved")
     elif args.test_type == "test_report":
         print_colored("\nReport test: Result folders preserved for inspection")
     

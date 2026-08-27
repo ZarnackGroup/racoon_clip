@@ -18,14 +18,14 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
-VERSION=${1:-"1.3.0"}  # Use provided version or default to 1.3.0
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 VERSION" >&2
+    exit 2
+fi
+VERSION="$1"
 
 echo -e "${CYAN}Testing racoon_clip installation for version $VERSION${NC}"
-if [ -n "$1" ]; then
-    echo -e "${GREEN}Version $VERSION was passed as argument${NC}"
-else
-    echo -e "${YELLOW}No version argument provided, using default: $VERSION${NC}"
-fi
+echo -e "${GREEN}Using package version $VERSION from racoon_clip/__init__.py${NC}"
 echo -e "${CYAN}============================================================${NC}"
 
 # Create .test directory

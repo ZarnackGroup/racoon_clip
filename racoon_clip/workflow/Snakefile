@@ -13,6 +13,11 @@ import re
 from pathlib import Path
 
 from racoon_clip.group_handling import resolve_groups
+from racoon_clip.input_handling import build_sample_file_map, resolve_infiles
+from racoon_clip.star_handling import (
+    generated_star_index_paths,
+    star_annotation_arguments,
+)
 
 #print(pickle.__)
 print(string.__name__)
@@ -52,40 +57,17 @@ print(SNAKE_PATH)
 #     config_default = yaml.safe_load(f)
 
 WDIR=config["wdir"]
-# Handle glob patterns in infiles (e.g., *.fastq, *.fastq.gz)
-import glob
-import os
-infiles_raw = config["infiles"]
-if "*" in infiles_raw:
-    # Expand glob pattern
-    SAMPLES_FULL = glob.glob(infiles_raw)
-    if not SAMPLES_FULL:
-        raise ValueError(f"ERROR: No files found matching pattern: {infiles_raw}")
-    # Sort for consistent ordering
-    SAMPLES_FULL.sort()
-else:
-    # Split space-separated file list
-    SAMPLES_FULL = infiles_raw.split()
-    # Check that all files exist and are readable
-    missing_files = []
-    unreadable_files = []
-    for file_path in SAMPLES_FULL:
-        if not os.path.exists(file_path):
-            missing_files.append(file_path)
-        elif not os.access(file_path, os.R_OK):
-            unreadable_files.append(file_path)
-    
-    if missing_files:
-        raise ValueError(f"ERROR: The following input files do not exist: {', '.join(missing_files)}")
-    
-    if unreadable_files:
-        raise ValueError(f"ERROR: No permission to read the following files: {', '.join(unreadable_files)}")
+GENOME_FASTA_PATH=Path(config["genome_fasta"])
+PURECLIP_COMPATIBLE_NAME=GENOME_FASTA_PATH.stem+"_no_extended_iupac_u_to_t"+GENOME_FASTA_PATH.suffix
+PURECLIP_GENOME_PREFERRED=str(GENOME_FASTA_PATH.with_name(PURECLIP_COMPATIBLE_NAME))
+PURECLIP_GENOME_FALLBACK=config["wdir"]+"/results/tmp/"+PURECLIP_COMPATIBLE_NAME
+PURECLIP_GENOME_STATUS=config["wdir"]+"/results/peaks/pureclip_genome_compatibility.txt"
+DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
+SAMPLES_FULL = resolve_infiles(config["infiles"], demultiplex=DEMUX)
+PRIMARY_INPUT = SAMPLES_FULL[0]
 
 print("samples")
 print(SAMPLES_FULL)
-
-# Compute DEMUX early so we can skip file-name validation for multiplexed input
-DEMUX=config["demultiplex"] == "True" or config["demultiplex"] == "true" or config["demultiplex"] == True
 
 if DEMUX:
     # Multiplexed input: one file contains all samples; sample names are the
@@ -94,72 +76,32 @@ if DEMUX:
         SAMPLES = config["samples"].split()
     else:
         raise ValueError(
-            "ERROR: 'samples' must be specified in the config when demultiplex=True."
+            "ERROR: 'samples' must be specified in the config when demultiplex=True. "
             "List the expected sample names that match the headers in your barcodes_fasta."
         )
-    # No per-sample file mapping for multiplexed input
+    if len(SAMPLES) != len(set(SAMPLES)):
+        raise ValueError("Sample names must be unique.")
     SAMPLE_TO_FILE = {}
-    _name_to_file = {}
-    print("Multiplexed mode — sample names (post-demux):")
+    print("Multiplexed mode - sample names (post-demux):")
     print(SAMPLES)
 else:
-    # Non-multiplexed input: each sample has its own input file.
-    # Build a name->file mapping (order-independent) and validate.
-    _name_to_file = {}
-    for file_path in SAMPLES_FULL:
-        basename = os.path.basename(file_path)
-        sample_name = basename
-        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
-            if sample_name.endswith(ext):
-                sample_name = sample_name[:-len(ext)]
-                break
-        _name_to_file[sample_name] = file_path
-
-    if "samples" in config and config["samples"]:
-        SAMPLES = config["samples"].split()
-    else:
-        SAMPLES = list(_name_to_file.keys())
+    configured_samples = config.get("samples") or None
+    SAMPLES, SAMPLE_TO_FILE = build_sample_file_map(
+        SAMPLES_FULL,
+        configured_samples=configured_samples,
+    )
+    if not configured_samples:
         print("INFO: Auto-generated sample names from input files:")
-        for sample_name, file_path in _name_to_file.items():
+        for sample_name, file_path in SAMPLE_TO_FILE.items():
             print(f"  {file_path} -> {sample_name}")
 
     print("Final samples:")
     print(SAMPLES)
-
-    # Catch unknown sample names immediately with a clear error
-    missing = [s for s in SAMPLES if s not in _name_to_file]
-    if missing:
-        raise ValueError(
-            f"ERROR: The following sample names from config 'samples' have no matching input file:\n"
-            + "\n".join(f"  '{s}'" for s in missing)
-            + f"\n  Available names (from input files): {sorted(_name_to_file.keys())}"
-        )
-    SAMPLE_TO_FILE = {sample: _name_to_file[sample] for sample in SAMPLES}
-
-    # Sanity check: each sample name must match the basename of its mapped file
-    for sample, file_path in SAMPLE_TO_FILE.items():
-        basename = os.path.basename(file_path)
-        for ext in ['.fastq.gz', '.fq.gz', '.fastq', '.fq']:
-            if basename.endswith(ext):
-                basename = basename[:-len(ext)]
-                break
-        if sample != basename:
-            raise ValueError(
-                f"ERROR: Sample name '{sample}' does not match the basename of its assigned file.\n"
-                f"  Assigned file : {file_path}\n"
-                f"  Expected name : '{basename}'\n"
-                f"  This means a sample name is mapped to the wrong file. "
-                f"Ensure that sample names in 'samples' match the basenames of the input files exactly."
-            )
-
     print("Sample to file mapping:")
     for sample, file_path in SAMPLE_TO_FILE.items():
         print(f"  {sample} -> {file_path}")
 
-# Keep INPATH for backward compatibility (assumes files in same directory)
-INPATH=[os.path.dirname(path) for path in SAMPLES_FULL][0]
 QUAL_BC=(config["quality_filter_barcodes"] == "True" or config["quality_filter_barcodes"] == "true" or config["quality_filter_barcodes"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
-GZ= os.path.splitext(SAMPLES_FULL[0])[1] == ".gz" 
 #ENCODE=config["encode"] == "True"
 ADAPTER_FILE=config["adapter_file"] #if "adapter_file" in config else config_default["adapter_file"]
 TRIM=config["adapter_trimming"] == "True" or config["adapter_trimming"] == "true" or config["adapter_trimming"] == True
@@ -174,17 +116,20 @@ if FASTQ_SCREEN:
 TRIM3=config["trim3"] == "True" or config["trim3"] == "true" or config["trim3"] == True or config["experiment_type"] == "iCLIP3"
 DEDUP=(config["deduplicate"] == "True" or config["deduplicate"] == "true" or config["deduplicate"] == True) and config["experiment_type"]!= "noBarcode_noUMI"
 STAR_INDEX=config["star_index"] if config["star_index"] != "" else None
+GTF=config.get("gtf") or ""
 PEAKS=config["workflow_type"] == "peaks" 
 # Validate reference files
 
-# Check GTF file
-gtf_file = config["gtf"]
-if not os.path.exists(gtf_file):
-    raise ValueError(f"ERROR: GTF file does not exist: {gtf_file}")
-if not os.access(gtf_file, os.R_OK):
-    raise ValueError(f"ERROR: No permission to read GTF file: {gtf_file}")
-if not gtf_file.lower().endswith('.gtf'):
-    raise ValueError(f"ERROR: GTF file must end with .gtf extension: {gtf_file}")
+# Check the optional GTF file
+if GTF:
+    if not os.path.exists(GTF):
+        raise ValueError(f"ERROR: GTF file does not exist: {GTF}")
+    if not os.access(GTF, os.R_OK):
+        raise ValueError(f"ERROR: No permission to read GTF file: {GTF}")
+    if not GTF.lower().endswith('.gtf'):
+        raise ValueError(f"ERROR: GTF file must end with .gtf extension: {GTF}")
+else:
+    print("INFO: No GTF provided; STAR will align without annotated splice junctions.")
 
 # Check genome FASTA file
 genome_fasta = config["genome_fasta"]
@@ -371,18 +316,11 @@ if TRIM3 == True and TRIM == False:
 #############################################
 #############################################
 
-# get multiple inputfiles with or without gz
 def get_start_fastqs(wcs):
-    # Use the sample-to-file mapping to get the actual file path
-    sample_name = wcs.sample if hasattr(wcs, 'sample') else wcs
-    if isinstance(sample_name, str):
-        return SAMPLE_TO_FILE.get(sample_name, INPATH + f"/{sample_name}.fastq.gz" if GZ else INPATH + f"/{sample_name}.fastq")
-    else:
-        # Fallback to old behavior for compatibility
-        if GZ == True:
-            return INPATH+"/{sample}.fastq.gz"
-        else:
-            return INPATH+"/{sample}.fastq"
+    sample_name = wcs.sample
+    if sample_name not in SAMPLE_TO_FILE:
+        raise ValueError(f"No input FASTQ is mapped to sample '{sample_name}'.")
+    return SAMPLE_TO_FILE[sample_name]
    
 
 # get files for adapter trimming
@@ -395,7 +333,7 @@ def get_files_for_header_processing(wcs):
     if QUAL_BC == True:
         return config["wdir"]+"/results/barcode_filter/filtered.fastq.gz"
     else:
-        return config["infiles"]
+        return PRIMARY_INPUT
 
 # get input for header processing (demultiplexed data)
 def get_files_for_header_processing_demux(wcs):
@@ -555,13 +493,23 @@ def get_star_index():
     if STAR_INDEX is not None:
         return STAR_INDEX
     else:
-        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx/"
+        return generated_star_index_paths(GTF, config["genome_fasta"])[0]
     
 def get_star_index_chpnt():
     if STAR_INDEX is not None:
         return config["wdir"]+"/results/tmp/.star_index.chkpnt"
     else:
-        return re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx.chpnt"
+        return generated_star_index_paths(GTF, config["genome_fasta"])[1]
+
+
+def get_star_annotation_parameters():
+    if not GTF:
+        return ""
+    sjdb_overhang = (
+        int(config["read_length"]) - 1 -
+        int(get_barcode_experiment_info()["total_barcode_len"])
+    )
+    return star_annotation_arguments(GTF, sjdb_overhang)
 
 
 
@@ -613,9 +561,9 @@ if DEDUP == True:  # without demultiplexing
 
 # Produce one group-level output for every resolved group. Singleton groups
 # are copied by the merge rules instead of being passed to merge tools.
-myoutput.append(expand("{wdir}/results/bam_merged/{groups}.sort.bam", groups=GROUPS, wdir=WDIR))
+GROUP_BAMS = expand("{wdir}/results/bam_merged/{groups}.sort.bam", groups=GROUPS, wdir=WDIR)
+GROUP_BAM_INDEXES = expand("{wdir}/results/bam_merged/{groups}.sort.bam.bai", groups=GROUPS, wdir=WDIR)
 myoutput.append(expand("{wdir}/results/bed_merged/{groups}.minus.bedGraph", groups=GROUPS, wdir=WDIR))
-myoutput.append(expand("{wdir}/results/tmp/.merged.{groups}.bai.chkpnt", groups=GROUPS, wdir=WDIR))
 
 # add miR steps
 if MIR == True:
@@ -638,6 +586,8 @@ if MIR == True:
 rule all:
     input:
         myoutput,
+        GROUP_BAMS,
+        GROUP_BAM_INDEXES,
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
         expand("{wdir}/results/peaks/pureclip_sites_{groups}.bed", groups=GROUPS, wdir=WDIR),
@@ -652,9 +602,11 @@ rule all:
 rule all_crosslinks:
     input:
         myoutput,
+        # Keep the sorted group BAMs and their indexes as explicit crosslinks outputs.
+        GROUP_BAMS,
+        GROUP_BAM_INDEXES,
         # # # # crosslink_sites
         expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.minus.bw", sample=SAMPLES, wdir=WDIR),
-        # merged, indexed bam files
         # # # # FastQ Screen (if enabled)
         (config["wdir"]+"/results/fastqscreen_multi") if FASTQ_SCREEN else [],
         # # # # Report
@@ -686,7 +638,7 @@ rule all_crosslinks:
 
 rule high_quality_barcodes:
     input:
-        fasta=config["infiles"]
+        fasta=PRIMARY_INPUT
     output:
         "{wdir}/results/tmp/data_qualFilteredIDs.list"
     params:
@@ -707,7 +659,7 @@ rule high_quality_barcodes:
 
 rule filter_barcode_quality:
     input:
-        list=expand("{wdir}/results/tmp/data_qualFilteredIDs.list", wdir=WDIR), fastq=config["infiles"]
+        list=expand("{wdir}/results/tmp/data_qualFilteredIDs.list", wdir=WDIR), fastq=PRIMARY_INPUT
     output:
         file="{wdir}/results/barcode_filter/filtered.fastq.gz"
     conda:
@@ -775,7 +727,6 @@ rule extract_barcodes:
 ####################
 
 rule demultiplex_flexbar:
-# revisit flexbar params some different for mirko
     input:
         fasta=expand("{wdir}/results/barcode_filter/renamed.fastq.gz", wdir=WDIR), 
         barcodes=config["barcodes_fasta"]
@@ -856,7 +807,7 @@ out_high_quality_umi.append(config["wdir"]+"/results/tmp/{sample}_data_qualFilte
 
 rule high_quality_umi:
     input:
-        fasta=get_start_fastqs(wcs = SAMPLES)
+        fasta=get_start_fastqs
     output:
         out_high_quality_umi
     params:
@@ -1044,7 +995,6 @@ rule adapter_trimming_flexbar_single_end:
 # --> 3nt needed for iCLIP3
 
 rule trim3_flexbar:
-# revisit flexbar params some different for mirko
     input:
         fasta=get_demult_trim_reads_for_3trim, 
     output:
@@ -1102,15 +1052,16 @@ rule trim3_flexbar:
 
 rule create_STAR_index:
     input:
-        gtf=config["gtf"],
         genome_fasta=config["genome_fasta"],
     output: 
-        idx = directory(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx/"),
-        chkpnt = touch(re.sub(r"\.[^.]+$", "", config["gtf"]) + "_idx.chpnt")
+        idx = directory(generated_star_index_paths(GTF, config["genome_fasta"])[0]),
+        chkpnt = touch(generated_star_index_paths(GTF, config["genome_fasta"])[1])
+    params:
+        annotation=GTF or "not provided"
     conda:
         "envs/racoon_main_v0.4.yml"
     message: 
-        "========================= \n Indexing your genome annotation \n ================================ \n provided fasta: {input.genome_fasta} \n provided annotation: {input.gtf} \n" 
+        "========================= \n Indexing your genome \n ================================ \n provided fasta: {input.genome_fasta} \n provided annotation: {params.annotation} \n"
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
         mem_mb=lambda wildcards, attempt: [40000, 60000, 100000][min(attempt - 1, 2)],
@@ -1161,13 +1112,12 @@ rule align:
         bam=config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam",
 
     params:
-        gtf=config["gtf"],
+        annotation_parameters=get_star_annotation_parameters(),
         wdir=config["wdir"],
         dir="results/aligned/",
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
         outFilterMismatchNmax=config["outFilterMismatchNmax"],
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        sjdbOverhang=int(config["read_length"]) - 1 - int(get_barcode_experiment_info()["total_barcode_len"]), # # readlength -1 - barcodelength - adapter much faster tospecify than to calculated from fastq file
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"],
         moreSTARParameters=config["moreSTARParameters"],
@@ -1199,8 +1149,7 @@ rule align:
             --outFilterMultimapNmax {params.outFilterMultimapNmax} \
             --outSAMattributes All \
             --alignEndsType "Extend5pOfRead1" \
-            --sjdbGTFfile {params.gtf} \
-            --sjdbOverhang {params.sjdbOverhang} \
+            {params.annotation_parameters} \
             --outReadsUnmapped {params.outReadsUnmapped} \
             --outSJfilterReads {params.outSJfilterReads} \
             --readFilesCommand zcat \
@@ -1216,8 +1165,7 @@ rule align:
             --outFilterMismatchNmax {params.outFilterMismatchNmax} \
             --outFilterMultimapNmax {params.outFilterMultimapNmax} \
             --alignEndsType "Extend5pOfRead1" \
-            --sjdbGTFfile {params.gtf} \
-            --sjdbOverhang {params.sjdbOverhang} \
+            {params.annotation_parameters} \
             --outSAMattributes All \
             --outReadsUnmapped {params.outReadsUnmapped} \
             --outSJfilterReads {params.outSJfilterReads} \
@@ -1487,8 +1435,7 @@ rule merged_bam_index:
     input:
         config['wdir']+"/results/bam_merged/{groups}.sort.bam",
     output:
-        chpnt = touch(config["wdir"]+"/results/tmp/.merged.{groups}.bai.chkpnt"),
-        idx = config['wdir']+"/results/bam_merged/{groups}.sort.bam.bai"
+        idx=config['wdir']+"/results/bam_merged/{groups}.sort.bam.bai"
     # params:
     #     files = config["wdir"]+"/results/aligned/{sample}.Aligned.sortedByCoord.out.bam"
     conda:
@@ -1507,17 +1454,35 @@ rule merged_bam_index:
 ###-----------------------------------------
 ###-----------------------------------------
 
+rule prepare_genome_for_pureclip:
+    input:
+        genome=config["genome_fasta"]
+    output:
+        status=PURECLIP_GENOME_STATUS
+    params:
+        script=SNAKE_PATH+"/workflow/scripts/prepare_pureclip_genome.py",
+        preferred=PURECLIP_GENOME_PREFERRED,
+        fallback=PURECLIP_GENOME_FALLBACK
+    conda:
+        "envs/racoon_pureclip.yml"
+    message:
+        "========================= \n Checking genome FASTA alphabet for PureCLIP \n ================================ \n"
+    shell:
+        "python {params.script:q} --input {input.genome:q} "
+        "--preferred-output {params.preferred:q} --fallback-output {params.fallback:q} "
+        "--status {output.status:q}"
+
 rule pc_peak_calling:
     input:
         bam_merge=config["wdir"]+"/results/bam_merged/{groups}.sort.bam",
-        bam_index=config["wdir"]+"/results/bam_merged/{groups}.sort.bam.bai"
+        bam_index=config["wdir"]+"/results/bam_merged/{groups}.sort.bam.bai",
+        genome_status=PURECLIP_GENOME_STATUS
     output:
         peaks=config["wdir"]+"/results/peaks/pureclip_sites_{groups}.bed",
         status=config["wdir"]+"/results/peaks/pureclip_status_{groups}.txt"
     log:
         config["wdir"]+"/results/peaks/pureclip_{groups}.log"
     params:
-        fasta=config["genome_fasta"],
         morePureclipParameters=config["morePureclipParameters"]
     threads: max(workflow.cores - 2, 1) # allows to run barcode rules in parallel
     resources:
@@ -1528,10 +1493,11 @@ rule pc_peak_calling:
         "========================= \n Pureclip peak calling on group {wildcards.groups} \n this may take several days ================================ \n"
     shell:
         """
+        pureclip_genome=$(sed -n 's/^GenomePath\t//p' {input.genome_status:q})
         set +e
         pureclip -i {input.bam_merge} \
         --bai {input.bam_index} \
-        -g {params.fasta} \
+        -g "$pureclip_genome" \
         -o {output.peaks} \
         -nt {threads} \
         {params.morePureclipParameters} > {log} 2>&1
@@ -1541,7 +1507,9 @@ rule pc_peak_calling:
         cat {log}
         if [[ "$pureclip_status" -eq 0 ]]; then
             printf 'Status\tcompleted\nMessage\tPureCLIP completed successfully.\n' > {output.status}
-        elif grep -Eiq 'Success fraction argument is -?nan' {log}; then
+        elif grep -Eiq 'Success fraction argument is -?nan|terminate called recursively' {log}; then
+            peak_file="{output.peaks}"
+            rm -f "$peak_file" "${{peak_file%.bed}}".*
             printf 'Status\tno_callable_peaks\nMessage\tPureCLIP could not estimate parameters; no peaks could be called.\n' > {output.status}
             : > {output.peaks}
             echo "WARNING: PureCLIP could not estimate model parameters for group {wildcards.groups}; an empty peak file was created." >&2
@@ -1562,7 +1530,7 @@ rule pc_peak_calling:
 #####################
 rule fastqc_multiplexed:
     input:
-        config["infiles"]
+        PRIMARY_INPUT
     output:
         touch("{wdir}/results/tmp/.fastqc.chkpnt"),
     params: wdir=config["wdir"]
@@ -1755,7 +1723,8 @@ stats.append(expand("{wdir}/results/bw/{sample}.Aligned.sortedByCoord.out.duprm.
 
 # peaks
 if PEAKS == True:
-    stats.append(expand(config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed", wdir=WDIR, groups=GROUPS)) 
+    stats.append(expand(config['wdir']+"/results/peaks/pureclip_sites_{groups}.bed", wdir=WDIR, groups=GROUPS))
+    stats.append(PURECLIP_GENOME_STATUS)
 
 
     
@@ -2145,13 +2114,12 @@ rule align_chimeric:
     output:
         bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_bam/chimeric_{sample}.Aligned.sortedByCoord.out.bam"
     params:
-        gtf=config["gtf"],
+        annotation_parameters=get_star_annotation_parameters(),
         wdir=config["wdir"],
         dir="results/mir_analysis/aligned_chimeric_bam/",
         outFilterMismatchNoverReadLmax=config["outFilterMismatchNoverReadLmax"],
         outFilterMismatchNmax=config["outFilterMismatchNmax"],
         outFilterMultimapNmax=config["outFilterMultimapNmax"],
-        sjdbOverhang=config["read_length"] - 1 - int(get_barcode_experiment_info()["total_barcode_len"]),
         outReadsUnmapped=config["outReadsUnmapped"],
         outSJfilterReads=config["outSJfilterReads"],
         moreSTARParameters=config["moreSTARParameters"]
@@ -2173,8 +2141,7 @@ rule align_chimeric:
         --outFilterMismatchNmax {params.outFilterMismatchNmax} \
         --outFilterMultimapNmax {params.outFilterMultimapNmax} \
         --alignEndsType "Extend5pOfRead1" \
-        --sjdbGTFfile {params.gtf} \
-        --sjdbOverhang {params.sjdbOverhang} \
+        {params.annotation_parameters} \
         --outReadsUnmapped {params.outReadsUnmapped} \
         --outSJfilterReads {params.outSJfilterReads} \
         --outSAMtype BAM SortedByCoordinate \
@@ -2298,14 +2265,14 @@ rule index_merged_chimeric_and_non_chimeric_bam:
 rule pc_peak_calling_mir:
     input:
         bam=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam",
-        bai=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam.bai"
+        bai=config["wdir"]+"/results/mir_analysis/aligned_chimeric_and_non_chimeric_bam_merged/{groups}.sort.bam.bai",
+        genome_status=PURECLIP_GENOME_STATUS
     output:
         peaks=config["wdir"]+"/results/mir_analysis/peaks/pureclip_sites_{groups}.bed",
         status=config["wdir"]+"/results/mir_analysis/peaks/pureclip_status_{groups}.txt"
     log:
         config["wdir"]+"/results/mir_analysis/peaks/pureclip_{groups}.log"
     params:
-        fasta=config["genome_fasta"],
         morePureclipParameters=config["morePureclipParameters"]
     threads: max(workflow.cores - 2, 1)
     resources:
@@ -2316,10 +2283,11 @@ rule pc_peak_calling_mir:
         "========================= \n Pureclip peak calling on combined chimeric and non-chimeric group {wildcards.groups} \n this may take several days ================================ \n"
     shell:
         """
+        pureclip_genome=$(sed -n 's/^GenomePath\t//p' {input.genome_status:q})
         set +e
         pureclip -i {input.bam} \
         --bai {input.bai} \
-        -g {params.fasta} \
+        -g "$pureclip_genome" \
         -o {output.peaks} \
         -nt {threads} \
         {params.morePureclipParameters} > {log} 2>&1
@@ -2329,7 +2297,9 @@ rule pc_peak_calling_mir:
         cat {log}
         if [[ "$pureclip_status" -eq 0 ]]; then
             printf 'Status\tcompleted\nMessage\tPureCLIP completed successfully.\n' > {output.status}
-        elif grep -Eiq 'Success fraction argument is -?nan' {log}; then
+        elif grep -Eiq 'Success fraction argument is -?nan|terminate called recursively' {log}; then
+            peak_file="{output.peaks}"
+            rm -f "$peak_file" "${{peak_file%.bed}}".*
             printf 'Status\tno_callable_peaks\nMessage\tPureCLIP could not estimate parameters; no peaks could be called.\n' > {output.status}
             : > {output.peaks}
             echo "WARNING: PureCLIP could not estimate model parameters for combined group {wildcards.groups}; an empty peak file was created." >&2
@@ -2521,7 +2491,8 @@ if MIR == True:
                     config["wdir"]+"/results/mir_analysis/peaks/pureclip_sites_{groups}.bed",
                     groups=GROUPS
                 ) if PEAKS else []
-            )
+            ),
+            pureclip_genome_status = PURECLIP_GENOME_STATUS if PEAKS else []
         output:
             config["wdir"]+"/results/Report_miR.html"
         params:

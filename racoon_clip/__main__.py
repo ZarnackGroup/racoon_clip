@@ -10,6 +10,7 @@ import sys
 import click
 
 from .util import (
+    EXPERIMENT_TYPES,
     snake_base,
     get_version,
     #default_to_output,
@@ -154,7 +155,7 @@ def common_options(func):
         click.option(
             "--experiment-type",
             help= "Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different lengths and positions for barcodes, UMIs, and adaptors. For eCLIP there are tow options for either 5nt long UMIs (old eCLIPs) or 20nt UMIs (newer eCLIPs). There is also a preset option for reads without a barcode or UMI (noBarcode_noUMI). If your experiment used one of the setups, you can use the expereriment-type parameter instead of defining barcoedLength, umi1_len, umi2_len and total_barcode_len, manually.",   
-            type=click.Choice(["iCLIP", "iCLIP2", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI","eCLIP_ENCODE_10ntUMI", "noBarcode_noUMI", "miReCLIP", "other"], case_sensitive=False),
+            type=click.Choice(EXPERIMENT_TYPES, case_sensitive=False),
             default='other',
             show_default=True,  
         ),
@@ -216,8 +217,10 @@ def common_options(func):
         ), 
         click.option(
             "-gtf", "--gtf",
-            help= "Genome annotation as unzipped gtf file.",   
-            type=click.Path(dir_okay=True, writable=True, readable=True),
+            help="Optional genome annotation as an unzipped GTF file.",
+            type=click.Path(dir_okay=False, readable=True),
+            default="",
+            show_default=True,
         ),
         click.option(
             "-gf", "--genome-fasta",
@@ -676,11 +679,11 @@ def test(light, devel, report, peaks, mir, groups, fastqscreen, no_clean, extra_
         # Default: run full test suite
         success = suite.test(extra_args=extra_args)
     
-    # Clean up test results unless --no-clean flag is set or running report test
-    if success and not no_clean and not report:
-        suite.cleanup_results_folders()
-    elif no_clean:
+    # --no-clean always preserves result folders, including successful runs.
+    if no_clean:
         click.echo("\n--no-clean flag set: Test result folders preserved")
+    elif success and not report:
+        suite.cleanup_results_folders()
     elif report:
         click.echo("\nReport test: Result folders preserved for inspection")
     

@@ -4,6 +4,7 @@ import os
 import tempfile
 import stat
 import shutil
+from pathlib import Path
 from datetime import datetime
 
 # Try to import yaml, fall back to text processing if not available
@@ -314,6 +315,150 @@ def test_peaks_execution(config_file, log_file=None, extra_args=None):
                 log_f.write(error_msg + "\n")
         return False, abs_config_file
 
+
+def write_genome_variant(source_path, output_path, symbol):
+    """Copy a FASTA and replace one sequence base with the requested symbol."""
+    replaced = False
+    with open(source_path) as source, open(output_path, "w") as output:
+        for line in source:
+            if not replaced and line and not line.startswith(">"):
+                for index, base in enumerate(line):
+                    if base in "ACGTNacgtn":
+                        line = line[:index] + symbol + line[index + 1:]
+                        replaced = True
+                        break
+            output.write(line)
+
+    if not replaced:
+        raise ValueError(f"No sequence base was found in {source_path}")
+
+
+def first_sequence_base(fasta_path):
+    with open(fasta_path) as fasta:
+        for line in fasta:
+            if not line.startswith(">"):
+                sequence = line.strip()
+                if sequence:
+                    return sequence[0]
+    raise ValueError(f"No sequence base was found in {fasta_path}")
+
+
+def read_compatibility_status(status_path):
+    status = {}
+    with open(status_path) as status_file:
+        for line in status_file:
+            key, value = line.rstrip("\n").split("\t", 1)
+            status[key] = value
+    return status
+
+
+def read_config_value(config_path, key):
+    with open(config_path) as config_file:
+        for line in config_file:
+            if line.strip().startswith(f"{key}:"):
+                value = line.split(":", 1)[1].partition("#")[0].strip()
+                return value.strip("'\"")
+    raise ValueError(f"Missing {key!r} in {config_path}")
+
+
+def write_case_config(base_config, case_config, replacements):
+    with open(base_config) as source, open(case_config, "w") as output:
+        for line in source:
+            key = line.split(":", 1)[0].strip()
+            if key in replacements:
+                output.write(f'{key}: "{replacements[key]}"\n')
+            else:
+                output.write(line)
+
+
+def run_eclip_iupac_peak_case(base_config, symbol, extra_args=None):
+    """Run eCLIP peaks with a U- or Y-containing genome and validate its status."""
+    repo_dir = Path(__file__).resolve().parents[2]
+    base_config = Path(base_config)
+    if not base_config.is_absolute():
+        base_config = repo_dir / base_config
+
+    output_names = {
+        "U": "out_eCLIP_ENCODE_anno_u",
+        "Y": "out_eCLIP_ENCODE_anno_extended",
+    }
+    output_dir = Path.cwd() / "test" / output_names[symbol]
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    source_genome = repo_dir / read_config_value(base_config, "genome_fasta")
+    variant_genome = output_dir / f"test_annotation_chr21_{symbol.lower()}.fa"
+    write_genome_variant(source_genome, variant_genome, symbol)
+    if first_sequence_base(variant_genome) != symbol:
+        return False, f"The generated genome does not contain {symbol}"
+
+    infiles = " ".join(
+        str(repo_dir / path) if not os.path.isabs(path) else path
+        for path in read_config_value(base_config, "infiles").split()
+    )
+    replacements = {
+        "wdir": output_dir,
+        "infiles": infiles,
+        "genome_fasta": variant_genome,
+    }
+    for key in ("gtf", "experiment_group_file"):
+        config_path = read_config_value(base_config, key)
+        replacements[key] = (
+            config_path if os.path.isabs(config_path) else repo_dir / config_path
+        )
+
+    case_name = "u" if symbol == "U" else "extended"
+    case_config = output_dir / f"config_test_eCLIP_ENCODE_anno_{case_name}.yaml"
+    write_case_config(base_config, case_config, replacements)
+
+    success, _ = test_peaks_execution(
+        str(case_config),
+        extra_args=extra_args,
+    )
+    if not success:
+        return False, f"racoon_clip peaks failed for the {symbol} genome"
+
+    status_path = output_dir / "results/peaks/pureclip_genome_compatibility.txt"
+    if not status_path.is_file():
+        return False, f"Missing compatibility status for the {symbol} genome"
+
+    status = read_compatibility_status(status_path)
+    expected_genome = variant_genome.with_name(
+        f"{variant_genome.stem}_no_extended_iupac_u_to_t{variant_genome.suffix}"
+    ).resolve()
+    if status.get("GenomePath") != str(expected_genome):
+        return (
+            False,
+            f"Expected GenomePath {expected_genome}, got {status.get('GenomePath')}",
+        )
+    expected_flags = {
+        "U": ("false", "true"),
+        "Y": ("true", "false"),
+    }
+    expected_extended, expected_uracil = expected_flags[symbol]
+    if status.get("ExtendedIupacToN") != expected_extended:
+        return False, f"Incorrect ExtendedIupacToN status for {symbol}"
+    if status.get("UracilToT") != expected_uracil:
+        return False, f"Incorrect UracilToT status for {symbol}"
+    if not expected_genome.is_file():
+        return False, f"Listed compatible FASTA does not exist: {expected_genome}"
+    expected_first_base = {"U": "T", "Y": "N"}[symbol]
+    if first_sequence_base(expected_genome) != expected_first_base:
+        return False, f"Incorrect compatible FASTA sequence for {symbol}"
+
+    peak_statuses = list(
+        (output_dir / "results/peaks").glob("pureclip_status_*.txt")
+    )
+    if not peak_statuses:
+        return False, f"No PureCLIP peak status was produced for {symbol}"
+
+    return True, str(status_path)
+
+def run_eclip_iupac_peak_cases(base_config, extra_args=None):
+    """Run and return the U and Y eCLIP peak-calling integration results."""
+    return {
+        symbol: run_eclip_iupac_peak_case(base_config, symbol, extra_args)
+        for symbol in ("U", "Y")
+    }
 
 def cleanup_results_folder(config_file):
     """Delete the results folder specified in the wdir of the absolute config file."""

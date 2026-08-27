@@ -1,3 +1,6 @@
+from pathlib import Path
+from runpy import run_path
+
 import sphinx_rtd_theme
 
 # Configuration file for the Sphinx documentation builder.
@@ -11,12 +14,15 @@ import sphinx_rtd_theme
 project = 'racoon_clip'
 copyright = '2023, Melina Klostermann'
 author = 'Melina Klostermann'
-release = '1.0.1'
+release = run_path(
+    Path(__file__).resolve().parents[1] / 'racoon_clip' / '__init__.py'
+)['__version__']
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['sphinx_rtd_theme',
+              'sphinx_search.extension',
               'sphinx.ext.autodoc',
               'sphinx.ext.autosectionlabel']
 
@@ -48,4 +54,3 @@ html_theme_options = {
     'includehidden': True,
     'titles_only': False
 }
-
