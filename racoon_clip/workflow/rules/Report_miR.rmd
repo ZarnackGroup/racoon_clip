@@ -199,15 +199,15 @@ First quality filtering and adapter trimming is performed on the raw data. A des
 
 ## miR alignment
 
-Filtered and trimmed reads are shortend to the first (5') 24nt with fastx_trimmer -l 24 (from FASTX-Toolkit). For chimeric reads, these 24 nt include the mature miRNA sequence. This is done to increase the alignability of the reads, as the long reads have sometimes caused problems when aligning to the annotation of the mature miRNA, which contains only short sequences.
+Filtered and trimmed reads are shortened to the first (5') 24 nt with `fastx_trimmer -l 24` (from FASTX-Toolkit). For chimeric reads, these 24 nt include the mature miRNA sequence. This is done to increase the alignability of the reads, as the long reads have sometimes caused problems when aligning to the annotation of the mature miRNA, which contains only short sequences.
 
-The short reads are then aligned to the miR annotation using bowtie2 with the following settings: --local -D 20 -R 3 -L 10 -i S,1,0.50 -k 20 --norc --trim5 2. Before building an index of the miR genome using bowtie2-build.
+The short reads are then aligned to the miR annotation using `bowtie2 --local -D 20 -R 3 -L 10 -i S,1,0.50 -k 20 --norc --trim5 2`, after first building an index of the miR genome with `bowtie2-build`.
 
 ## Obtaining separate fastq files of chimeric and non-chimeric reads
 
 The reads in the obtained .sam file are then split into chimeric and non-chimeric reads using the SAM flag: `samtools view -F 4` excludes unmapped reads and retains the chimeric reads aligned to the miRNA annotation, while `samtools view -f 4` retains the non-chimeric (unaligned) reads.
 
-The read IDs of the unaligned reads are used to extract the non-chimeric reads from the quality filtered and trimmed fastq files with seqkit grep -n. The fastq files of the non-chimeric reads are then sorted with seqkit sort -n and afterwards aligned to the genome annotation as described in the main report.
+The read IDs of the unaligned reads are used to extract the non-chimeric reads from the quality-filtered and trimmed FASTQ files with `seqkit grep -n`. The FASTQ files of the non-chimeric reads are then sorted with `seqkit sort -n` and afterwards aligned to the genome annotation as described in the main report.
 
 For each mapped read, racoon_clip infers where the canonical miRNA begins in the processed read. The calculation uses the two bases removed by Bowtie2 (`--trim5 2`), leading soft clipping in the CIGAR string, and the alignment start on the miRNA reference. `mir_starts_allowed` filters these inferred read positions.
 
@@ -215,18 +215,18 @@ The target-RNA start is then calculated from the full canonical length of the al
 
 ## Alignment of chimeric reads to genome annotation
 
-The genome annotation is indexed using STAR --runMode genomeGenerate. The merged file of chimeric reads is then aligned to the genome annotation using STAR --runMode alignReads. For STAR settings, see Configurations. The resulting bam files are indexed using samtools index.
+The genome annotation is indexed using `STAR --runMode genomeGenerate`. The merged file of chimeric reads is then aligned to the genome annotation using `STAR --runMode alignReads`. For STAR settings, see Configurations. The resulting BAM files are indexed using `samtools index`.
 
 
 ## Deduplication
 
-Chimeric reads are deduplicated in the same way as non-chimeric reads with umi_tools dedup --extract-umi-method read_id --method unique.
+Chimeric reads are deduplicated in the same way as non-chimeric reads with `umi_tools dedup --extract-umi-method read_id --method unique`.
 
 ## Obtaining chimeric crosslinks
 
-The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5' direction) with bedtools shift -m 1 -p -1, because the UV crosslink should be positioned 1nt before the stop of the non-miR part of the read. Then the read ID (which now also contains the miR name) is truncated to the miR name using awk, the BED file is split by strand, and the strand-aware 5' end is reduced to a one-nucleotide crosslink using the left edge on the plus strand and the right edge on the minus strand.
+The deduplicated BAM files are then converted to BED files using `bedtools bamtobed`. The reads are shifted 1 nt upstream (5' direction) with `bedtools shift -m 1 -p -1`, because the UV crosslink should be positioned 1 nt before the stop of the non-miR part of the read. Then the read ID (which now also contains the miR name) is truncated to the miR name using `awk`, the BED file is split by strand, and the strand-aware 5' end is reduced to a one-nucleotide crosslink using the left edge on the plus strand and the right edge on the minus strand.
 
-To allow visualisation in a genome browser, the 1nt crosslink bed file is then also converted into a .bigWig file using bedGraphToBigWig. These bigWig files are then combined by experimental group; singleton groups reuse the sample bigWig directly.
+To allow visualisation in a genome browser, the 1nt crosslink bed file is then also converted into a .bigWig file using `bedGraphToBigWig`. These bigWig files are then combined by experimental group; singleton groups reuse the sample bigWig directly.
 
 # Chimeric crosslinks obtained
 
@@ -430,17 +430,17 @@ for(i in 1:length(sample_names)){
 
 ## Percentage of miRs detected {.tabset}
 
-The plots show the most frequently detected miRs (top 10) in each sample and the percentage of corresponding reads.
+The plots show the five most frequently detected miRs in each sample and the percentage of corresponding reads.
 
 ```{r, out.width="100%", results='asis'}
 n_reads <- map(detected_mirs, ~sum(.x$n))
 
-detected_mirs_top_10 <- map2(detected_mirs_top_10, n_reads, ~.x %>%
-                        mutate(
-  percent = n / .y))
+detected_mirs_top_5 <- map2(detected_mirs, n_reads, ~.x %>%
+  slice_head(n = 5) %>%
+  mutate(percent = n / .y))
 
 
-plot_list <- map(detected_mirs_top_10,
+plot_list <- map(detected_mirs_top_5,
      ~ggplot(.x, aes(x = "", y = percent, fill = factor(Name, levels =Name)))+
                geom_col() )
 
@@ -458,7 +458,19 @@ for(i in 1:length(plot_list)){
 
 ```{r mir_peak_calling_header, eval=peaks, results='asis'}
 cat("# Peak calling\n\n")
-cat("PureCLIP peaks were called on group-level BAM files containing both chimeric and non-chimeric reads.\n\n")
+cat("`PureCLIP` peaks were called on group-level BAM files containing both chimeric and non-chimeric reads.\n\n")
+cat("**Interpretation note:** For peak calling, the non-chimeric reads are merged with the non-miRNA portion of the chimeric reads.\n\n")
+
+compatibility_status <- paste0(dir, "/results/peaks/pureclip_genome_compatibility.txt")
+if (file.exists(compatibility_status)) {
+  compatibility_lines <- readLines(compatibility_status, warn = FALSE)
+  if (any(compatibility_lines == "ExtendedIupacToN\ttrue")) {
+    cat("**Interpretation note:** Extended IUPAC genome symbols were replaced with N for PureCLIP compatibility.\n\n")
+  }
+  if (any(compatibility_lines == "UracilToT\ttrue")) {
+    cat("**Interpretation note:** Genome U bases were replaced with T for PureCLIP compatibility.\n\n")
+  }
+}
 ```
 
 ```{r mir_peak_calling_summary, eval=peaks}

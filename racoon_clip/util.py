@@ -8,9 +8,24 @@ import subprocess
 import yaml
 import click
 import collections.abc
+import difflib
 import re
 from shutil import copyfile
 from time import localtime, strftime
+
+
+EXPERIMENT_TYPES = (
+    "iCLIP",
+    "iCLIP2",
+    "iCLIP3",
+    "eCLIP_5ntUMI",
+    "eCLIP_10ntUMI",
+    "eCLIP_ENCODE_5ntUMI",
+    "eCLIP_ENCODE_10ntUMI",
+    "noBarcode_noUMI",
+    "miReCLIP",
+    "other",
+)
 
 
 class OrderedCommands(click.Group):
@@ -80,6 +95,52 @@ def read_config(file):
     return _config
 
 
+def validate_user_config(config, supported_keys):
+    # Reject invalid configuration before Snakemake starts.
+    if config is None:
+        raise ValueError("Config file is empty. Expected a YAML mapping of parameter names to values.")
+    if not isinstance(config, dict):
+        raise ValueError("Config file must contain a YAML mapping of parameter names to values.")
+
+    supported_keys = sorted(supported_keys)
+    unknown_keys = sorted(set(config) - set(supported_keys))
+    if unknown_keys:
+        details = []
+        for key in unknown_keys:
+            if key == "infile":
+                details.append("  - Unknown parameter 'infile'. Use 'infiles' instead.")
+                continue
+            if key == "indir":
+                details.append(
+                    "  - Unknown parameter 'indir'. Use 'infiles' with a glob "
+                    "pattern such as '/path/to/reads/*.fastq.gz'."
+                )
+                continue
+            suggestion = difflib.get_close_matches(str(key), supported_keys, n=1, cutoff=0.6)
+            hint = f" Did you mean '{suggestion[0]}'?" if suggestion else ""
+            details.append(f"  - Unknown parameter '{key}'.{hint}")
+        raise ValueError("Unknown parameter(s) in config file:\n" + "\n".join(details))
+
+    if "experiment_type" in config:
+        value = config["experiment_type"]
+        canonical = next(
+            (choice for choice in EXPERIMENT_TYPES if choice.lower() == str(value).lower()),
+            None,
+        )
+        if canonical is None:
+            suggestion = difflib.get_close_matches(
+                str(value), EXPERIMENT_TYPES, n=1, cutoff=0.5
+            )
+            hint = f" Did you mean '{suggestion[0]}'?" if suggestion else ""
+            choices = ", ".join(EXPERIMENT_TYPES)
+            raise ValueError(
+                f"Unknown experiment_type '{value}'.{hint} "
+                f"Available values: {choices}."
+            )
+        # Match Click's case-insensitive choice behavior for YAML configuration.
+        config["experiment_type"] = canonical
+
+
 def recursive_merge_config(prio_config, non_prio_config):
     def _update(d, u):
         for (key, value) in u.items():
@@ -114,6 +175,10 @@ def update_config(u_config=None, merge=None, default_config = None, output_confi
     if u_config is not None and os.path.exists(u_config):
         # Load the custom config here and merge it with full_config using recursive_merge_config
         custom_config = read_config(u_config)  # Load your custom config from u_config
+        validate_user_config(
+            custom_config,
+            supported_keys=set(default_config) | set(full_config),
+        )
         custom_config = recursive_merge_config(prio_config=custom_config, non_prio_config=full_config)
     else:
         msg("Custom config file not found. Using default config")

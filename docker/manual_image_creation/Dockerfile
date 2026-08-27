@@ -42,10 +42,10 @@ RUN which conda && which mamba
 RUN echo "Python version:" && python --version && python -c "import sys; print(f'Exact version: {sys.version}')"
 
 
-RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.2.0.5.zip
-RUN unzip v.2.0.5.zip
+RUN wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/v.2.1.0.zip
+RUN unzip v.2.1.0.zip
 
-WORKDIR /racoon_clip-v.2.0.5/ 
+WORKDIR /racoon_clip-v.2.1.0/
 
 # RUN conda install --quiet --yes -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' && \
 #     conda create --yes -n racoon_clip python=3.9.2 pip botocore  && \
@@ -53,13 +53,13 @@ WORKDIR /racoon_clip-v.2.0.5/
 # SHELL ["/bin/bash", "--login", "-c"]
 # ENV PATH /opt/conda/envs/racoon_clip/bin:$PATH
 
-WORKDIR /racoon_clip-v.2.0.5/racoon_clip.egg-info
+WORKDIR /racoon_clip-v.2.1.0/racoon_clip.egg-info
 #RUN sed -i -e 's/snakemake>=7.22/snakemake==7.29.0/g' requires.txt
 #RUN sed -i '1s/^/pulp==2.7.0 /' requires.txt
 #RUN pip install pulp==2.7.0
 #RUN pip install botocore
 
-WORKDIR /racoon_clip-v.2.0.5/
+WORKDIR /racoon_clip-v.2.1.0/
 RUN pip install -e .
 RUN racoon_clip -h
 RUN racoon_clip test --light
@@ -68,7 +68,7 @@ RUN which mamba
 
 
 
-# WORKDIR /racoon_clip-2.0.5/racoon_clip/minimal_examples
+# WORKDIR /racoon_clip-2.1.0/racoon_clip/minimal_examples
 # RUN unzip minimal_example_eCLIP.zip
 
 
