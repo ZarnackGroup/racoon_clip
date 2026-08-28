@@ -51,7 +51,7 @@ arrangement. Supported values are:
 Use an ENCODE preset when the UMI has already been removed from the read and stored in its name. Use noBarcode_noUMI when neither barcode nor UMI sequence remains. Use ``other`` when defining the barcode and UMI
 arrangement manually.
 
-.. image:: ../CLIP_types.png
+.. figure:: ../CLIP_types.png
     :width: 600
     :align: center
     :alt: Common barcode and UMI arrangements
