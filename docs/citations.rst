@@ -7,19 +7,23 @@ Please cite racoon_clip and the relevant experimental or computational
 methods used in your analysis.
 
 **racoon_clip**
+
 Klostermann & Zarnack 2024:
   `racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP
   and eCLIP data <https://doi.org/10.1093/bioadv/vbae084>`_
 
 **miR-eCLIP module:**
+
 Verheyden & Klostermann *et al.* 2024:
  `A high-resolution map of functional miR-181 response elements in the thymus reveals the role of coding sequence targeting and an alternative seed match <https://doi.org/10.1093/nar/gkae416>`_
 
 **iCLIP3 protocol including a racoon_clip walk-through:**
+
 Despic *et al.* 2026:
 `A high-resolution map of functional miR-181 response elements in the thymus reveals the role of coding sequence targeting and an alternative seed match <https://doi.org/10.64898/2026.03.01.708747>`_
 
 **Original pipeline, used by racoon_clip:**
+
 Busch *et al.* 2020:
   `iCLIP data analysis: A complete pipeline from sequencing reads to RBP
   binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
