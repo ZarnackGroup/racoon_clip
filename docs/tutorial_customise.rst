@@ -3,77 +3,39 @@
 Configuration and experiment types
 ==================================
 
-RaccoonClip accepts workflow settings from a YAML configuration file and from
-command-line options. Configuration-file keys use their exact names, including
-underscores and capitalization. When the same setting is provided in both
-places, the command-line value takes precedence.
+acoon_clip accepts workflow settings from a YAML configuration file and from
+command-line options. Configuration keys are case-sensitive and retain their
+exact spelling, including underscores and capitalization. Command-line option
+names use ``-`` instead of ``_`` in the parameters; use ``racoon_clip crosslinks --help`` or
+``racoon_clip peaks --help`` to see the accepted options.
 
-The complete parameter reference is :doc:`all_options`. This page explains
-how the main choices fit together.
+A configuration file only needs to contain the required inputs and settings
+that differ from the defaults. Use absolute paths for input, reference, and
+output files.
 
-Existing default configuration example
---------------------------------------
+.. code-block:: yaml
 
-This existing block is retained unchanged pending the YAML-example review.
+   wdir: /absolute/path/to/output
 
-.. code:: yaml
+   infiles: "/absolute/path/to/sample1.fastq.gz /absolute/path/to/sample2.fastq.gz"
+   experiment_type: iCLIP2
 
-    # Where to put results
-    wdir: "." # No backslash in the end of the path
-    # input
-    infiles: "" # one un-demultiplexed file or multiple demultiplexed files
+   genome_fasta: /absolute/path/to/genome.fa
+   gtf: /absolute/path/to/annotation.gtf
+   read_length: 75
 
-    #SAMPLES
-    experiment_groups: "" # txt file with group space sample per row
-    experiment_group_file: ""
-    seq_format: "-Q33" # -Q33 for Illumina -Q64 for Sanger needed by fastX
+When ``demultiplex`` is false, sample names can be inferred by removing the
+``.fastq``, ``.fq``, ``.fastq.gz``, or ``.fq.gz`` suffix from each input
+filename. When ``demultiplex`` is true, ``samples`` and ``barcodes_fasta``
+must be specified.
 
-    # barcodes
-    barcodeLength: "" # if already demux = umi1_len
-    minBaseQuality: 10
-    umi1_len: "" # antisense of used barcodes --> this is the 3' UMI of the original barcode
-    umi2_len: 0
-    total_barcode_len: 0
-    encode: False
-
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "miReCLIP","noBarcode_noUMI" or "other" (if not "other this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
-
-    barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
-    quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
-
-    # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done; if FALSE, total_barcode_len should be 0, and no barcode filtering will be done
-    min_read_length: 15
-
-    # adapter trimming
-    adapter_file: ""
-    adapter_cycles: 1
-    adapter_trimming: True
-
-    # 3'end trimming
-    trim3: False
-    trim3_len: 3
-
-    # star alignment
-    gtf: "" # has to be unzipped at the moment
-    genome_fasta: "" # has to be unzipped or bgzip
-    star_index: "" # optional prebuilt STAR index directory
-    read_length: 150
-    outFilterMismatchNoverReadLmax: 0.04
-    outFilterMismatchNmax: 999
-    outFilterMultimapNmax: 1
-    outReadsUnmapped: "Fastx"
-    outSJfilterReads: "Unique"
-    moreSTARParameters: ""
-
-    # deduplicate
-    deduplicate: True
+The complete parameter and default-value reference is :doc:`all_options`.
 
 Experiment presets
 ------------------
 
-The ``experiment_type`` setting applies a known barcode and UMI arrangement.
-Supported values are:
+The ``experiment_type`` setting applies a predefined barcode and UMI
+arrangement. Supported values are:
 
 - ``iCLIP``
 - ``iCLIP2``
@@ -86,16 +48,16 @@ Supported values are:
 - ``noBarcode_noUMI``
 - ``other``
 
-Use an ENCODE preset when the UMI has already been removed from the read and
-stored in its name. Use ``noBarcode_noUMI`` when neither barcode nor UMI
-sequence remains. Use ``other`` with explicit barcode and UMI lengths for a
-custom design.
+Use an ENCODE preset when the UMI has already been removed from the read and stored in its name. Use noBarcode_noUMI when neither barcode nor UMI sequence remains. Use ``other`` when defining the barcode and UMI
+arrangement manually.
 
 .. image:: ../CLIP_types.png
-   :width: 600
-   :alt: Common barcode and UMI arrangements
+    :width: 600
+    :align: center
+    :alt: Common barcode and UMI arrangements
 
    Common barcode and UMI arrangements.
+
 
 Samples and groups
 ------------------
