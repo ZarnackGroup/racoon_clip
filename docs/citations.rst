@@ -37,6 +37,8 @@ Busch *et al.* 2020:
 
 - Blue *et al.* 2022: `Transcriptome-wide identification of RNA-binding protein binding sites using seCLIP-seq <https://doi.org/10.1038/s41596-022-00680-z>`_
 
+- Manakov *et al.* 2022: `Scalable and deep profiling of mRNA targets for individual microRNAs with chimeric eCLIP <https://doi.org/10.1101/2022.02.13.480296>`_
+
 
 
 The command ``racoon_clip citation`` prints the package citation information.
