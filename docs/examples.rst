@@ -130,7 +130,7 @@ As long as you are in the racoon_clip/example_data directory, you can use the co
 
 .. Note::
 
-  The eCLIP examples do not need the specification of a ``barcode_fasta`` and ``adapter_file``. The barcodes in eCLIP are positioned at read 1 (eCLIP is usually paired-end), but racoon_clip only uses read 2, which contains the crosslink site. For the adapters, the default adapters from racoon_clip can be used for this example.
+  The **eCLIP** examples do not need the specification of a ``barcode_fasta`` and ``adapter_file``. The barcodes in eCLIP are positioned at read 1 (eCLIP is usually paired-end), but racoon_clip only uses read 2, which contains the crosslink site. For the adapters, the default adapters from racoon_clip can be used for this example.
 
 Selecting optional steps
 ------------------------
@@ -155,6 +155,7 @@ You can select standard experiment types with
 
     experiment_type:"iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/
         "eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"
+
 
 Run the minimal example
 ------------------------
