@@ -110,6 +110,11 @@ The ``peaks`` workflow runs PureCLIP after group BAM creation.
 training to representative chromosomes can reduce memory requirements for
 large genomes.
 
+.. code-block:: bash
+
+   morePureclipParameters: "-iv 'chr1;chr2;chr3;'"
+
+
 FastQ Screen
 ------------
 
