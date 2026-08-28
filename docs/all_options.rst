@@ -10,10 +10,7 @@ Parameter usage in general
 ---------------------------
 
 You can specify workflow parameters in a configuration file or through the
-corresponding command-line option. Configuration keys retain their exact
-spelling, including underscores and capitalization. Command-line spellings
-must match the options shown by the help command and are not produced by one
-universal underscore-to-hyphen rule.
+corresponding command-line option. 
 
 .. code:: bash
 
@@ -27,69 +24,106 @@ Then adjust the parameters as needed. Parameters that use their defaults do
 not need to be specified. The existing default example below is retained
 unchanged pending the YAML-example review.
 
+.. code-block:: yaml
 
-.. code:: bash
-    
-    # where to put results
-    wdir: "." # no backslash at the end of the path
-    # input
-    infiles: "" # one undemultiplexed file or multiple demultiplexed files
-    
-    #SAMPLES
-    experiment_groups: "" # txt file with group space sample per row
-    experiment_group_file: ""
-    seq_format: "-Q33" # -Q33 for Illumnina -Q64 for Sanger needed by fastX
-    
-    # barcodes
-    barcodeLength: "" # if already demux = umi1_len
-    minBaseQuality: 10
-    umi1_len: "" # antisense of used barcodes --> this is the 3' UMI of the original barcode
-    umi2_len: 0
-    total_barcode_len: 0
-    encode: False
-    noBarcode_noUMI"
-    experiment_type: "other" # one of "iCLIP", "iCLIP2", "iCLIP3", "eCLIP_5ntUMI", "eCLIP_10ntUMI", "eCLIP_ENCODE_5ntUMI", "eCLIP_ENCODE_10ntUMI", "miReCLIP", "noBarcode_noUMI" or "other" (if not "other" this will overwrite "barcodeLength", "umi1_len", "umi2_len", "total_barcode_len", "encode_umi")
-    
-    barcodes_fasta: "" # ! antisense of used barcodes, not needed if already demultiplexed
-    quality_filter_barcodes: True # if no demultiplexing is done, should reads still be filtered for barcode / umi quality
-    
-    # demultiplexing
-    demultiplex: False # Whether demultiplexing still has to be done; if FALSE, total_barcode_len should be 0, no barcode filtering will be done
-    min_read_length: 15
-    
-    # adapter trimming
-    adapter_file: ""
-    adapter_cycles: 1
-    adapter_trimming: True
+   # Output directory
+   wdir: /absolute/path/to/output
 
-    # 3'end trimming
-    trim3: False
-    trim3_len: 3
-    
-    # star alignment
-    gtf: "" # has to be unzipped at the moment
-    genome_fasta: "" # has to be unzipped or bgzip
-    star_index: "" # optional prebuilt STAR index directory
-    read_length: 150 
-    outFilterMismatchNoverReadLmax: 0.04
-    outFilterMismatchNmax: 999
-    outFilterMultimapNmax: 1
-    outReadsUnmapped: "Fastx"
-    outSJfilterReads: "Unique"
-    moreSTARParameters: ""
-    
-    # deduplicate
-    deduplicate: True
+   # Input FASTQ files
+   # Supply one file or multiple space-separated files or glob patterns.
+   infiles: ""
 
-Command-line examples are retained unchanged pending the dedicated example
-review:
+   # Samples and experiment groups
+   # Sample names are normally inferred from FASTQ filenames when demultiplexing
+   # is disabled.
+   # The legacy experiment_groups setting is currently ignored.
+   experiment_groups: ""
+   # Optional text file containing: group sample
+   experiment_group_file: ""
+   # FASTQ quality encoding: -Q33 for Illumina or -Q64 for older Sanger data.
+   seq_format: "-Q33"
 
-.. code:: bash
+   # Barcode and UMI settings
+   # Experiment presets normally assign these values automatically.
+   barcodeLength: ""
+   minBaseQuality: 10
+   umi1_len: 0
+   umi2_len: 0
+   total_barcode_len: 0
+   # Set to true when the UMI has already been moved into the read name.
+   encode: false
+   encode_umi_length: 10
 
-   racoon_clip crosslinks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
-   racoon_clip peaks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
+   # Supported presets:
+   # iCLIP, iCLIP2, iCLIP3, eCLIP_5ntUMI, eCLIP_10ntUMI,
+   # eCLIP_ENCODE_5ntUMI, eCLIP_ENCODE_10ntUMI, miReCLIP,
+   # noBarcode_noUMI, and other.
+   # A preset other than "other" overrides the corresponding barcode and
+   # UMI settings above.
+   experiment_type: "other"
 
-You can also check the command-line parameters with
+   # Barcode sequences must be provided in antisense orientation.
+   # This file is required when demultiplexing multiplexed input.
+   barcodes_fasta: ""
+   # Filter reads according to barcode and UMI base quality.
+   quality_filter_barcodes: true
+
+   # Demultiplexing
+   # Set to true when multiplexed reads must be assigned to samples using
+   # barcodes_fasta. Explicit sample names are then required.
+   demultiplex: false
+   min_read_length: 15
+
+   # Adapter trimming
+   # Leave adapter_file empty to use the adapter configuration supplied with
+   # racoon_clip.
+   adapter_file: ""
+   adapter_cycles: 1
+   adapter_trimming: true
+
+   # Additional 3-prime trimming
+   trim3: false
+   trim3_len: 3
+
+   # STAR alignment
+   # The GTF annotation is optional but, when supplied, must be an uncompressed
+   # .gtf file.
+   gtf: ""
+   # Provide an uncompressed genome FASTA ending in .fa or .fasta.
+   genome_fasta: ""
+   # Optionally provide an existing STAR index directory. Otherwise,
+   # racoon_clip builds an index from genome_fasta.
+   star_index: ""
+   read_length: 150
+   outFilterMismatchNoverReadLmax: 0.04
+   outFilterMismatchNmax: 999
+   outFilterMultimapNmax: 1
+   outReadsUnmapped: "Fastx"
+   outSJfilterReads: "Unique"
+   # Additional arguments passed directly to STAR.
+   moreSTARParameters: ""
+
+   # UMI-based deduplication
+   deduplicate: true
+
+   # miR-eCLIP settings
+   # mir_genome_fasta is required only for the miReCLIP workflow.
+   mir_genome_fasta: ""
+   mir_starts_allowed: "1 2 3 4"
+   mir_5prime_missing_allowed: "0 1 2 3"
+
+   # Optional FastQ Screen analysis
+   fastqScreen: false
+   fastqScreen_config: ""
+
+   # Additional arguments passed directly to PureCLIP during peak calling
+   morePureclipParameters: ""
+
+Command line parameters
+------------------------------
+
+All options can also be passed via the command line instead of the config file. Note that the command-line options might be named slightly differently, and in general `_` are turned into `-` in the command-line options.
+You can check the command-line parameters with
 
 .. code:: bash
 
@@ -100,40 +134,38 @@ You can also check the command-line parameters with
 
    If a parameter is specified in both the provided config file and the command line, the command line parameter will overwrite the config file.
 
-racoon_clip will write a combined config file, containing the default options, where nothing was specified, the config file options and the command line options (command line parameters overwrite config file parameters) with the file ending "_updated.yaml" to keep track of the options you used.
+racoon_clip will write a combined config file, containing the default options where nothing was specified, the config file options and the command-line options (command-line parameters overwrite config file parameters), with the file ending "_updated.yaml" to keep track of the options you used.
 
 
 Required and conditional input
 ------------------------------
 
-Every analysis requires ``infiles`` and ``genome_fasta``. For
-non-demultiplexed data, ``samples`` can be inferred from the input filenames;
-an explicit value selects their order. Demultiplexing requires the expected
-sample names and ``barcodes_fasta``.
+Every analysis requires ``infiles`` and ``genome_fasta``. Demultiplexing additionally requires
+``samples`` and ``barcodes_fasta``.
 
-A ``gtf`` annotation is optional. Either select an ``experiment_type`` preset
+A ``gtf`` annotation is optional but recommended. Either select an ``experiment_type`` preset
 or define the barcode and UMI arrangement manually. The remaining parameters
 use defaults unless the experiment requires a different value.
 
 Input files and output directory
 ---------------------------------
 
-- **wdir** (path): *default "./racoon_clip_out"*; Path where results are written to. A folder “results” containing all output will be created. Be aware that if a folder “results” already exists in this directory, it will be overwritten.
+- ``wdir`` (path): *default "./racoon_clip_out"*; Path where results are written to. A folder “results” containing all output will be created. Existing results are not deleted automatically. Snakemake may reuse existing outputs or replace individual files when their corresponding rules are rerun. Use a new or empty output directory when a completely independent analysis is required.
 
-- **infiles** (path(s) to file(s)): One or multiple file paths to the fastq files of all samples. Multiple files should be provided in one string, separated by a space. When demultiplexing should be performed by racoon_clip, specify only one input fastq file of the multiplexed reads. FASTA files are not supported, as they will not allow any quality filtering.
+- ``infiles`` (path(s) to file(s)): One or multiple file paths to the fastq files of all samples. Multiple files should be provided in one string, separated by a space. When demultiplexing should be performed by racoon_clip, specify only one input fastq file of the multiplexed reads. FASTA files are not supported, as they will not allow any quality filtering.
 
-- **seq_format** ("-Q33"/"-Q64"): *default "-Q33"*; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a Sanger sequencer.
+- ``seq_format`` ("-Q33"/"-Q64"): *default "-Q33"*; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a Sanger sequencer.
 
 Sample names and experiment groups
 ----------------------------------
 
-- **samples** (string): Optional ordered sample names for non-demultiplexed
+- ``samples`` (string): Optional ordered sample names for non-demultiplexed
   inputs; required when demultiplexing. Names must agree with the resolved
   input names or barcode identifiers.
-- **experiment_groups** (string): Legacy accepted setting. The current
+- ``experiment_groups`` (string): Legacy accepted setting. The current
   workflow resolves groups from ``experiment_group_file`` and does not use
   this value to filter or order them.
-- **experiment_group_file** (path): Assigns samples to groups.
+- ``experiment_group_file`` (path): Assigns samples to groups.
 
 See :doc:`sample_groups` for the group-file format, default ``all_samples``
 group, and singleton-group behavior.
@@ -144,8 +176,8 @@ Demultiplexing
 
 Demultiplexing can be performed optionally. 
 
-- **demultiplex** (True/False): *default False*; Whether demultiplexing still has to be done.
-- **barcodes_fasta** (path to fasta): Path to fasta file with antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
+- ``demultiplex`` (True/False): *default False*; Whether demultiplexing still has to be done.
+- ``barcodes_fasta`` (path to fasta): Path to fasta file with antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
 
 .. code-block:: text
 
@@ -170,7 +202,7 @@ Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different leng
 - **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
 .. image:: ../CLIP_types.png
-   :width: 600
+   :width: 200
    :alt: Common barcode and UMI arrangements
 
 
