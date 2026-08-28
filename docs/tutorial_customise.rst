@@ -52,9 +52,9 @@ Use an ENCODE preset when the UMI has already been removed from the read and sto
 arrangement manually.
 
 .. figure:: ../CLIP_types.png
-    :width: 600
-    :align: center
-    :alt: Common barcode and UMI arrangements
+   :width: 600
+   :align: center
+   :alt: Common barcode and UMI arrangements
 
    Common barcode and UMI arrangements.
 
