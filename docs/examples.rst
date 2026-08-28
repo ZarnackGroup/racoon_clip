@@ -1,15 +1,15 @@
-Examples
-==========
+.. _examples:
+
+Tested examples
+===============
 
 .. contents:: 
     :depth: 2
 
 
-Install racoon_clip as described :ref:`here <installation>`. 
-
-Full list of yaml file options
-------------------------------
-Setting up racoon_clip works by providing a config.yaml file or by specifying all options in the command line. Here is a full config.yaml file including all default options. All parameters that should be used with default settings do not need to be specified in the config.yaml file. You can find an explanation of all parameters :ref:`here <all_options>`.
+Install racoon_clip as described in :doc:`installation`. This page focuses on
+the experiment-specific examples distributed in ``example_data`; general
+configuration concepts belong in :doc:`tutorial_customise`.
 
 Here is a walk-through for some minimal examples.
 
@@ -28,7 +28,7 @@ First, download a human genome assembly (as FASTA) and genome annotation (as gtf
 
 Set up one of the minimal examples
 -----------------------------------
-Now you can run an example provided with racoon_clip.  Go into the folder minimal_examples and unzip the example that you want to test. There are 6 examples: 
+The repository provides six small workflows below ``example_data``:
 
 - iCLIP
 
@@ -88,7 +88,7 @@ You can see that both samples belong to the group min_example_iCLIP. This exampl
 
 This is how the config file config_min_example_iCLIP.yaml looks like: 
 
-.. code:: python
+.. code:: yaml
 
     # where to put results
     wdir: "<path/to/output/dir>"
@@ -118,7 +118,7 @@ This is how the config file config_min_example_iCLIP.yaml looks like:
 
 As long as you are in the racoon_clip/example_data directory you can use the config file as it is. If you want to run the example from another directory or you analyse your own CLIP2 data, you need to adjust the paths in the config file:
 
-.. code:: python
+.. code:: yaml
 
   wdir: "<path/where/to/put/results>"
   infiles: "<path/to/first/sample.fastq> <path/to/second/sample.fastq>"
@@ -142,9 +142,9 @@ The following steps can be turned on and off as needed in the config file. (For 
 + **adapter_trimming** (True/False): *default True*; Whether adapter trimming should be performed. 
 + **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
 
-Please also have a look at `options <all_options>` for how to provide barcode, UMI and adapter information.
+See :doc:`all_options` for barcode, UMI, and adapter parameters.
 
-.. code:: python
+.. code:: yaml
     quality_filter_barcodes:True/False
     demultiplex:False/True
     adapter_trimming:True/False
@@ -155,7 +155,7 @@ Selecting experimental type
 
 You can select one of the 4 standard experiment types with 
 
-.. code:: python
+.. code:: yaml
 
     experiment_type:"iCLIP"/"iCLIP2"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"noBarcode_noUMI"/"other"
 
@@ -174,7 +174,7 @@ All resulting files will be written into a folder "results" inside your wdir.
 
 
 Run the minimal example from the command line, without the config file
-------------------------
+----------------------------------------------------------------------
 
 You can also run racoon_clip without a config file. For the iCLIP example, you would need to provide the path information as described above and  specify the experiment_type "iCLIP" (which is already done in the example config file). 
 
@@ -248,10 +248,6 @@ racoon_clip produces a variety of files during the different steps of the workfl
 - **The sample-wise single nucleotide crosslink files in bw format.**: The files are split up into the plus and minus strands. They are located at results/bw/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
 - **The group-wise single nucleotide crosslink files in bw format.**: The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
-
-
-
-
 
 
 

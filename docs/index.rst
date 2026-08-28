@@ -1,105 +1,84 @@
-.. racoon_clip documentation master file, created by
-   sphinx-quickstart on Wed Aug 23 12:29:06 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to racoon_clip's documentation!
-=======================================
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents:
-
-   installation
-   tutorial 
-   tutorial_container
-   tutorial_customise
-   tutorial_output
-   tutorial_mir
-   all_options
-   examples
-   methods_description
-
-
-
-
-What is racoon_clip?
+racoon_clip documentation
 =========================
 
-racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleotide crosslinks in a single step. It is an automation of the iCLIP pipeline published by Busch *et al.* 2020 (`iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_) making the same processing now available for both iCLIP and eCLIP data in a highly reproducible manner. 
+racoon_clip is a Snakemake-powered workflow for processing iCLIP, eCLIP,
+seCLIP, and miR-eCLIP data from sequencing reads to single-nucleotide
+crosslinks. The ``peaks`` workflow can additionally call group-level binding
+sites with PureCLIP.
 
-The performed steps are a quality filter (optional), demultiplexing (optional), adapter trimming, genome alignment,  deduplication (optional) and selection of single nucleotide crosslinks. For details on the performed steps please see :ref:`Detailed description of steps performed by racoon`.
+Choose a starting point
+-----------------------
 
+New users should begin with :doc:`installation` and :doc:`tutorial`. The
+:doc:`examples` page provides experiment-specific walkthroughs using the
+small datasets distributed with the repository.
 
-**Schema of workflow:**
+Users preparing a new experiment should read :doc:`tutorial_customise`.
+Complete option and output descriptions are kept separately in
+:doc:`all_options` and :doc:`tutorial_output`.
+
+Main commands
+-------------
+
+``crosslinks``
+   Run preprocessing, alignment, optional deduplication, and crosslink
+   identification.
+
+``peaks``
+   Run the crosslink workflow and then call peaks for each resolved experiment
+   group.
+
+``run``
+   Deprecated compatibility alias for ``crosslinks``. See :doc:`updates`.
+
+Supported experiments
+---------------------
+
+- iCLIP, iCLIP2, and iCLIP3
+- eCLIP and seCLIP
+- miR-eCLIP
+- custom read-stop CLIP designs
 
 .. figure:: ../racoon_clip_workflow_2.0.png
    :width: 500
+   :alt: Overview of the racoon_clip workflow
 
+   Main processing stages in racoon_clip.
 
-Supported CLIP experiments
-==============================
+Documentation
+-------------
 
-- iCLIP, iCLIP2, iCLIP3
-- eCLIP, seCLIP
-- miR-eCLIP
-- custom set-ups for other CLIP experiments based on read-stops
+.. toctree::
+   :maxdepth: 1
+   :caption: Getting started
 
+   installation
+   tutorial
+   examples
 
-**Set-up of reads, obtained from different types of CLIP experiments:**
+.. toctree::
+   :maxdepth: 1
+   :caption: Workflow guides
 
-.. figure:: ../CLIP_types.png
-   :width: 400
+   tutorial_customise
+   sample_groups
+   tutorial_mir
+   tutorial_container
+   cluster_execution
 
-Usage
-=========================
-                                                                                                                                                                                                                                                                            
-racoon_clip consists of two main commands:
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
 
-.. code:: bash
+   all_options
+   tutorial_output
+   methods_description
 
-   racoon_clip crosslinks --cores <number_of_cores> --configfile </path/to/config/file.yaml>
-   racoon_clip peaks --cores <number_of_cores> --configfile </path/to/config/file.yaml>
+.. toctree::
+   :maxdepth: 1
+   :caption: Help and project information
 
-Use `crosslinks` for crosslink identification and `peaks` for peak calling. Check the tutorial to find out what needs to be in your config.yaml file.
-                                                                                                                                                            
-
-Requirements
-================
-
-- conda
-- python =3.9.0
-- mamba >= 1.3.1
-
-or Docker / Apptainer (SingularityCE is not supported)
-
-
-
-
-
-
-
-
-Citations
-=================
-
-- Klostermann & Zarnack 2024 -- `racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data <https://doi.org/10.1093/bioadv/vbae084>`_
-
-- Busch *et al.* 2020 -- `iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
-
-- Huppertz *et al.* 2014 -- `iCLIP: protein-RNA interactions at nucleotide resolution <https://pubmed.ncbi.nlm.nih.gov/24184352/>`_
-
-
-
-
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   troubleshooting
+   updates
+   citations
 

@@ -1,5 +1,7 @@
+.. _methods_description:
+
 Detailed description of steps performed by racoon_clip
-=================================================
+=======================================================
 
 .. contents::   
     :depth: 2
@@ -9,7 +11,7 @@ Quality control
 Basic quality controls are performed several times throughout the workflow using FastQC (v0.12.1), MultiQC (v.1.31). Optionally, FastQ Screen (v0.15.3) can run using a custom FastQ Screen config file.
 
 Quality filtering (Optional)
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Sequencing reads can be filtered for a Phred score >= 10 inside the unique molecular identifier (UMI) at positions 1-10 of each read to ensure reliable sample and duplicate assignment. The cutoff can be changed by specifying another value by the racoon_clip *minBaseQuality* option.
 
 Demultiplexing, UMI & Adapter trimming
@@ -29,7 +31,7 @@ Reads that are shorter than 15 nt after trimming are discarded using the FLEXBAR
 See also: `FLEXBAR—Flexible Barcode and Adapter Processing for Next-Generation Sequencing Platforms <https://www.mdpi.com/2079-7737/1/3/895>`_. 
 
 Genome alignment 
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 Reads are aligned to the specified genome with STAR (version 2.7.10). In short, the genome is indexed with ``STAR –runMode genomeGenerate``. Then, the reads of each sample are individually aligned to the genome with ``STAR –runMode alignReads --sjdbOverhang 139 --outFilterMismatchNoverReadLmax 0.04 --outFilterMismatchNmax 999 --outFilterMultimapNmax 1 --alignEndsType "Extend5pOfRead1" --outReadsUnmapped "Fastx" --outSJfilterReads "Unique"``. Obtained bam files are indexed with SAMtools index (version 1.11). All parameters except ``--alignEndsType "Extend5pOfRead1"`` can be changed via racoon_clip options.
 
 See also:
@@ -59,4 +61,3 @@ Peakcalling
 Peaks are called with PureCLIP on the merged bam files from each group.
 
 See also: `PureCLIP: capturing target-specific protein–RNA interaction footprints from single-nucleotide CLIP-seq data <https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1364-2>`_
-

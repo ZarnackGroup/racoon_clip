@@ -1,5 +1,7 @@
+.. _tutorial_output:
+
 Understanding the output files
-==========
+==============================
 
 .. contents:: 
     :depth: 2

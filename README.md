@@ -1,29 +1,30 @@
-# racoon_clip 
+# racoon_clip
 
+<img src="Racoon_Logo_Schrift.png" width="400" alt="racoon_clip logo">
 
-<img src="Racoon_Logo_Schrift.png" width="400">
+racoon_clip is a Snakemake-powered workflow that processes iCLIP, eCLIP,
+seCLIP, and miR-eCLIP sequencing data to single-nucleotide crosslinks. The
+``peaks`` workflow additionally calls group-level binding sites with PureCLIP.
 
-racoon_clip processes your iCLIP and eCLIP data from raw files to single-nucleotide crosslinks in a single step. It is an automation of the iCLIP pipeline published by Busch et al. 2020 ([iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites](https://doi.org/10.1016/j.ymeth.2019.11.008)) making the same processing now available for both iCLIP and eCLIP data in a highly reproducible manner. 
-
-The performed steps are an optional quality filter, optional demultiplexing, adapter trimming, genome alignment, optional deduplication and selection of single nucleotide crosslinks. For details on the performed steps please have a look at the [documentation](https://racoon-clip.readthedocs.io/en/latest/).
-
-<img src="racoon_clip_workflow_2.0.png" width="500" />
-
+The complete installation guide, quickstart, experiment guides, parameter
+reference, and methods are available in the
+[RaccoonClip documentation](https://racoon-clip.readthedocs.io/en/latest/).
 
 ## Installation
 
+RaccoonClip currently expects Python 3.9.0, Mamba 1.x, and a compatible pip
+version. Download a release archive from
+[GitHub Releases](https://github.com/ZarnackGroup/racoon_clip/releases):
 
-### from GitHub
-
-To install the tool directly from GitHub the following are required:
-
-+ mamba < 2.0.0
-+ python = 3.9.0
-+ pip < 25.3
-
-It is recommended to install racoon_clip in a fresh conda/mamba environment. You could for example, install the prerequisites with conda:
-
+```bash
+wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/[version].zip
+unzip [version].zip
+cd racoon_clip-[version]
 ```
+
+Create and activate a dedicated environment:
+
+```bash
 conda create -n racoon_clip \
   --override-channels -c conda-forge \
   mamba=1 \
@@ -31,67 +32,40 @@ conda create -n racoon_clip \
   python=3.9.0 \
   pip=25.0
 conda activate racoon_clip
-```
-
-or if you already have mamba installed:
-
-```
-mamba create -n racoon_clip python=3.9.0 pip=25.0
-mamba activate racoon_clip
-``` 
-
-Then, to install racoon_clip in the environment:
-Download the zip file of your preferred release from Git Hub and unzip it. Then go into the unzipped folder.
-
-```
-wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/[version].zip
-unzip [version].zip
-cd racoon_clip-[version]
-```
-
-Then install racoon with pip.
-```
 pip install -e .
-
-# inside a conda env, to avoid pip clashes: Find your anaconda directory, and find the actual venv folder. It should be somewhere like /anaconda/envs/venv_name/.
-/anaconda/envs/venv_name/bin/pip install -e .
-
 ```
 
-You can now check the installation by running the help option or a minimal example.
+Verify the installation:
 
-```
+```bash
 racoon_clip -h
 racoon_clip test --light
 ```
 
-###  use Docker Image
+Docker and Apptainer images are also available. Container users should follow
+the [bind-mount guide](https://racoon-clip.readthedocs.io/en/latest/tutorial_container.html).
 
-If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
+## Quickstart
 
-```
-docker pull melinak/racoon_clip:latest
-or
-apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
-```
+Use ``crosslinks`` for crosslink identification and ``peaks`` for crosslinks
+followed by PureCLIP peak calling. Start from one of the tested configurations
+in ``example_data`` and follow the
+[quickstart](https://racoon-clip.readthedocs.io/en/latest/tutorial.html).
 
-## Documentation and Tutorial
+## Recent updates
 
-You can find a tutorial, all customisation options and a detailed description of the performed steps in this [documentation](https://racoon-clip.readthedocs.io/en/latest/).
+- ``racoon_clip run`` is deprecated in favor of ``crosslinks`` and ``peaks``.
+- The miR-eCLIP module now uses canonical miRNA lengths and alignment CIGAR
+  information when separating miRNA and target-RNA sequence.
+- miR-eCLIP peak calling combines chimeric and non-chimeric reads by
+  experiment group.
+- GTF annotation is optional, and an existing STAR index can be supplied.
 
-
-## Test data
-
-You can test racoon_clip with 
-
-```
-racoon_clip test
-```
-
-Or manually run one of the [minimal example data sets](https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples). See [here](https://racoon-clip.readthedocs.io/en/latest/examples.html#) for a walk-through of the examples.
-
+See [Updates and migration](https://racoon-clip.readthedocs.io/en/latest/updates.html)
+for details.
 
 ## Outputs
+
 racoon_clip produces a variety of files during the different steps of the workflow that will all be stored in a folder called results. These are the main output files form the results folder:
 
 - A summary of the performed steps called Report.html.
@@ -104,7 +78,14 @@ racoon_clip produces a variety of files during the different steps of the workfl
 
 - The group-wise single-nucleotide crosslink files in bw format. The files are split up into the plus and minus strands. They are located at results/bw_merged/<sample_name>sortedByCoord.out.duprm.minus.bw and results/bw_merged/<sample_name>sortedByCoord.out.duprm.plus.bw.
 
-## Please cite:
-Klostermann&Zarnack 2024:  [racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and eCLIP data](https://doi.org/10.1093/bioadv/vbae084)
+The output section above is intentionally retained unchanged until the
+output-filename review is approved.
 
-Busch et al. 2020: [iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites](https://doi.org/10.1016/j.ymeth.2019.11.008)
+## Citation
+
+- Klostermann & Zarnack 2024:
+  [racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP and
+  eCLIP data](https://doi.org/10.1093/bioadv/vbae084)
+- Busch et al. 2020:
+  [iCLIP data analysis: A complete pipeline from sequencing reads to RBP
+  binding sites](https://doi.org/10.1016/j.ymeth.2019.11.008)

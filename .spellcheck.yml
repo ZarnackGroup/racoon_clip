@@ -31,4 +31,4 @@ matrix:
           - code
           - pre
   sources:
-    - '*.rst'
+    - 'docs/*.rst'

@@ -1,0 +1,28 @@
+name: Documentation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  sphinx:
+    name: Build Sphinx documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install documentation dependencies
+        run: python -m pip install -r docs/requirements.txt
+
+      - name: Build documentation with warnings as errors
+        run: sphinx-build -n -W --keep-going -b html docs /tmp/racoon_clip-docs
+
+      - name: Run documentation consistency tests
+        run: python -m unittest tests.test_documentation

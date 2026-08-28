@@ -25,6 +25,7 @@ extensions = ['sphinx_rtd_theme',
               'sphinx_search.extension',
               'sphinx.ext.autodoc',
               'sphinx.ext.autosectionlabel']
+autosectionlabel_prefix_document = True
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -36,7 +37,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_show_sourcelink = False
-html_static_path = ['_static']
 html_logo = '../Racoon_Logo_Schrift.png'
 html_theme_options = {
     'analytics_id': 'G-XXXXXXXXXX',  #  Provided by Google in your dashboard

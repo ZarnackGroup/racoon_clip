@@ -9,14 +9,23 @@ All parameters and options
 Parameter usage in general
 ---------------------------
 
-You can specify all parameters and options of racoon either directly in the command line or in a config.yaml file provided with
+You can specify workflow parameters in a configuration file or through the
+corresponding command-line option. Configuration keys retain their exact
+spelling, including underscores and capitalization. Command-line spellings
+must match the options shown by the help command and are not produced by one
+universal underscore-to-hyphen rule.
 
 .. code:: commandline
 
    racoon_clip crosslinks --configfile <your_configfile> --cores <n_cores>
    racoon_clip peaks --configfile <your_configfile> --cores <n_cores>
 
-To make your own config file, you can start with an empty yaml file or copy one of the example config files `here <https://github.com/ZarnackGroup/racoon_clip/tree/main/minimal_examples>`_ and save it to a .yaml file. Then adjust the parameters as needed. All parameters that should be used by default do not need to be specified in the config.yaml file. Here is an example of a config.yaml file containing all default options:
+To make your own config file, you can start with an empty YAML file or copy
+one of the files in
+`example_data <https://github.com/ZarnackGroup/racoon_clip/tree/main/example_data>`_.
+Then adjust the parameters as needed. Parameters that use their defaults do
+not need to be specified. The existing default example below is retained
+unchanged pending the YAML-example review.
 
 
 .. code:: bash
@@ -72,7 +81,8 @@ To make your own config file, you can start with an empty yaml file or copy one 
     # deduplicate
     deduplicate: True
 
-In the command line every option can be specified by adding ``--`` in front and turning ``_`` to ""-"" in the option name. For example:
+Command-line examples are retained unchanged pending the dedicated example
+review:
 
 .. code:: commandline
 
@@ -93,18 +103,17 @@ You can also check the command-line parameters with
 racoon_clip will write a combined config file, containing the default options, where nothing was specified, the config file options and the command line options (command line parameters overwrite config file parameters) with the file ending "_updated.yaml" to keep track of the options you used.
 
 
-Required input
----------------
-The following input parameters are required from the user:
+Required and conditional input
+------------------------------
 
-- infiles
-- samples
-- genome_fasta
-- gtf
-- either experiment_type or specific UMI and barcode length (umi1_len, umi2_len, encode_umi_length, total_barcode_len, barcodeLength)
-- read_length
+Every analysis requires ``infiles`` and ``genome_fasta``. For
+non-demultiplexed data, ``samples`` can be inferred from the input filenames;
+an explicit value selects their order. Demultiplexing requires the expected
+sample names and ``barcodes_fasta``.
 
-See below for descriptions.
+A ``gtf`` annotation is optional. Either select an ``experiment_type`` preset
+or define the barcode and UMI arrangement manually. The remaining parameters
+use defaults unless the experiment requires a different value.
 
 Input files and output directory
 ---------------------------------
@@ -115,20 +124,19 @@ Input files and output directory
 
 - **seq_format** ("-Q33"/"-Q64"): *default "-Q33"*; Sequence format passed to FASTX-Toolkit. "-Q33" corresponds to data from an Illumina sequencer, "-Q64" would correspond to data from a Sanger sequencer.
 
-Sample names & experiment groups
----------------------------------
+Sample names and experiment groups
+----------------------------------
 
-- **samples** (string): A list of all sample names. The names should be the same as the file names of the input files or in the case of demultiplexing, should be the same as specified in the barcode file. Sample names are split by one space. Example: "sample_1 sample_2", when the corresponding input files are named sample_1.fastq and sample_2.fastq. 
-- **experiment_groups** (string): In addition to sample-wise output, racoon_clip will output merged bam and bw files. Which samples are merged together is specified by the experiment groups. Example: "WT KO". If all samples belong to the same group, this can be left empty and racoon_clip will automatically merge all samples. The groups must correspond to the group names specified in the experiment_group_file. 
+- **samples** (string): Optional ordered sample names for non-demultiplexed
+  inputs; required when demultiplexing. Names must agree with the resolved
+  input names or barcode identifiers.
+- **experiment_groups** (string): Legacy accepted setting. The current
+  workflow resolves groups from ``experiment_group_file`` and does not use
+  this value to filter or order them.
+- **experiment_group_file** (path): Assigns samples to groups.
 
-- **experiment_group_file** (path to txt): *default " "*; A .txt file specifying which samples belong to which group. If all samples belong to the same condition, this can be left empty and racoon_clip will automatically merge all samples.
-
-.. code-block:: text
-
-   WT sample1
-   WT sample2
-   KO sample3
-   KO sample4
+See :doc:`sample_groups` for the group-file format, default ``all_samples``
+group, and singleton-group behavior.
 
 
 Demultiplexing 
@@ -161,9 +169,9 @@ Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different leng
 
 - **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
 
-.. image:: ../experiment_types_schema.png
+.. image:: ../CLIP_types.png
    :width: 600
-    Most common barcode setups.
+   :alt: Common barcode and UMI arrangements
 
 
 If your experiment used one of these setups, you can use the experiment_type parameter:
@@ -193,7 +201,7 @@ If your experiment does not follow one of these standard setups, you can define 
 
 For example, manually defining an iCLIP or eCLIP setup would look like this:
 
-.. code-block:: python
+.. code-block:: yaml
 
    # iCLIP
    barcodeLength: 4
@@ -215,7 +223,7 @@ Using manual barcode setup for ENCODE (or ENCODE-like) data
 
    This is needed for the older ENCODE eCLIP data where the UMI is only 5 nucleotides long
 
-.. code-block:: python
+.. code-block:: yaml
 
    barcodeLength: 0 
    umi1_len: 10 (5)
@@ -223,10 +231,11 @@ Using manual barcode setup for ENCODE (or ENCODE-like) data
    total_barcode_len: 10 (5)
    encode: True   
 
-Quality filtering during barcode trimming:
----------------------------------
+Quality filtering during barcode trimming
+-----------------------------------------
 
-- **flexbar_minReadLength** (int): *default 15*; The minimum length a read should have after trimming of barcodes, adapters and UMIs. Shorter reads are removed.
+- **min_read_length** (int): *default 15*; The minimum length a read should
+  have after trimming barcodes, adapters, and UMIs. Shorter reads are removed.
 
 - **quality_filter_barcodes** (True/False): *default True*; Whether reads should be filtered for a minimum sequencing quality in the barcode sequence. 
 
@@ -239,6 +248,22 @@ Adapters
 - **adapter_file** (path): *default /params.dir/adapters.fa*; A FASTA file of adapters that should be trimmed. The default file contains the Illumina Universal adapter, the Illumina Multiplexing adapter and 20 eCLIP adapters. 
 
 - **adapter_cycles** (int): *default 1*; How many cycles of adapter trimming should be performed. We recommend using 1 for iCLIP and iCLIP2 data and 2 for eCLIP.
+
+Additional trimming
+-------------------
+
+- **trim3** (True/False): *default False*; Trim bases from the 3-prime end.
+  The iCLIP3 preset enables this behavior.
+- **trim3_len** (int): *default 3*; Number of 3-prime bases to trim.
+
+ENCODE read-name UMIs
+---------------------
+
+- **encode** (True/False): *default False*; Treat the UMI as already removed
+  from the sequence and stored in the read name. Prefer an ENCODE
+  ``experiment_type`` preset for standard data.
+- **encode_umi_length** (int): *default 10*; Length of the UMI stored in an
+  ENCODE-style read name.
 
 Alignment to genome
 ---------------------------------
@@ -263,11 +288,40 @@ Parameters  passed to STAR:
 
 - **outSJfilterReads**: *default "Unique"*
 
+- **outReadsUnmapped**: *default "Fastx"*
+
 - **moreSTARParameters**: Here all other STAR parameters can be passed.
 
 Deduplication
 --------------
 - **deduplicate** (True/False): *default True*; Whether to perform deduplication. It is recommended to always use deduplication unless no UMIs are present in the data.
+
+miR-eCLIP
+---------
+
+- **mir_genome_fasta** (path): Reference containing canonical mature miRNA
+  sequences for the ``miReCLIP`` preset.
+- **mir_starts_allowed** (string): *default "1 2 3 4"*; Accepted inferred
+  positions at which the canonical miRNA begins in the processed read.
+- **mir_5prime_missing_allowed** (string): *default "0 1 2 3"*; Accepted
+  counts of missing canonical 5-prime miRNA bases.
+
+See :doc:`tutorial_mir` for the processing model.
+
+FastQ Screen
+------------
+
+- **fastqScreen** (True/False): *default False*; Enable contamination
+  screening.
+- **fastqScreen_config** (path): FastQ Screen configuration required when
+  ``fastqScreen`` is enabled.
+
+PureCLIP peak calling
+---------------------
+
+- **morePureclipParameters** (string): Additional options passed to PureCLIP
+  by the ``peaks`` workflow. Restricting training to representative
+  chromosomes can reduce memory use.
 
 
 Execution parameters
@@ -278,36 +332,5 @@ These parameters should be passed in the command line.
 - ``--verbose``: Print all commands of the process to the console.
 - ``--log``: *default "racoon_clip.log"*; Name of log file.
 
-Cluster execution
-^^^^^^^^^^^^^^^^^^
-
-- ``--profile``: The path to your cluster profile folder containing a config.yaml file that could for example, look like this (For large datasets you might need to increase mem_mb and time):
-
-.. code-block:: bash
-    
-    cluster:
-    mkdir -p logs/{rule} &&
-    sbatch
-    --cpus-per-task={threads}
-    --mem={resources.mem_mb}
-    --partition={resources.partition}
-    --job-name=smk-{rule}-{wildcards}
-    --output=logs/{rule}/{rule}-{wildcards}-%j.out
-    default-resources:
-    - partition=<your_partitions>
-    - mem_mb=2000
-    - time="48:00:00"
-    jobs: 6
-- ``--wait-for-files``: Should be specified when using a cluster execution.
-- ``--latency-wait``: Should be specified when using a cluster execution. 60 is a possible value, depends on your workload manager.
-
-See also:
-
-    https://github.com/jdblischak/smk-simple-slurm/tree/main/examples/list-partitions
-    https://snakemake.readthedocs.io/en/stable/executing/cluster.html
-
-
-
-
-
-
+Cluster profiles and scheduler-related Snakemake arguments are documented in
+:doc:`cluster_execution`.

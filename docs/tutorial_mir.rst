@@ -1,12 +1,12 @@
 Tutorial: The miR-eCLIP module
-================================
+==============================
 
 .. contents:: 
     :depth: 2
 
 
 What is miR-eCLIP?
----------------------------
+------------------
 
 miR-eCLIP is a type of CLIP experiment that allows the mapping of microRNA binding sites on their target RNAs. 
 During the experiment miRNA and target RNA  the reverse transcription step produces to a certain extent chimeric reads via read through. 
@@ -18,7 +18,7 @@ A detailed description of the miR-eCLIP experiment can be found `here <https://d
 
 
 How to analyse miR-eCLIP data with racoon_clip
------------------------------
+----------------------------------------------
 
 racoon_clip includes an option to analyse miR-eCLIP data (see below for a detailed description of the steps performed). For this, the experiment type "miReCLIP" should be specified and a fasta file of all microRNAs must be provided (mir_genome_fasta).
 
@@ -27,7 +27,7 @@ In addition, one can allow different inferred start positions for the canonical 
 All other parameters are the same as the normal racoon_clip parameters. 
 Here is an example config file:
 
-.. code:: python
+.. code:: yaml
 
     experiment_type: "miReCLIP"    
     
@@ -56,7 +56,7 @@ Here is an example config file:
 
 
 What are the output files?
----------------------------
+--------------------------
 
 You get the following output files:
 
@@ -68,15 +68,16 @@ You get the following output files:
 
 
 How does racoon_clip process miR-eCLIP data?
-------------------------------------------
+--------------------------------------------
 
 .. figure:: ../mir-eCLIP_racoon_schema.png
    :width: 300
 
 Quality filtering and Adapter trimming
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First quality filtering and adapter trimming is performed on the raw data. A description of these steps can be found :ref:`here <methods_description>`. 
+First quality filtering and adapter trimming is performed on the raw data. A
+description of these steps is available in :doc:`methods_description`.
 
 miR alignment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,7 +86,7 @@ Filtered and trimmed reads are shortend to the first (5’) 24nt with fastx_trim
 The short reads are then aligned to the miR annotation using bowtie2 with the following settings: –local -D 20 -R 3 -L 10 -i S,1,0.50 -k 20 –norc –trim5 2. Before building an index of the miR genome using bowtie2-build.
 
 Obtaining separate fastq files of chimeric and non-chimeric reads
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The reads in the obtained .sam file are then split into chimeric reads and non-chimeric reads by the sam-FLAG with samtools view -F 4 for chimeric reads and samtools view -f 4 for non-chimeric (unaligned) reads.
 
 The read IDs of the unaligned reads are used to extract the non-chimeric reads from the quality filtered and trimmed fastq files with seqkit grep -n. The fastq files of the non-chimeric reads are then sorted with seqkit sort -n and afterwards aligned to the genome annotation as described in the main report.
@@ -95,7 +96,7 @@ For each mapped read, racoon_clip infers where the canonical miRNA begins in the
 The target-RNA start is calculated from the full canonical length of the aligned miRNA sequence in mir_genome_fasta. The mir_5prime_missing_allowed parameter controls how many missing bases from the canonical miRNA 5' end are accepted. Insertions and deletions are projected through the CIGAR string. The miRNA name is added to the read ID and the canonical miRNA portion is removed before genomic alignment.
 
 Alignment of chimeric reads to genome annotation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The genome annotation is indexed using STAR –runMode genomeGenerate. The merged file of chimeric reads is then aligned to the genome annotation using STAR –runMode alignReads. For STAR settings, see Configurations. The resulting bam files are indexed using samtools index.
 
 Deduplication
@@ -107,8 +108,6 @@ Obtaining chimeric crosslinks
 The deduplicated bam files are then converted to bed files using bedtools bamtobed. The reads are shifted 1nt upstream (5’ direction) with bedtools shift -m 1 -p -1, because the UV crosslink should be positioned 1nt before the stop of the non-miR part of the read. Then the read ID (which now also contains the miR name) is truncated to the miR name using awk, the BED file is split by strand, and the strand-aware 5' end is reduced to a one-nucleotide crosslink using the left edge on the plus strand and the right edge on the minus strand.
 
 To allow visualisation in a genome browser, the 1nt crosslink bed file is then also converted into a .bigWig file using bedGraphToBigWig. These bigWig files are then merged with bigWigMerge by the experiment groups specified by the user.
-
-
 
 
 

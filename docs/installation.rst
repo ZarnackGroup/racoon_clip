@@ -1,103 +1,107 @@
+.. _installation:
+
 Installation
-=========================
-
-
+============
 
 Install from GitHub
----------------------
+-------------------
 
-Download the zip file of your preferred release from GitHub and unzip it. Then go into the unzipped folder.
-You can get the link to the zip file of the newest version from `the GitHub release page <https://github.com/ZarnackGroup/racoon_clip/releases>`_. 
+Choose a release from the
+`GitHub release page <https://github.com/ZarnackGroup/racoon_clip/releases>`_,
+download its archive, and enter the extracted directory.
 
-.. code:: bash
+.. code-block:: bash
 
    wget https://github.com/ZarnackGroup/racoon_clip/archive/refs/tags/[version].zip
    unzip [version].zip
    cd racoon_clip-[version]
 
+Create a dedicated environment. RaccoonClip currently expects Python 3.9.0
+and Mamba 1.x.
 
+.. code-block:: bash
 
-It is recommended to install racoon_clip in a fresh conda/mamba environment. You can install the prerequisites with conda:
-
-.. code:: bash
-  
    conda create -n racoon_clip \
-  --override-channels -c conda-forge \
-  mamba=1 \
-  'python_abi=*=*cp*' \
-  python=3.9.0 \
-  pip=25.0
+     --override-channels -c conda-forge \
+     mamba=1 \
+     'python_abi=*=*cp*' \
+     python=3.9.0 \
+     pip=25.0
    conda activate racoon_clip
 
+If Mamba 1.x is already available, the environment can instead be created
+with:
 
-or if you have mamba (version 1) installed:
-
-.. code:: bash
+.. code-block:: bash
 
    mamba create -n racoon_clip python=3.9.0 pip=25.0
    mamba activate racoon_clip
 
-**Note:** Mamba versions >1 have compatibility issues with snakemake. If you have a mamba version >1 installed, use the conda create command from above; this will make this specific conda environment use mamba version 1.
+Install the package from the extracted release directory:
 
-Then install racoon with pip.
-
-.. code:: bash
+.. code-block:: bash
 
    pip install -e .
 
-   # Inside a conda environment, do the following to avoid pip clashes: 
-   # Find your anaconda directory and the folder of the environment. 
-   # (It should be somewhere like /anaconda/envs/racoon_clip/.)
+If ``pip`` resolves to a different environment, invoke the environment's
+executable directly:
+
+.. code-block:: bash
 
    /anaconda/envs/racoon_clip/bin/pip install -e .
 
+Verify the installation
+-----------------------
 
+Confirm that the command is available:
 
-Check Installation with Tests
------------------------------
-You can now check the installation by running the help option and then :ref:`quickstart <tutorial>` your analysis.
-
-.. code:: bash
+.. code-block:: bash
 
    racoon_clip -h
 
-Furthermore, racoon_clip provides built-in test commands to verify your installation:
+The light test performs configuration and DAG checks without running the full
+example workflows:
 
-**Light Test (Quick verification):**
-
-.. code:: bash
+.. code-block:: bash
 
    racoon_clip test --light
 
-This runs a quick test, doing basic functionality checks
+The default test command runs the complete test suite and is more
+computationally demanding:
 
-**Full Test (Comprehensive verification):**
-
-.. code:: bash
+.. code-block:: bash
 
    racoon_clip test
 
-This runs the complete test suite including:
+Additional focused test modes are available:
 
-- All tests from the light test
-- Full workflow execution tests with example data
+``--mir``
+   Run the miR-eCLIP crosslink and peak tests.
 
-**Note:** Errors stating problems with "libmamba" usually point to mamba either being not installed or being installed with a version >1.
+``--groups``
+   Test experiment-group handling.
 
+``--fastqscreen``
+   Test the optional FastQ Screen path.
 
+``--no-clean``
+   Preserve generated result directories for inspection.
 
-Use Docker Image
----------------------
+Installation errors mentioning ``libmamba`` commonly indicate that Mamba is
+missing or is newer than the supported 1.x series. See
+:doc:`troubleshooting`.
 
-If your system has Docker or Apptainer installed, you can also use the racoon_clip Docker Image. Slurm job scheduling of the racoon_clip jobs is not supported by the Docker image. At the moment, usage of SingularityCE containers is also not supported.
+Containers
+----------
 
-.. code:: bash
+Prebuilt Docker images can also be used with Docker or Apptainer:
+
+.. code-block:: bash
 
    docker pull melinak/racoon_clip:latest
    or
    apptainer pull racoon_clip.sif docker://melinak/racoon_clip:latest
 
-We also provide a quick explanation on how to :ref:`use racoon_clip inside a container <tutorial_container>`.
-
-
+Container users must bind their input, reference, and output directories into
+the container. Continue with :doc:`tutorial_container`.
 
