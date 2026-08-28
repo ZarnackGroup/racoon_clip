@@ -40,13 +40,13 @@ where ``racoon_clip`` is started.
    # Optional for the peaks workflow
    morePureclipParameters: "-iv 'chr1;chr2;chr3;'"
 
-** Notes:**
-
-- When demultiplexing, provide one multiplexed input file together with ``samples`` and ``barcodes_fasta``. When not demultiplexing, racoon_clip can infer each sample name from its FASTQ filename by removing the ``.fastq``, ``.fq``, ``.fastq.gz``, or ``.fq.gz`` suffix. 
-
-- **Use absolute paths** for input files, reference files, auxiliary files, and the output directory. Relative paths are unsupported and may fail during execution. Paths beginning with ``~`` are not expanded.
-
-- Choose exactly one supported ``experiment_type`` from :doc:`tutorial_customise`. 
+.. Note::
+   
+   - When demultiplexing, provide one multiplexed input file together with ``samples`` and ``barcodes_fasta``. When not demultiplexing, racoon_clip can infer each sample name from its FASTQ filename by removing the ``.fastq``, ``.fq``, ``.fastq.gz``, or ``.fq.gz`` suffix. 
+   
+   - **Use absolute paths** for input files, reference files, auxiliary files, and the output directory. Relative paths are unsupported and may fail during execution. Paths beginning with ``~`` are not expanded.
+   
+   - Choose exactly one supported ``experiment_type`` from :doc:`tutorial_customise`. 
 
 
 Run and inspect
