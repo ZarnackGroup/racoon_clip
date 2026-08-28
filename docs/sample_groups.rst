@@ -18,7 +18,7 @@ post-demultiplexing samples. Those names must also match the identifiers in
 Experiment groups
 -----------------
 
-RaccoonClip produces sample-level crosslinks and group-level merged outputs.
+racoon_clip produces sample-level crosslinks and group-level merged outputs.
 The optional ``experiment_group_file`` assigns each sample to a group. Each
 non-empty line contains a group name followed by a sample name, separated by
 whitespace:
@@ -38,8 +38,7 @@ sample. Samples omitted from the file are each assigned to a singleton group
 named after that sample.
 
 If no group configuration is supplied, all samples are assigned to one group
-named ``all_samples``. A one-sample group is valid; its group-level files are
-copied from that sample rather than passed through a multi-file merge command.
+named ``all_samples``. 
 
 Peak calling
 ------------
