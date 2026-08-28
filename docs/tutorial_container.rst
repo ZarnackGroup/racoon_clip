@@ -11,7 +11,7 @@ image is not supported.
 Pull an image
 -------------
 
-.. code:: commandline
+.. code:: bash
 
     docker pull <racoon_clip_image>
 
@@ -21,14 +21,14 @@ Create a host directory
 Place or link the analysis inputs and configuration below one directory when
 possible. This reduces the number of mounts that must be maintained.
 
-.. code:: commandline
+.. code:: bash
 
     mkdir -p racoon_clip_bindmount
 
 Start the container
 -------------------
 
-.. code:: commandline
+.. code:: bash
 
     docker run -it \
         -v /path/to/racoon_clip_bindmount:/racoon_clip_bindmount \
@@ -41,11 +41,10 @@ configuration must use the container side of each mapping.
 Verify the command
 ------------------
 
-.. code:: commandline
+.. code:: bash
 
     racoon_clip --version
     racoon_clip test --light
 
 The light test checks basic configuration and workflow construction without
 running the complete example suite.
-

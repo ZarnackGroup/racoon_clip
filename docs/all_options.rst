@@ -15,7 +15,7 @@ spelling, including underscores and capitalization. Command-line spellings
 must match the options shown by the help command and are not produced by one
 universal underscore-to-hyphen rule.
 
-.. code:: commandline
+.. code:: bash
 
    racoon_clip crosslinks --configfile <your_configfile> --cores <n_cores>
    racoon_clip peaks --configfile <your_configfile> --cores <n_cores>
@@ -84,14 +84,14 @@ unchanged pending the YAML-example review.
 Command-line examples are retained unchanged pending the dedicated example
 review:
 
-.. code:: commandline
+.. code:: bash
 
    racoon_clip crosslinks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
    racoon_clip peaks --configfile <your_configfile> --infiles <your_input_files> --barcodes-fasta <your_barcode_file.fasta>
 
 You can also check the command-line parameters with
 
-.. code:: commandline
+.. code:: bash
 
    racoon_clip crosslinks -h
    racoon_clip peaks -h

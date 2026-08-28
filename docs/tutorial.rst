@@ -14,7 +14,7 @@ Use ``crosslinks`` when the required result is a set of single-nucleotide
 crosslink tracks. Use ``peaks`` when group-level PureCLIP peak calling should
 run after crosslink identification.
 
-.. code:: commandline
+.. code:: bash
 
    racoon_clip crosslinks --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
    racoon_clip peaks --configfile <your_configfile.yaml> --cores <n_cores> [OPTIONS]
