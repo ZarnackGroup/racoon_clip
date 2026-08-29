@@ -37,14 +37,11 @@ The ``miReCLIP`` preset configures a 10-nucleotide UMI at the 5′ end of each
 read. It sets ``barcodeLength``, ``umi1_len``, and ``total_barcode_len`` to
 10 and enables the miR-eCLIP-specific workflow stages.
 
-When demultiplexing is disabled, sample names are inferred by removing the
-``.fastq``, ``.fq``, ``.fastq.gz``, or ``.fq.gz`` suffix from each input
-filename. When demultiplexing is enabled, ``samples`` and
-``barcodes_fasta`` must be specified explicitly.
+.. figure:: ../mir-eCLIP.png
+   :width: 200px
+   :align: center
+   :alt: Overview of the miR-eCLIP experiment
 
-Use absolute paths for FASTQ, reference, annotation, and output files. Some
-workflow rules change their working directory before invoking external tools,
-which makes relative input paths unreliable.
 
 
 miR-eCLIP parameters
