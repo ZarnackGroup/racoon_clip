@@ -23,15 +23,13 @@ corresponding command-line option.
        --threads 10
 
 
-To create a configuration file, start with a YAML mapping or copy and adapt one
-of the tested configurations in
+To create a configuration file, start with an empty YAML file or copy and adapt one
+of the test configurations in
 `example_data <https://github.com/ZarnackGroup/racoon_clip/tree/main/example_data>`_.
 Only required settings and values that differ from their defaults need to be
 specified.
 
-The following complete template lists the public configuration keys. It is not
-a directly runnable configuration: required paths and experiment-specific
-settings must be supplied.
+The following complete template lists all parameters with their default setting. 
 
 .. code-block:: yaml
 
@@ -138,13 +136,12 @@ settings must be supplied.
 .. note::
 
    When different settings are supplied in both the YAML configuration
-   and on the command line, the value in the YAML configuration currently
-   takes precedence.
+   and on the command line, the value in the command line will override the YAML configuration.
 
 Required and conditional input
 ------------------------------
 
-Every analysis requires ``infiles`` and ``genome_fasta``. Demultiplexing additionally requires
+Every analysis requires ``infiles``,``genome_fasta``. Demultiplexing additionally requires
 ``samples`` and ``barcodes_fasta``.
 
 A ``gtf`` annotation is optional but recommended. Either select an ``experiment_type`` preset
@@ -181,9 +178,9 @@ Demultiplexing
 Demultiplexing can be performed optionally. 
 
 - ``demultiplex`` (True/False): *default False*; Whether demultiplexing still has to be done.
-- ``barcodes_fasta`` (path to fasta): Path to fasta file with antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N. 
+- ``barcodes_fasta`` (path to fasta): Path to fasta file with antisense sequences of used barcodes. Not needed if data is already demultiplexed. UMI sequences should be added as N as shown in the following example:
 
-.. code-block:: text
+.. code-block:: test
 
    >min_expamle_iCLIP_s1
    NNNGGTTNN
@@ -201,12 +198,14 @@ Different experimental approaches (iCLIP, iCLIP2, eCLIP) will use different leng
 
 - **iCLIP3**: UMI of 9nt in the beginning (5' end)
 
-- **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2. This option can also be used for seCLIP data. 
+- **eCLIP:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2. This option can also be used for **seCLIP** data. 
 
-- **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name
+- **eCLIP from ENCODE:** UMI of 10nt (or 5nt) in the beginning (5' end) of read2 is already trimmed off and stored in the read name.
+
+- **miR-eCLIP:** Uses the same UMI setting as eCLIP.
 
 .. image:: ../CLIP_types.png
-   :width: 200
+   :width: 300
    :alt: Common barcode and UMI arrangements
 
 
@@ -215,12 +214,13 @@ If your experiment used one of these setups, you can use the experiment_type par
 Using a standard barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **experiment_type:** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"miReCLIP"
+- **experiment_type:** ("iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/
+    "eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"miReCLIP"
     /"noBarcode_noUMI"/"other"): *default: "other"*; The type of your experiment. 
 
 .. Note::
 
-   There are special types "eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI" because ENCODE data no longer has UMI information in the reads, but instead appends it to the end of the read names. If unsure if the data has a 5nt or 10nt UMI, check the read headers (for example, with head encode_sample.fastq)
+   There are special types "eCLIP_ENCODE_5ntUMI" and "eCLIP_ENCODE_10ntUMI" because ENCODE data no longer has UMI information in the reads, but instead appends it to the end of the read names. If unsure if the data has a 5nt or 10nt UMI, check the read headers (for example, with `head encode_sample.fastq`)
 
 Using manual barcode setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -251,13 +251,15 @@ For example, manually defining an iCLIP or eCLIP setup would look like this:
    umi2_len: 0
    total_barcode_len: 10 (5)
 
+.. Note:: 
+racoon_clip does not support paired-end aligment. If UMIs and barcodes are not in the same part of the read pair, it is recommended to manually demultiplex and then continue only with the UMI information.
 
 Using manual barcode setup for ENCODE (or ENCODE-like) data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Note:: 
 
-   This is needed for the older ENCODE eCLIP data where the UMI is only 5 nucleotides long
+   This is needed when downloading FASTQ files directly from ENCODE, because there UMIs are already moved to the read header.
 
 .. code-block:: yaml
 
@@ -362,11 +364,11 @@ PureCLIP peak calling
 
 Execution parameters
 --------------------
-These parameters should be passed in the command line.
+These execution parameters can also be specified but should be passed in the command line.
 
-- ``--cores``: Number of cores for the execution.
-- ``--verbose``: Print all commands of the process to the console.
-- ``--log``: *default "racoon_clip.log"*; Name of log file.
+- `--threads`: Number of cores for the execution.
+- `--quiet`: Print nothing to the console.
+- `--log`: *default "racoon_clip.log"*; Name of log file. If specified, all output is printed to the log file instead of the console.
 
 Cluster profiles and scheduler-related Snakemake arguments are documented in
 :doc:`cluster_execution`.
