@@ -12,45 +12,57 @@ Parameter usage in general
 You can specify workflow parameters in a configuration file or through the
 corresponding command-line option. 
 
-.. code:: bash
+.. code-block:: bash
 
-   racoon_clip crosslinks --configfile <your_configfile> --cores <n_cores>
-   racoon_clip peaks --configfile <your_configfile> --cores <n_cores>
+   racoon_clip crosslinks \
+       --configfile /absolute/path/to/config.yaml \
+       --threads 10
 
-To make your own config file, you can start with an empty YAML file or copy
-one of the files in
+   racoon_clip peaks \
+       --configfile /absolute/path/to/config.yaml \
+       --threads 10
+
+
+To create a configuration file, start with a YAML mapping or copy and adapt one
+of the tested configurations in
 `example_data <https://github.com/ZarnackGroup/racoon_clip/tree/main/example_data>`_.
-Then adjust the parameters as needed. Parameters that use their defaults do
-not need to be specified. The existing default example below is retained
-unchanged pending the YAML-example review.
+Only required settings and values that differ from their defaults need to be
+specified.
+
+The following complete template lists the public configuration keys. It is not
+a directly runnable configuration: required paths and experiment-specific
+settings must be supplied.
 
 .. code-block:: yaml
 
    # Output directory
-   wdir: /absolute/path/to/output
+   # Use an absolute path, particularly for cluster execution.
+   wdir: "/absolute/path/to/output"
 
    # Input FASTQ files
-   # Supply one file or multiple space-separated files or glob patterns.
+   # Required. Supply one or more space-separated paths or glob patterns.
+   # Supported endings: .fastq, .fq, .fastq.gz, and .fq.gz.
    infiles: ""
 
    # Samples and experiment groups
-   # Sample names are normally inferred from FASTQ filenames when demultiplexing
-   # is disabled.
-   # The legacy experiment_groups setting is currently ignored.
-   experiment_groups: ""
-   # Optional text file containing: group sample
+   # Leave empty to infer names from FASTQ filenames when demultiplexing is
+   # disabled. Explicit sample names are required when demultiplexing is enabled.
+   samples: ""
+   # Optional text file containing one "<group> <sample>" assignment per line.
    experiment_group_file: ""
-   # FASTQ quality encoding: -Q33 for Illumina or -Q64 for older Sanger data.
+   # FASTQ quality encoding: -Q33 for current Illumina and Sanger data;
+   # -Q64 for older Illumina Phred+64 data.
    seq_format: "-Q33"
 
    # Barcode and UMI settings
    # Experiment presets normally assign these values automatically.
-   barcodeLength: ""
+   barcodeLength: 0
    minBaseQuality: 10
    umi1_len: 0
    umi2_len: 0
    total_barcode_len: 0
-   # Set to true when the UMI has already been moved into the read name.
+   # Set to true for ENCODE-style input in which the UMI has already been
+   # removed from the sequence and stored in the read name.
    encode: false
    encode_umi_length: 10
 
@@ -58,25 +70,25 @@ unchanged pending the YAML-example review.
    # iCLIP, iCLIP2, iCLIP3, eCLIP_5ntUMI, eCLIP_10ntUMI,
    # eCLIP_ENCODE_5ntUMI, eCLIP_ENCODE_10ntUMI, miReCLIP,
    # noBarcode_noUMI, and other.
-   # A preset other than "other" overrides the corresponding barcode and
-   # UMI settings above.
+   # A preset other than "other" overrides the corresponding barcode and UMI
+   # settings above.
    experiment_type: "other"
 
-   # Barcode sequences must be provided in antisense orientation.
-   # This file is required when demultiplexing multiplexed input.
+   # Barcode sequences must be supplied in antisense orientation.
+   # Required when demultiplexing multiplexed input. FASTA record names must
+   # match the explicit sample names.
    barcodes_fasta: ""
    # Filter reads according to barcode and UMI base quality.
    quality_filter_barcodes: true
 
    # Demultiplexing
-   # Set to true when multiplexed reads must be assigned to samples using
-   # barcodes_fasta. Explicit sample names are then required.
+   # Exactly one input FASTQ file, explicit sample names, and barcodes_fasta
+   # are required when this is enabled.
    demultiplex: false
    min_read_length: 15
 
    # Adapter trimming
-   # Leave adapter_file empty to use the adapter configuration supplied with
-   # racoon_clip.
+   # Leave empty to use the adapter file supplied with racoon_clip.
    adapter_file: ""
    adapter_cycles: 1
    adapter_trimming: true
@@ -86,13 +98,13 @@ unchanged pending the YAML-example review.
    trim3_len: 3
 
    # STAR alignment
-   # The GTF annotation is optional but, when supplied, must be an uncompressed
-   # .gtf file.
+   # Optional uncompressed annotation ending in .gtf.
    gtf: ""
-   # Provide an uncompressed genome FASTA ending in .fa or .fasta.
+   # Required uncompressed genome FASTA ending in .fa or .fasta, including
+   # when an existing STAR index is supplied.
    genome_fasta: ""
-   # Optionally provide an existing STAR index directory. Otherwise,
-   # racoon_clip builds an index from genome_fasta.
+   # Optional existing STAR index directory. The directory must contain at
+   # least Genome, SA, and SAindex. Otherwise, an index is generated.
    star_index: ""
    read_length: 150
    outFilterMismatchNoverReadLmax: 0.04
@@ -104,38 +116,30 @@ unchanged pending the YAML-example review.
    moreSTARParameters: ""
 
    # UMI-based deduplication
+   # The noBarcode_noUMI preset disables deduplication. The current miReCLIP
+   # implementation always deduplicates its chimeric-read branch.
    deduplicate: true
 
    # miR-eCLIP settings
-   # mir_genome_fasta is required only for the miReCLIP workflow.
+   # An uncompressed mature-miRNA FASTA is required for miReCLIP.
    mir_genome_fasta: ""
    mir_starts_allowed: "1 2 3 4"
    mir_5prime_missing_allowed: "0 1 2 3"
 
    # Optional FastQ Screen analysis
+   # fastqScreen_config is required when fastqScreen is true.
    fastqScreen: false
    fastqScreen_config: ""
 
    # Additional arguments passed directly to PureCLIP during peak calling
    morePureclipParameters: ""
 
-Command line parameters
-------------------------------
-
-All options can also be passed via the command line instead of the config file. Note that the command-line options might be named slightly differently, and in general `_` are turned into `-` in the command-line options.
-You can check the command-line parameters with
-
-.. code:: bash
-
-   racoon_clip crosslinks -h
-   racoon_clip peaks -h
 
 .. note::
 
-   If a parameter is specified in both the provided config file and the command line, the command line parameter will overwrite the config file.
-
-racoon_clip will write a combined config file, containing the default options where nothing was specified, the config file options and the command-line options (command-line parameters overwrite config file parameters), with the file ending "_updated.yaml" to keep track of the options you used.
-
+   When different settings are supplied in both the YAML configuration
+   and on the command line, the value in the YAML configuration currently
+   takes precedence.
 
 Required and conditional input
 ------------------------------
