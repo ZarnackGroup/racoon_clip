@@ -48,11 +48,15 @@ arrangement. Supported values are:
 - ``noBarcode_noUMI``
 - ``other``
 
-Use an ENCODE preset when the UMI has already been removed from the read and stored in its name. Use noBarcode_noUMI when neither barcode nor UMI sequence remains. Use ``other`` when defining the barcode and UMI
-arrangement manually.
+..note 
+
+   - For seCLIP use an ``eCLIP`` experiment_type.
+   - Use an ``ENCODE`` preset when the UMI has already been removed from the read and stored in its name. 
+   - Use ``noBarcode_noUMI`` when neither barcode nor UMI sequence remains. 
+   - Use ``other`` when defining the barcode and UMI arrangement manually.
 
 .. figure:: ../CLIP_types.png
-   :width: 600
+   :width: 200
    :align: center
    :alt: Common barcode and UMI arrangements
 
@@ -62,7 +66,7 @@ arrangement manually.
 Samples and groups
 ------------------
 
-``samples`` identifies the reads processed as separate samples.
+``samples`` identifies the reads processed as separate samples. 
 ``experiment_group_file`` and ``experiment_groups`` control group-level
 merging and peak calling. See :doc:`sample_groups` for the assignment format
 and validation behavior.
