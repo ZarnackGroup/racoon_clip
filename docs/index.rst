@@ -28,6 +28,22 @@ Main commands
    Run the crosslink workflow and then call peaks for each resolved experiment
    group.
 
+Further commands
+----------------
+
+``help``
+   Display the available commands and general command-line help. Use
+   ``racoon_clip <command> --help`` to display the options for a specific
+   command.
+
+``test``
+   Run the bundled test suite. Use ``racoon_clip test --help`` to display the
+   available test modes, including the lightweight configuration tests.
+
+``cite``
+   Print the publications that should be cited when using racoon_clip and its
+   associated workflows.
+
 ``run``
    Deprecated compatibility alias for ``crosslinks``. See :doc:`updates`.
 
@@ -35,7 +51,7 @@ Supported experiments
 ---------------------
 
 - iCLIP, iCLIP2, and iCLIP3
-- eCLIP and seCLIP
+- eCLIP and seCLIP 
 - miR-eCLIP
 - custom read-stop CLIP designs
 

@@ -6,7 +6,9 @@ Citations
 Please cite racoon_clip and the relevant experimental modules used in your
 analysis.
 
-- Klostermann & Zarnack 2024:
+**racoon_clip**
+
+Klostermann & Zarnack 2024
   `racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP
   and eCLIP data <https://doi.org/10.1093/bioadv/vbae084>`_
 - Verheyden & Klostermann *et al.* 2024:

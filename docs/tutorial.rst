@@ -11,7 +11,7 @@ Choose the workflow
 -------------------
 
 Use ``crosslinks`` when the required result is a set of single-nucleotide
-crosslink tracks. Use ``peaks`` when group-level PureCLIP peak calling should
+crosslink tracks. Use ``peaks`` when PureCLIP peak calling should
 run after crosslink identification.
 
 .. code:: bash
@@ -22,36 +22,39 @@ run after crosslink identification.
 Prepare a minimal configuration
 -------------------------------
 
-The following existing example is intentionally retained unchanged pending
-the configuration-example review described in the documentation update plan.
+Create a YAML file containing the input reads, reference genome, and one
+supported experiment type. Relative paths are resolved from the directory
+where ``racoon_clip`` is started.
 
-.. code:: yaml
+.. code-block:: yaml
 
-    # where to put results
-    wdir: "output/path" # no backslash at the end of the path
-    # input
-    infiles: "path/to/sample1.fastq path/to/sample2.fastq" # one un-demultiplexed file or multiple demultiplexed files
-    samples: "sample1 sample2"
-    # annotation
-    gtf: "path/to/annotation.gtf" # has to be unzipped at the moment
-    genome_fasta: "path/to/genome_assembly.fa" # has to be unzipped or bgzip
-    star_index: "" # optional prebuilt STAR index directory
-    read_length: N
+   wdir: ./racoon_clip_out
+   infiles: "reads/sample1.fastq.gz reads/sample2.fastq.gz"
 
-    # experiment type
-    experiment_type: "iCLIP"/"iCLIP2"/"iCLIP3"/"eCLIP_5ntUMI"/"eCLIP_10ntUMI"/"eCLIP_ENCODE_5ntUMI"/"eCLIP_ENCODE_10ntUMI"/"miReCLIP"/"noBarcode_noUMI"/"other"
+   experiment_type: iCLIP2
 
-    # for the demultiplexing functionality or for data with experiment_type "iCLIP", "iCLIP2", or "iCLIP3"
-    barcodes_fasta: "path/to/barcodes.fasta" # barcodes need to have the same names as specified in the samples parameter above
+   genome_fasta: references/genome.fa
+   gtf: references/annotation.gtf
+   read_length: 75
 
-    # peakcalling setting (recommended)
-    morePureclipParameters: "-iv 'chr1;chr2;chr3;'"
+   # Optional for the peaks workflow
+   morePureclipParameters: "-iv 'chr1;chr2;chr3;'"
+
+
+.. Note::
+      
+   - **Use absolute paths** for input files, reference files, auxiliary files, and the output directory. Relative paths are unsupported and may fail during execution. Paths beginning with ``~`` are not expanded.
+   
+   - Choose exactly one supported ``experiment_type`` from :doc:`tutorial_customise`. 
+
+   - When demultiplexing, provide one multiplexed input file together with ``samples`` and ``barcodes_fasta``.
+
 
 Run and inspect
 ---------------
 
 Run one of the commands above from the repository or analysis directory.
-RaccoonClip writes a merged ``*_updated.yaml`` configuration next to the
+racoon_clip writes a merged ``*_updated.yaml`` configuration next to the
 provided configuration file. Keep this file with the results because it
 records the defaults, file settings, and command-line overrides used for the
 run.
