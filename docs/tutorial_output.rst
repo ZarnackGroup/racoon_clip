@@ -32,3 +32,7 @@ racoon_clip peaks additionally produces:
 the experiment_type miR-eCLIP additionally produces:
 ------------------------------
 
+- **Report_miR.html**: An HTML report with overall statistics on the obtained miRs.
+- **mir_analysis/aligned_mir**: Contains the alignment of the miR part of the chimeric reads to the miR sequences as BAM files.
+- **mir_analysis/aligned_chimeric_bam**: Contains the target RNA part of the chimeric reads aligned to the genome as BAM files.
+- **mir_analysis/crosslinks**: Contains the crosslinks of the target RNAs in BW files and BED files. In the BED files, the read names contain the name of the corresponding miR that belongs to the read.
