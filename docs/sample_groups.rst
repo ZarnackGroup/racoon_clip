@@ -30,15 +30,16 @@ whitespace:
    KO sample3
    KO sample4
 
-The current workflow resolves every group present in
-``experiment_group_file``. The legacy ``experiment_groups`` setting is still
-accepted in configuration files, but it does not currently filter or reorder
-those resolved groups. Every member in the group file must resolve to a known
+**Important:** The sample names in the group file need to be exactly the names of the infiles (without the .fastq or fastq.gz ending). In case of a multiplexed input file the sample names need to be the same as given in the ``barcode_fasta`` and in ``samples``.
+
+Every member in the group file must resolve to a known
 sample. Samples omitted from the file are each assigned to a singleton group
 named after that sample.
 
 If no group configuration is supplied, all samples are assigned to one group
 named ``all_samples``. 
+
+
 
 Peak calling
 ------------
