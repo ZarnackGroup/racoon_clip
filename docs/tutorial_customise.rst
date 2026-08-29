@@ -24,10 +24,6 @@ output files.
    gtf: /absolute/path/to/annotation.gtf
    read_length: 75
 
-When ``demultiplex`` is false, sample names can be inferred by removing the
-``.fastq``, ``.fq``, ``.fastq.gz``, or ``.fq.gz`` suffix from each input
-filename. When ``demultiplex`` is true, ``samples`` and ``barcodes_fasta``
-must be specified.
 
 The complete parameter and default-value reference is :doc:`all_options`.
 
@@ -48,9 +44,10 @@ arrangement. Supported values are:
 - ``noBarcode_noUMI``
 - ``other``
 
-..note 
+.. Note:: 
 
    - For seCLIP use an ``eCLIP`` experiment_type.
+   - For eCLIP, which is sequenced paired-end provide only the read 2 of each sample in ``infiles``. (read 2 contains the crosslink position in eCLIP)
    - Use an ``ENCODE`` preset when the UMI has already been removed from the read and stored in its name. 
    - Use ``noBarcode_noUMI`` when neither barcode nor UMI sequence remains. 
    - Use ``other`` when defining the barcode and UMI arrangement manually.
@@ -75,10 +72,11 @@ Optional processing stages
 --------------------------
 
 ``quality_filter_barcodes``
-   Filter reads using sequencing quality in the barcode or UMI region.
+   Filter reads using sequencing quality in the barcode or UMI region. 
 
 ``demultiplex``
-   Split one multiplexed input according to ``barcodes_fasta``.
+   Split one multiplexed input according to ``barcodes_fasta``.  When ``demultiplex`` is true, ``samples`` and ``barcodes_fasta``
+   must be specified. ``demultiplex`` is only supported for experiment types `iCLIP`, `iCLIP2` and `other`.
 
 ``adapter_trimming``
    Trim adapters with FLEXBAR. ``adapter_cycles`` controls repeated trimming.
