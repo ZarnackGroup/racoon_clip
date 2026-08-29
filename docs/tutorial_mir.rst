@@ -33,14 +33,33 @@ racoon_clip includes a dedicated workflow for analysing miR-eCLIP data. Set
 ``experiment_type`` to ``miReCLIP`` and provide an uncompressed FASTA file
 containing the mature miRNA reference sequences with ``mir_genome_fasta``.
 
-The ``miReCLIP`` preset configures a 10-nucleotide UMI at the 5′ end of each
-read. It sets ``barcodeLength``, ``umi1_len``, and ``total_barcode_len`` to
-10 and enables the miR-eCLIP-specific workflow stages.
-
-.. figure:: ../mir-eCLIP.png
+.. figure:: ../miRpipe-schema.png
    :width: 200px
    :align: center
    :alt: Overview of the miR-eCLIP experiment
+
+
+
+Processing overview
+-------------------
+
+The miR-eCLIP workflow first performs the standard racoon_clip preprocessing
+steps, including barcode handling, quality filtering, and adapter trimming.
+
+The first 24 nucleotides of each processed read are aligned to the supplied
+miRNA reference. Reads that do not align continue through the standard
+racoon_clip workflow. Among the aligned reads, only those satisfying the
+configured canonical-start and missing-5′-nucleotide filters are retained as
+chimeric reads. The canonical miRNA sequence is removed, and the remaining
+target-RNA sequence is aligned to the genome.
+
+Chimeric target-RNA alignments are deduplicated and used to identify
+strand-specific, single-nucleotide crosslinks. The ``peaks`` workflow
+additionally combines chimeric and non-chimeric alignments by experiment group
+and calls peaks with PureCLIP.
+
+The exact processing stages, filtering calculations, command-line options,
+and external tools are described in :ref:`methods_mireclip`.
 
 
 
@@ -101,27 +120,6 @@ Example configuration
    mir_starts_allowed: "1 2 3 4"
    mir_5prime_missing_allowed: "0 1 2 3"
 
-
-Processing overview
--------------------
-
-The miR-eCLIP workflow first performs the standard racoon_clip preprocessing
-steps, including barcode handling, quality filtering, and adapter trimming.
-
-The first 24 nucleotides of each processed read are aligned to the supplied
-miRNA reference. Reads that do not align continue through the standard
-racoon_clip workflow. Among the aligned reads, only those satisfying the
-configured canonical-start and missing-5′-nucleotide filters are retained as
-chimeric reads. The canonical miRNA sequence is removed, and the remaining
-target-RNA sequence is aligned to the genome.
-
-Chimeric target-RNA alignments are deduplicated and used to identify
-strand-specific, single-nucleotide crosslinks. The ``peaks`` workflow
-additionally combines chimeric and non-chimeric alignments by experiment group
-and calls peaks with PureCLIP.
-
-The exact processing stages, filtering calculations, command-line options,
-and external tools are described in :ref:`methods_mireclip`.
 
 
 Outputs
