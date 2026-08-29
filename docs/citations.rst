@@ -3,8 +3,11 @@
 Citations
 =========
 
+Citations for racoon_clip
+-------------------------
+
 Please cite racoon_clip and the relevant experimental modules used in your
-analysis.
+analysis. (The command ``racoon_clip cite`` or ``racoon_clip citation`` prints this citation information.)
 
 Klostermann & Zarnack 2024
   `racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP
@@ -26,7 +29,6 @@ Busch *et al.* 2020:
   `iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
 
 
-The command ``racoon_clip cite`` or ``racoon_clip citation`` prints this citation information.
 
 
 CLIP experiment protocols:
