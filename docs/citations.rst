@@ -26,6 +26,9 @@ Busch *et al.* 2020:
   `iCLIP data analysis: A complete pipeline from sequencing reads to RBP binding sites <https://doi.org/10.1016/j.ymeth.2019.11.008>`_
 
 
+The command ``racoon_clip cite`` or ``racoon_clip citation`` prints this citation information.
+
+
 CLIP experiment protocols:
 -------------------------
 
@@ -39,5 +42,4 @@ CLIP experiment protocols:
 
 
 
-The command ``racoon_clip cite`` or ``racoon_clip citation`` prints this citation information.
 
