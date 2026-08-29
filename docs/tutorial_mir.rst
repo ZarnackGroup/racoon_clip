@@ -38,6 +38,7 @@ containing the mature miRNA reference sequences with ``mir_genome_fasta``.
    :align: center
    :alt: Overview of the miR-eCLIP experiment
 
+   Schema of processing steps for miR-eCLIP.
 
 
 Processing overview
@@ -87,6 +88,13 @@ The standard input, genome, optional GTF annotation, adapter-trimming,
 grouping, and STAR settings also apply. See :doc:`tutorial_customise` for
 configuration guidance and :doc:`all_options` for the complete parameter
 reference.
+
+.. figure:: ../mir_parameters.png
+   :width: 200px
+   :align: center
+   :alt: Overview of the miR-eCLIP experiment
+
+   Visualisation of the ``mir_starts_allowed`` and ``mir_5prime_missing_allowed`` parameters.
 
 
 Example configuration
