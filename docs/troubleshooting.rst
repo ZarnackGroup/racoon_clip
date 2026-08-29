@@ -68,7 +68,10 @@ Testing a problem
 -----------------
 
 Start with ``racoon_clip test --light`` to check configuration and DAG
-construction. Focused modes such as ``--mir``, ``--groups``, and
-``--fastqscreen`` can narrow failures. Add ``--no-clean`` when generated
+construction. Add ``--no-clean`` when generated
 files are needed for inspection.
 
+Reporting a problem
+------------------
+
+You can report all further problems at `the GitHub issues page <https://github.com/ZarnackGroup/racoon_clip/issues>`_.
