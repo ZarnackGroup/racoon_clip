@@ -796,6 +796,7 @@ cli.add_command(peaks)
 cli.add_command(run)  # Deprecated - kept for backward compatibility
 #cli.add_command(example_config)
 cli.add_command(citation)
+cli.add_command(citation, name="cite")
 cli.add_command(test)
 
 
