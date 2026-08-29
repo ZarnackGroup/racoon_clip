@@ -15,10 +15,11 @@ analysis. (The command ``racoon_clip cite`` or ``racoon_clip citation`` prints t
 
 **miR-eCLIP module:**
 Verheyden & Klostermann *et al.* 2024
-`A high-resolution map of functional miR-181 response elements in the thymus reveals the role of coding sequence targeting and an alternative seed match <https://doi.org/10.1093/nar/gkae416>`_
+  `A high-resolution map of functional miR-181 response elements in the thymus reveals the role of coding sequence targeting and an alternative seed match <https://doi.org/10.1093/nar/gkae416>`_
 
 **iCLIP3 protocol including a racoon_clip walk-through:**
-Despic *et al.* 2026 `A high-resolution map of functional miR-181 response elements in the thymus reveals the role of coding sequence targeting and an alternative seed match <https://doi.org/10.64898/2026.03.01.708747>`_
+Despic *et al.* 2026 
+  `iCLIP3: A streamlined, non-radioactive protocol for mapping protein-RNA interactions in cellular transcripts at single-nucleotide resolution <https://doi.org/10.64898/2026.03.01.708747>`_
 
 **Original pipeline, used by racoon_clip:**
 Busch *et al.* 2020:
