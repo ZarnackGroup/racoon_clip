@@ -9,9 +9,9 @@ Citations for racoon_clip
 Please cite racoon_clip and the relevant experimental modules used in your
 analysis. (The command ``racoon_clip cite`` or ``racoon_clip citation`` prints this citation information.)
 
-**Klostermann & Zarnack 2024
+**Klostermann & Zarnack 2024**
   `racoon_clip—a complete pipeline for single-nucleotide analyses of iCLIP
-  and eCLIP data <https://doi.org/10.1093/bioadv/vbae084>`_**
+  and eCLIP data <https://doi.org/10.1093/bioadv/vbae084>`_
 
 **miR-eCLIP module:**
 Verheyden & Klostermann *et al.* 2024
